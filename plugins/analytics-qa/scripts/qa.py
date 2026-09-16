@@ -507,6 +507,160 @@ def attach_component(directory, run, spec_file):
     return {"component": component["id"], "scenarios": len(scenarios), "claims": [c["id"] for c in spec["claims"]], "facts": len(facts)}
 
 
+def attach_detectors(directory, run, kind, component_id=None):
+    """Attach a lint result or a probe run to an unsealed case as detector claims.
+
+    kind='lint' expects <run>/lint.json (model_lint.py); every finding becomes an
+    inconclusive cross-layer claim carrying the literal fragment. kind='probes'
+    expects <run>/evidence/journal.json (probes.py); each probe becomes a claim
+    whose status follows the probe (passed / failed / inconclusive for review).
+    Claims are linked to the component when one is given, otherwise they appear
+    under 'Other expectations' on the sign-off page.
+    """
+    directory, run = Path(directory).resolve(), Path(run).resolve()
+    ensure_evidence_writable(directory)
+    if (directory / "manifest.json").exists():
+        raise ValueError("Case is sealed; attach detectors before sealing")
+    destination = safe_path(directory, "evidence/detectors/" + run.name)
+    if destination.exists():
+        raise ValueError("This detector run is already attached")
+    case = read(directory / "case.json")
+    ids = {c["id"] for c in case["claims"]}
+    rel = lambda p: p.relative_to(directory).as_posix()
+    new_claims, new_findings, new_facts = [], [], []
+    if kind == "lint":
+        source = run / "lint.json"
+        result = read(source)
+        destination.mkdir(parents=True)
+        shutil.copy2(source, destination / "lint.json")
+        evidence = rel(destination / "lint.json")
+        grouped = {}
+        for finding in result["findings"]:
+            grouped.setdefault(finding["method"], []).append(finding)
+        for method, hits in grouped.items():
+            cid = "LINT-" + method.split(".", 1)[1].replace("_", "-")
+            if cid in ids:
+                raise ValueError(f"Claim {cid} already exists")
+            shown = hits[:12]
+            listing = "; ".join(f"{h['object']}: {h['fragment'][:120]}" for h in shown)
+            more = f" ... and {len(hits) - len(shown)} more (see the lint file)" if len(hits) > len(shown) else ""
+            new_claims.append({"id": cid, "expected": catalog_claim(method),
+                               "observed": f"{len(hits)} object(s). {hits[0]['why']} Hits: {listing}{more}",
+                               "source": f"Model lint {method} (severity {hits[0]['severity']}); agent explanation pending.",
+                               "status": "inconclusive", "layer": "cross-layer",
+                               "coverage": {"required": ["binding", "engine"], "observed": ["binding"]},
+                               "evidence": [evidence], "detector": method, "severity": hits[0]["severity"], "hits": len(hits),
+                               "objects": [h["object"] for h in hits]})
+            ids.add(cid)
+        new_facts.append({"id": f"LINT-count-{run.name}", "label": "Model lint findings", "evidence": evidence, "pointer": "/summary", "value": result["summary"], "unit": ""})
+    elif kind == "probes":
+        journal = read(run / "evidence/journal.json")
+        if journal.get("status") != "completed":
+            raise ValueError("Probe run did not complete")
+        shutil.copytree(run / "evidence", destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        if (run / "plan.json").is_file():
+            shutil.copy2(run / "plan.json", destination / "plan.json")
+        for record in journal["probes"]:
+            probe_file = destination / "probes" / f"{record['id']}.json"
+            probe = read(probe_file)
+            cid = f"PRB-{record['id']}"
+            if cid in ids:
+                raise ValueError(f"Claim {cid} already exists")
+            status = {"passed": "passed", "failed": "failed"}.get(record["status"], "inconclusive")
+            outcome = probe.get("outcome", {})
+            observed = probe.get("error") or summarize_outcome(record["method"], outcome)
+            new_claims.append({"id": cid, "expected": record.get("question") or catalog_claim(record["method"]),
+                               "observed": f"{record['method']}: {observed}",
+                               "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+                               "status": status, "layer": "engine",
+                               "coverage": {"required": ["engine"], "observed": ["engine"]},
+                               "evidence": [rel(probe_file)], "detector": record["method"], "severity": record.get("severity", "review"),
+                               "probe_status": record["status"]})
+            ids.add(cid)
+            if record["status"] in ("failed", "review") and "status" in outcome:
+                new_facts.append({"id": f"{cid}-status", "label": f"{record['id']} outcome", "evidence": rel(probe_file), "pointer": "/outcome/status", "value": outcome["status"], "unit": ""})
+            if record["status"] == "failed":
+                new_findings.append({"id": f"FD-{cid}", "title": record.get("question") or record["id"], "severity": record.get("severity", "medium"),
+                                     "claim_ids": [cid], "explanation": f"Probe {record['method']} failed: {observed[:400]}",
+                                     "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
+                                     "evidence": [rel(probe_file)]})
+    else:
+        raise ValueError("kind must be lint or probes")
+    case["claims"] += new_claims
+    case.setdefault("facts", []).extend(new_facts)
+    case.setdefault("findings", []).extend(new_findings)
+    if component_id:
+        component = next((c for c in case.get("components", []) if c["id"] == component_id), None)
+        if component is None:
+            raise ValueError(f"Component {component_id} is not attached yet; attach the component first")
+        component["claim_ids"] += [c["id"] for c in new_claims]
+    dump(directory / "case.json", case)
+    return {"kind": kind, "claims": [c["id"] for c in new_claims], "findings": len(new_findings),
+            "statuses": {s: sum(c["status"] == s for c in new_claims) for s in ("passed", "failed", "inconclusive")}}
+
+
+def summarize_outcome(method, outcome):
+    """Analyst-readable sentence for a probe outcome; the raw method output stays in the evidence file."""
+    status = outcome.get("status")
+    if method == "stat.weekday_robust_band":
+        flagged = outcome.get("flagged", [])
+        if status == "inconclusive":
+            return f"Not testable: {outcome.get('reason', 'too few points')} ({outcome.get('points', 0)} days)."
+        if not flagged:
+            return f"All {outcome.get('points')} days sit within their weekday band (robust z <= {outcome.get('threshold')})."
+        items = "; ".join(f"{f['key']} ({f['weekday']}) {f['value']:,.0f} vs weekday median {f['weekday_median']:,.0f}, z {f['z']}" for f in flagged[:8])
+        return f"{len(flagged)} day(s) outside the weekday band over {outcome.get('points')} days: {items}. Each needs a cause (holiday, campaign, import gap, duplicate load) before sign-off."
+    if method == "stat.ratio_stability":
+        flagged = outcome.get("flagged", [])
+        bound = [f for f in flagged if f.get("reason") == "bound"]
+        band = [f for f in flagged if f.get("reason") == "band"]
+        text = f"{outcome.get('testable_points', 0)} days with enough volume (denominator >= {outcome.get('minimum_denominator')}); {len(outcome.get('low_volume_points', []))} low-volume days not judged."
+        if bound:
+            text += " Above the hard bound on " + "; ".join(f"{f['key']}: {f['numerator']}/{f['denominator']} = {f['ratio']:.2f}" for f in bound[:8]) + (f" and {len(bound) - 8} more" if len(bound) > 8 else "") + "."
+        if band:
+            text += " Outside the historical band on " + "; ".join(f"{f['key']}: {f['ratio']:.2f}" for f in band[:8]) + "."
+        if not flagged and status == "clean":
+            text += " No day breaks the bound or the band."
+        return text
+    if method == "stat.changepoints":
+        shifts = outcome.get("shifts", [])
+        if status == "inconclusive":
+            return f"Not testable: {outcome.get('reason')}."
+        if not shifts:
+            return "No level shift beyond the noise threshold in the series."
+        return "Level shift(s) at " + "; ".join(f"{s['key']}: median {s['before_median']:,.0f} -> {s['after_median']:,.0f} ({s['shift_sigma']} sigma)" for s in shifts) + ". Each needs a known business or tracking event."
+    if method == "stat.population_stability":
+        text = f"PSI {outcome.get('psi')} (threshold {outcome.get('threshold')})."
+        moved = outcome.get("new_or_missing_categories", [])
+        if moved:
+            text += " New or vanished categories: " + ", ".join(m["label"] for m in moved[:10]) + "."
+        top = outcome.get("top_contributors", [])[:3]
+        if top:
+            text += " Largest movers: " + ", ".join(f"{t['label']} {t['baseline_share']:.1%} -> {t['current_share']:.1%}" for t in top) + "."
+        return text
+    if method == "stat.ratio_of_totals_vs_mean_of_ratios":
+        return f"Ratio of totals {outcome.get('ratio_of_totals')} versus mean of {outcome.get('members')} member ratios {outcome.get('mean_of_member_ratios')} (gap {outcome.get('gap')}). A displayed total equal to the mean of ratios is the wrong aggregation."
+    if method == "dax.additivity":
+        return f"Parts sum {outcome.get('parts_sum'):,.2f} vs total {outcome.get('total'):,.2f}; remainder {outcome.get('remainder'):,.2f} over {outcome.get('parts')} members (tolerance {outcome.get('tolerance')})."
+    if method == "dax.fan_out":
+        text = f"{outcome.get('base_rows'):,} rows; {outcome.get('joined_rows'):,} after the relationship path (multiplier {outcome.get('multiplier')})."
+        if outcome.get("distinct_keys") is not None:
+            text += f" {outcome['distinct_keys']:,} distinct business keys, {outcome.get('duplicate_rows')} duplicate row(s)."
+        return text
+    if method == "dax.assert":
+        return f"Observed {outcome.get('actual')} {outcome.get('operator')} expected {outcome.get('expected')}" + (f" (tolerance {outcome.get('tolerance')})" if outcome.get("tolerance") is not None else "") + f": {'holds' if status == 'clean' else 'does not hold'}."
+    return json.dumps({k: v for k, v in outcome.items() if k != "method"}, default=str)[:1200]
+
+
+def catalog_claim(method):
+    catalog = HERE.parent / "detectors/catalog.json"
+    if catalog.is_file():
+        for entry in read(catalog).get("detectors", []):
+            if entry["id"] == method or entry.get("implemented_as") == method:
+                return entry["claim"]
+    return f"Detector {method} expectation holds."
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
@@ -518,6 +672,7 @@ def main():
     stats = sub.add_parser("profile"); stats.add_argument("--file", required=True); stats.add_argument("--column", required=True); stats.add_argument("--out", required=True)
     rev = sub.add_parser("review"); rev.add_argument("--case", required=True); rev.add_argument("--decisions", required=True); rev.add_argument("--out", required=True)
     comp = sub.add_parser("component"); comp.add_argument("--case", required=True); comp.add_argument("--run", required=True); comp.add_argument("--spec", required=True)
+    det = sub.add_parser("detect"); det.add_argument("--case", required=True); det.add_argument("--run", required=True); det.add_argument("--kind", choices=["lint", "probes"], required=True); det.add_argument("--component")
     retain = sub.add_parser("retain"); retain.add_argument("--baseline", required=True); retain.add_argument("--case", required=True); retain.add_argument("--files", nargs="+", required=True)
     a = p.parse_args()
     if a.command == "init":
@@ -544,6 +699,8 @@ def main():
         result = review_revision(a.case, a.decisions, a.out)
     elif a.command == "component":
         result = attach_component(a.case, a.run, a.spec)
+    elif a.command == "detect":
+        result = attach_detectors(a.case, a.run, a.kind, a.component)
     elif a.command == "retain":
         result = retain_evidence(a.baseline, a.case, a.files)
     elif a.command == "validate":

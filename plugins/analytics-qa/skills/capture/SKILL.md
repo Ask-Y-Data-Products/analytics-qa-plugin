@@ -43,6 +43,14 @@ analyst ("July 1-7: 2,253 leads; the Google line shortens to seven points"), not
 for yourself. Keep one component per report page group; five or six components
 with three to five states each is a normal review.
 
+## Detectors are part of the review
+
+Before sealing, every component needs the `detect` skill's pass: the model lint
+attached once (`qa.py detect --kind lint`) and at least one probe run per
+component (`qa.py detect --kind probes --component <id>`), with every review flag
+either explained or left as an explicit question. A case whose components carry
+only capture claims is incomplete.
+
 ## Deliver
 
 Finish every observation, interaction reset and final-state capture BEFORE seal.

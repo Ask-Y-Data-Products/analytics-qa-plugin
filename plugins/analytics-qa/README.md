@@ -41,6 +41,19 @@ stopping on the first failed receipt. `qa.py component --case <dir> --run <out>
 --spec <component.json>` attaches the run to the case as a signable component.
 `scripts/powerbi_controls.py` holds the observed control mechanics these use.
 
+## Failure-mode detectors
+
+`detectors/catalog.json` and `detectors/METHODS.md` describe the failure modes
+the plugin hunts for beyond "does the slicer work": grain and fan-out, ratios
+computed as averages, clock-driven date flags, whole-period amounts under
+partial filters, attribution lenses, campaign windows and name churn, timezone
+day boundaries, weekday-adjusted spikes, level shifts and category-mix shifts.
+`scripts/model_lint.py` scans captured model/report metadata; `scripts/probes.py`
+runs DAX invariants and the statistics in `scripts/stats_lib.py` on the live
+model; `qa.py detect` attaches results as claims. The `detect` skill selects
+what applies to each component. Add a detector by adding a catalog entry, a
+METHODS section and (for a statistic) a function with a test.
+
 ## Review
 
 Inspect claims, trace, experiments and captures in the HTML report. Ask for

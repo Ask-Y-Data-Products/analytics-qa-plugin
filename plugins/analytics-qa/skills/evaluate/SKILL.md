@@ -73,6 +73,15 @@ Inspect slicer selection configuration (saved multi-selections,
 Virtualized dropdowns expose only their first visible members; prove an applied
 multi-member filter from rendered rows, not from the dropdown.
 
+## Then run the detectors
+
+After a component's capture cycle, run the `detect` skill for it: model lint
+once per case, then the failure-mode detectors that apply to the component
+(fan-out, additivity, ratio-of-totals, weekday band, changepoints, ratio
+stability, campaign window / name churn / day boundary, mix stability). They
+answer a different question than the controls: not "does the slicer work" but
+"is the number right". Read `${CLAUDE_PLUGIN_ROOT}/detectors/METHODS.md`.
+
 ## Oracles and matched context
 
 Before a cross-layer pass, match period, page/visual filters, slicer selections,

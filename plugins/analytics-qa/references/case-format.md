@@ -33,6 +33,14 @@ the state's screenshot, observation and receipt (`screen.png`, `state.json`,
 requires a description and a screenshot per scenario and known claim IDs. The
 sign-off page (`review_form.py`) renders one card per component.
 
+Detector claims: created by `qa.py detect` from `model_lint.py` output (`--kind lint`)
+or a `probes.py` run (`--kind probes --component <id>`). They carry `detector`
+(method id from `detectors/catalog.json`), `severity` and, for probes,
+`probe_status` (passed / failed / review / inconclusive). Lint claims start
+inconclusive with the literal fragment in `observed`; the agent confirms,
+dismisses or leaves them as questions. A statistical `review` flag may only
+become `passed` with an explanation in `observed`.
+
 Facts: `{id,label,evidence,pointer,value,unit}`. Example:
 `{"id":"N1","label":"Account B spend","evidence":"evidence/account.json",
 "pointer":"/rows/0/spend","value":"333.00","unit":"USD"}`.

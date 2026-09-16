@@ -44,6 +44,7 @@ what a passing result looks like: the project repository's
 | --- | --- |
 | `/analytics-qa:investigate` | Bind the component to its visuals, measures, relationships, partitions and physical sources; open a case |
 | `/analytics-qa:evaluate` | Design discriminating experiments; run them with `scripts/pbi_cycle.py` plans and DAX oracles; classify interactions from rendered marks |
+| `/analytics-qa:detect` | Run the failure-mode detectors that apply to each component (model lint, DAX invariants, statistics over series) and attach the results as claims |
 | `/analytics-qa:capture` | Attach components (`qa.py component`), validate, seal, render, and generate the sign-off page (`review_form.py`) |
 | `/analytics-qa:regress` | Replay a sealed baseline against a changed report or period; classify preserved / regressed / expected changes with negative controls |
 
@@ -54,7 +55,8 @@ what a passing result looks like: the project repository's
 | `scripts/pbi.py` | Engine status, browser targets, catalogs, model metadata, read-only DAX, query replay, page capture |
 | `scripts/pbi_cycle.py` | Plan-driven UI cycle: capture / toggle_member / select_option / set_date / click_mark / go_to_page, receipts per state |
 | `scripts/powerbi_controls.py` | Observed WebView control mechanics (dropdowns, tile slicers, date inputs, page tabs, overlays) |
-| `scripts/qa.py` | Case lifecycle: init, inspect, component, validate, seal, verify, render, review, retain |
+| `scripts/qa.py` | Case lifecycle: init, inspect, component, detect, validate, seal, verify, render, review, retain |
+| `scripts/model_lint.py`, `probes.py`, `stats_lib.py` | Failure-mode detectors: deterministic model/report lint, DAX invariants and statistics (weekday band, changepoints, ratio stability, PSI, additivity, fan-out); catalog in `plugins/analytics-qa/detectors/` |
 | `scripts/state_checks.py` | Hash-bound typed receipts for captured observations |
 | `scripts/review_form.py` | The analyst sign-off page |
 | `scripts/pbix_snapshot.py`, `powerbi_inventory.py` | Legacy PBIX layout extraction and visual/field binding map |

@@ -115,10 +115,12 @@ def component_card(component, claims, report_dir_rel, findings):
     own = [claims[c] for c in component.get('claim_ids', []) if c in claims]
     defects = []
     for claim in own:
+        tag = f' <small>[{esc(claim["detector"])}]</small>' if claim.get('detector') else ''
         if claim['status'] == 'failed':
-            defects.append(f'<li class="failed"><b>Defect {esc(claim["id"])}:</b> {esc(claim["expected"])} <br><small>{esc(claim.get("observed", ""))[:400]}</small></li>')
+            defects.append(f'<li class="failed"><b>Defect {esc(claim["id"])}:</b>{tag} {esc(claim["expected"])} <br><small>{esc(claim.get("observed", ""))[:400]}</small></li>')
         elif claim['status'] == 'inconclusive':
-            defects.append(f'<li class="inconclusive"><b>Needs your decision {esc(claim["id"])}:</b> {esc(claim["expected"])}</li>')
+            detail = f'<br><small>{esc(claim.get("observed", ""))[:300]}</small>' if claim.get('detector') else ''
+            defects.append(f'<li class="inconclusive"><b>Needs your decision {esc(claim["id"])}:</b>{tag} {esc(claim["expected"])}{detail}</li>')
     passed = sum(1 for c in own if c['status'] == 'passed')
     rows = ''.join(claim_row(c) for c in own)
     return f'''<section class="card" data-component="{esc(component["id"])}">
