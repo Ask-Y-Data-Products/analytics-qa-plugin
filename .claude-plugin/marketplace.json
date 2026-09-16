@@ -9,7 +9,7 @@
       "name": "analytics-qa",
       "source": "./plugins/analytics-qa",
       "description": "Investigate, test, capture and regress Power BI / dbt analytics components with receipt-backed evidence and an analyst sign-off page.",
-      "version": "0.4.0"
+      "version": "0.4.1"
     }
   ]
 }

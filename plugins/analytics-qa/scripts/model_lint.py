@@ -92,47 +92,45 @@ def lint_model(model_dir):
 
 
 def lint_report(report_path, model_dir):
-    """Label checks on a legacy report layout: freshness text bound to business dates, header/measure mismatches."""
-    report = load(report_path)
+    """Label checks on a report layout (legacy report.json or PBIR definition folder): stale query names, unresolved measures, freshness titles."""
+    from powerbi_inventory import visual_bindings
+    report_path = Path(report_path)
+    report_dir = report_path if report_path.is_dir() else report_path.parent
     tables = {r['ID']: r['Name'] for r in rows(model_dir, 'TMSCHEMA_TABLES')}
     measures = {m['Name']: (tables.get(m['TableID']), m.get('Expression') or '') for m in rows(model_dir, 'TMSCHEMA_MEASURES')}
     findings = []
-    for section in report.get('sections', []):
-        for container in section.get('visualContainers', []):
-            try:
-                config = json.loads(container.get('config', '{}'))
-            except json.JSONDecodeError:
-                continue
-            visual = config.get('singleVisual', {})
-            projections = visual.get('prototypeQuery', {}).get('Select', []) if visual else []
-            names = []
-            for item in projections:
+    for binding in visual_bindings(report_dir):
+        where = f"{binding.get('page')}/{binding.get('visual_id')}"
+        title = ''
+        for obj in binding.get('title_properties') or []:
+            text = (obj.get('properties', {}).get('text', {}).get('expr', {}).get('Literal', {}).get('Value')) if isinstance(obj, dict) else None
+            if text:
+                title = str(text).strip("'")
+        pairs = []
+        if binding.get('format') == 'PBIR':
+            for role, projections in (binding.get('projections') or {}).items():
+                for item in projections:
+                    field = item.get('field', {})
+                    measure = field.get('Measure', {})
+                    if measure:
+                        pairs.append((measure.get('Property'), item.get('queryRef') or item.get('nativeQueryRef')))
+        else:
+            for item in (binding.get('query') or {}).get('Select', []):
                 measure = item.get('Measure', {})
                 if measure:
-                    names.append((measure.get('Property'), item.get('Name')))
-            title = ''
-            try:
-                title_objects = visual.get('vcObjects', {}).get('title', []) or visual.get('objects', {}).get('title', [])
-                for obj in title_objects:
-                    text = obj.get('properties', {}).get('text', {}).get('expr', {}).get('Literal', {}).get('Value')
-                    if text:
-                        title = text.strip("'")
-            except AttributeError:
-                pass
-            for prop, query_name in names:
-                if prop and query_name and prop not in query_name and query_name.split('.')[-1] != prop:
-                    findings.append({'method': 'lint.stale_query_name', 'severity': 'low', 'object': f"{section.get('displayName')}/{config.get('name')}", 'kind': 'visual',
-                                     'fragment': f'projection "{query_name}" -> measure "{prop}"',
-                                     'why': 'The visual still carries the measure\'s old query name; column headers and legends derived from it can show a different word than the bound measure.'})
-                if prop and prop not in measures:
-                    findings.append({'method': 'lint.unresolved_measure', 'severity': 'medium', 'object': f"{section.get('displayName')}/{config.get('name')}", 'kind': 'visual',
-                                     'fragment': prop, 'why': 'The bound measure name does not exist in the captured model; the visual may be broken or bound to a renamed measure.'})
-                if prop in measures and FRESHNESS_WORDS.search(title or '') and not re.search(r'refresh|partition|NOW\(|UTCNOW', measures[prop][1], re.I):
-                    findings.append({'method': 'lint.freshness_label_on_business_date', 'severity': 'medium', 'object': f"{section.get('displayName')}/{config.get('name')}", 'kind': 'visual',
-                                     'fragment': f'title "{title}" bound to {prop} = {measures[prop][1].strip()[:120]}',
-                                     'why': 'A label that reads as a refresh time is bound to a business-date measure; readers will take selected data recency for model freshness.'})
-            text = json.dumps(visual.get('objects', {}).get('general', []))[:0]
-        # freshness text in textboxes bound through measures is handled above; plain textboxes need the agent
+                    pairs.append((measure.get('Property'), item.get('Name')))
+        for prop, query_name in pairs:
+            if prop and query_name and prop not in query_name and str(query_name).split('.')[-1] != prop:
+                findings.append({'method': 'lint.stale_query_name', 'severity': 'low', 'object': where, 'kind': 'visual',
+                                 'fragment': f'projection "{query_name}" -> measure "{prop}"',
+                                 'why': 'The visual still carries the measure\'s old query name; column headers and legends derived from it can show a different word than the bound measure.'})
+            if prop and prop not in measures:
+                findings.append({'method': 'lint.unresolved_measure', 'severity': 'medium', 'object': where, 'kind': 'visual',
+                                 'fragment': prop, 'why': 'The bound measure name does not exist in the captured model; the visual may be broken or bound to a renamed measure.'})
+            if prop in measures and FRESHNESS_WORDS.search(title or '') and not re.search(r'refresh|partition|NOW\(|UTCNOW', measures[prop][1], re.I):
+                findings.append({'method': 'lint.freshness_label_on_business_date', 'severity': 'medium', 'object': where, 'kind': 'visual',
+                                 'fragment': f'title "{title}" bound to {prop} = {measures[prop][1].strip()[:120]}',
+                                 'why': 'A label that reads as a refresh time is bound to a business-date measure; readers will take selected data recency for model freshness.'})
     return findings
 
 
@@ -164,7 +162,7 @@ def run(model_dir, report_path, out):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--model', required=True, help='directory written by pbi.py model')
-    p.add_argument('--report', help='legacy report.json layout (pbix_snapshot.py) for label checks')
+    p.add_argument('--report', help='report snapshot: legacy report.json or a PBIR snapshot folder (pbix_snapshot.py) for label checks')
     p.add_argument('--out', required=True)
     a = p.parse_args()
     result = run(a.model, a.report, a.out)

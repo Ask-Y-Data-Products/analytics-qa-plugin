@@ -2,69 +2,234 @@
   "version": 1,
   "note": "Failure-mode detectors for marketing analytics components. 'kind' decides the tool: lint (model_lint.py, deterministic), dax (probes.py with a dax.* method), stat (probes.py with a stat.* method from stats_lib.py). 'applies_when' lists the signals the agent should recognise during investigation. Methods are documented in METHODS.md; add a detector by adding an entry here, a section there and, if needed, a function in stats_lib.py.",
   "detectors": [
-    {"id": "lint.volatile_time_in_column", "kind": "lint", "domain": "time", "severity": "high",
-     "applies_when": ["calculated column uses TODAY()/NOW()", "flags such as is_current_month / completed month / last N days"],
-     "claim": "Date flags derived from the clock reflect the imported data's completeness, not the machine date."},
-    {"id": "lint.volatile_time_in_measure", "kind": "lint", "domain": "time", "severity": "medium",
-     "applies_when": ["measure uses TODAY()/NOW()", "MTD / YTD / projection / pacing measures"],
-     "claim": "Clock-dependent measures are documented as such and behave correctly on a stale import."},
-    {"id": "lint.date_context_removed", "kind": "lint", "domain": "time", "severity": "medium",
-     "applies_when": ["ALL/ALLSELECTED/REMOVEFILTERS on the date table inside a measure", "monthly costs or targets shown under a date slicer"],
-     "claim": "Removing the date context is intended and a partial-period selection does not add whole-period amounts."},
-    {"id": "lint.raw_division", "kind": "lint", "domain": "ratios", "severity": "low",
-     "applies_when": ["ratio measure written with / instead of DIVIDE"],
-     "claim": "Ratios return BLANK, not infinity or an error, on empty denominators."},
-    {"id": "lint.format_hides_precision", "kind": "lint", "domain": "presentation", "severity": "low",
-     "applies_when": ["median / percentile / average / ratio with an integer format string"],
-     "claim": "Displayed precision does not hide changes the analyst cares about."},
-    {"id": "lint.multiple_relationship_paths", "kind": "lint", "domain": "attribution", "severity": "medium",
-     "applies_when": ["first-touch and last-touch keys to the same dimension", "inactive relationships", "USERELATIONSHIP in measures"],
-     "claim": "Each visual's attribution lens (first / last touch) matches its label."},
-    {"id": "lint.freshness_label_on_business_date", "kind": "lint", "domain": "presentation", "severity": "medium",
-     "applies_when": ["'Last refresh' / 'updated' text or measure bound to MAX of a business date"],
-     "claim": "Freshness labels report model refresh, not the latest selected business date."},
-    {"id": "lint.stale_query_name", "kind": "lint", "domain": "presentation", "severity": "low",
-     "applies_when": ["visual projection name differs from the bound measure name", "headers or legends that read differently from the measure"],
-     "claim": "Column headers and legends name the measure that is actually bound."},
-    {"id": "dax.fan_out", "kind": "dax", "domain": "grain", "severity": "high",
-     "applies_when": ["fact joined to a dimension or bridge", "counts or sums that could double through a many-to-many path", "duplicate business keys"],
-     "claim": "Row counts and sums are unchanged by the relationship path, and business keys are unique at the declared grain."},
-    {"id": "dax.additivity", "kind": "dax", "domain": "grain", "severity": "high",
-     "applies_when": ["a breakdown by member next to a total", "BLANK members possibly dropped", "many-to-many or bidirectional filters"],
-     "claim": "Members of a breakdown sum to the displayed total for additive measures."},
-    {"id": "dax.assert", "kind": "dax", "domain": "generic", "severity": "medium",
-     "applies_when": ["any expectation expressible as a single DAX value: outside-window events, orphan keys, negative durations, future dates, zero-denominator days, timezone day mismatches"],
-     "claim": "The stated invariant holds in the imported population."},
-    {"id": "stat.ratio_of_totals_vs_mean_of_ratios", "kind": "stat", "domain": "ratios", "severity": "medium",
-     "applies_when": ["CPA / CPL / ROAS / conversion rate shown per member and in total", "averages of ratios in a table total or card"],
-     "claim": "Totals of ratio measures are ratios of totals, not averages of member ratios."},
-    {"id": "stat.ratio_stability", "kind": "stat", "domain": "ratios", "severity": "medium",
-     "applies_when": ["a daily ratio of two differently sourced populations (CRM vs platform, spend vs conversions)", "shares that must stay within [0,1]"],
-     "claim": "The daily ratio stays within its historical band and hard bounds, except on explained days."},
-    {"id": "stat.weekday_robust_band", "kind": "stat", "domain": "time", "severity": "medium",
-     "applies_when": ["a daily series with weekly seasonality (leads, sessions, spend)", "a single-day spike or drop visible on a chart"],
-     "claim": "Daily values sit within the weekday-adjusted band; flagged days are explained from the source."},
-    {"id": "stat.changepoints", "kind": "stat", "domain": "time", "severity": "medium",
-     "applies_when": ["a daily series over several weeks", "suspected tracking break, campaign launch or attribution change"],
-     "claim": "Level shifts in the series correspond to known business or tracking events."},
-    {"id": "stat.population_stability", "kind": "stat", "domain": "mix", "severity": "medium",
-     "applies_when": ["channel / campaign / province mix compared between two periods", "new or vanished categories", "renamed campaigns"],
-     "claim": "The category mix shift between periods is explained; no category appears or disappears silently."},
-    {"id": "dax.campaign_window_alignment", "kind": "dax", "domain": "campaign_time", "severity": "medium", "implemented_as": "dax.assert",
-     "applies_when": ["campaign dimension with start_date / end_date", "events (leads, spend, contracts) keyed by campaign and date"],
-     "claim": "No events are attributed to a campaign outside its active window, and every campaign with events has dates.",
-     "template": "EVALUATE ROW(\"Outside\", CALCULATE(COUNTROWS(<fact>), FILTER(<fact>, NOT ISBLANK(RELATED(dim_campaign[start_date])) && (<fact>[<date_key>] < RELATED(dim_campaign[start_date]) || <fact>[<date_key>] > RELATED(dim_campaign[end_date])))), \"UndatedCampaignEvents\", CALCULATE(COUNTROWS(<fact>), FILTER(<fact>, NOT ISBLANK(<fact>[campaign_key]) && ISBLANK(RELATED(dim_campaign[start_date])))))"},
-    {"id": "dax.campaign_name_churn", "kind": "dax", "domain": "campaign_time", "severity": "low", "implemented_as": "dax.assert",
-     "applies_when": ["campaign names carried on facts as well as on the dimension", "several source systems for one campaign key"],
-     "claim": "One campaign key has one name across the dimension and the facts that carry names.",
-     "template": "EVALUATE ROW(\"KeysWithSeveralNames\", COUNTROWS(FILTER(SUMMARIZE(<fact>, <fact>[campaign_key], \"n\", DISTINCTCOUNT(<fact>[<name_column>])), [n] > 1)))"},
-    {"id": "dax.event_day_boundary", "kind": "dax", "domain": "time", "severity": "medium", "implemented_as": "dax.assert",
-     "applies_when": ["a fact has both a timestamp and a date key", "source in one timezone, report in another"],
-     "claim": "The date key of every event equals the calendar date of its timestamp in the reporting timezone.",
-     "template": "EVALUATE ROW(\"Mismatched\", COUNTROWS(FILTER(<fact>, NOT ISBLANK(<fact>[<timestamp>]) && INT(<fact>[<timestamp>]) <> INT(<fact>[<date_key>]))))"},
-    {"id": "dax.future_or_negative_durations", "kind": "dax", "domain": "time", "severity": "medium", "implemented_as": "dax.assert",
-     "applies_when": ["durations such as days to contract / lead to enrollment", "dates after the import watermark"],
-     "claim": "Durations are non-negative and no event is dated after the import watermark unless it is a scheduled future event by design.",
-     "template": "EVALUATE ROW(\"Negative\", CALCULATE(COUNTROWS(<fact>), <fact>[<duration>] < 0), \"AfterWatermark\", CALCULATE(COUNTROWS(<fact>), <fact>[<date_key>] > DATE(<y>,<m>,<d>)))"}
+    {
+      "id": "lint.volatile_time_in_column",
+      "kind": "lint",
+      "domain": "time",
+      "severity": "high",
+      "applies_when": [
+        "calculated column uses TODAY()/NOW()",
+        "flags such as is_current_month / completed month / last N days"
+      ],
+      "claim": "Date flags derived from the clock reflect the imported data's completeness, not the machine date."
+    },
+    {
+      "id": "lint.volatile_time_in_measure",
+      "kind": "lint",
+      "domain": "time",
+      "severity": "medium",
+      "applies_when": [
+        "measure uses TODAY()/NOW()",
+        "MTD / YTD / projection / pacing measures"
+      ],
+      "claim": "Clock-dependent measures are documented as such and behave correctly on a stale import."
+    },
+    {
+      "id": "lint.date_context_removed",
+      "kind": "lint",
+      "domain": "time",
+      "severity": "medium",
+      "applies_when": [
+        "ALL/ALLSELECTED/REMOVEFILTERS on the date table inside a measure",
+        "monthly costs or targets shown under a date slicer"
+      ],
+      "claim": "Removing the date context is intended and a partial-period selection does not add whole-period amounts."
+    },
+    {
+      "id": "lint.raw_division",
+      "kind": "lint",
+      "domain": "ratios",
+      "severity": "low",
+      "applies_when": [
+        "ratio measure written with / instead of DIVIDE"
+      ],
+      "claim": "Ratios return BLANK, not infinity or an error, on empty denominators."
+    },
+    {
+      "id": "lint.format_hides_precision",
+      "kind": "lint",
+      "domain": "presentation",
+      "severity": "low",
+      "applies_when": [
+        "median / percentile / average / ratio with an integer format string"
+      ],
+      "claim": "Displayed precision does not hide changes the analyst cares about."
+    },
+    {
+      "id": "lint.multiple_relationship_paths",
+      "kind": "lint",
+      "domain": "attribution",
+      "severity": "medium",
+      "applies_when": [
+        "first-touch and last-touch keys to the same dimension",
+        "inactive relationships",
+        "USERELATIONSHIP in measures"
+      ],
+      "claim": "Each visual's attribution lens (first / last touch) matches its label."
+    },
+    {
+      "id": "lint.freshness_label_on_business_date",
+      "kind": "lint",
+      "domain": "presentation",
+      "severity": "medium",
+      "applies_when": [
+        "'Last refresh' / 'updated' text or measure bound to MAX of a business date"
+      ],
+      "claim": "Freshness labels report model refresh, not the latest selected business date."
+    },
+    {
+      "id": "lint.stale_query_name",
+      "kind": "lint",
+      "domain": "presentation",
+      "severity": "low",
+      "applies_when": [
+        "visual projection name differs from the bound measure name",
+        "headers or legends that read differently from the measure"
+      ],
+      "claim": "Column headers and legends name the measure that is actually bound."
+    },
+    {
+      "id": "dax.fan_out",
+      "kind": "dax",
+      "domain": "grain",
+      "severity": "high",
+      "applies_when": [
+        "fact joined to a dimension or bridge",
+        "counts or sums that could double through a many-to-many path",
+        "duplicate business keys"
+      ],
+      "claim": "Row counts and sums are unchanged by the relationship path, and business keys are unique at the declared grain."
+    },
+    {
+      "id": "dax.additivity",
+      "kind": "dax",
+      "domain": "grain",
+      "severity": "high",
+      "applies_when": [
+        "a breakdown by member next to a total",
+        "BLANK members possibly dropped",
+        "many-to-many or bidirectional filters"
+      ],
+      "claim": "Members of a breakdown sum to the displayed total for additive measures."
+    },
+    {
+      "id": "dax.assert",
+      "kind": "dax",
+      "domain": "generic",
+      "severity": "medium",
+      "applies_when": [
+        "any expectation expressible as a single DAX value: outside-window events, orphan keys, negative durations, future dates, zero-denominator days, timezone day mismatches"
+      ],
+      "claim": "The stated invariant holds in the imported population."
+    },
+    {
+      "id": "stat.ratio_of_totals_vs_mean_of_ratios",
+      "kind": "stat",
+      "domain": "ratios",
+      "severity": "medium",
+      "applies_when": [
+        "CPA / CPL / ROAS / conversion rate shown per member and in total",
+        "averages of ratios in a table total or card"
+      ],
+      "claim": "Totals of ratio measures are ratios of totals, not averages of member ratios."
+    },
+    {
+      "id": "stat.ratio_stability",
+      "kind": "stat",
+      "domain": "ratios",
+      "severity": "medium",
+      "applies_when": [
+        "a daily ratio of two differently sourced populations (CRM vs platform, spend vs conversions)",
+        "shares that must stay within [0,1]"
+      ],
+      "claim": "The daily ratio stays within its historical band and hard bounds, except on explained days."
+    },
+    {
+      "id": "stat.weekday_robust_band",
+      "kind": "stat",
+      "domain": "time",
+      "severity": "medium",
+      "applies_when": [
+        "a daily series with weekly seasonality (leads, sessions, spend)",
+        "a single-day spike or drop visible on a chart"
+      ],
+      "claim": "Daily values sit within the weekday-adjusted band; flagged days are explained from the source."
+    },
+    {
+      "id": "stat.changepoints",
+      "kind": "stat",
+      "domain": "time",
+      "severity": "medium",
+      "applies_when": [
+        "a daily series over several weeks",
+        "suspected tracking break, campaign launch or attribution change"
+      ],
+      "claim": "Level shifts in the series correspond to known business or tracking events."
+    },
+    {
+      "id": "stat.population_stability",
+      "kind": "stat",
+      "domain": "mix",
+      "severity": "medium",
+      "applies_when": [
+        "channel / campaign / province mix compared between two periods",
+        "new or vanished categories",
+        "renamed campaigns"
+      ],
+      "claim": "The category mix shift between periods is explained; no category appears or disappears silently."
+    },
+    {
+      "id": "dax.campaign_window_alignment",
+      "kind": "dax",
+      "domain": "campaign_time",
+      "severity": "medium",
+      "implemented_as": "dax.assert",
+      "applies_when": [
+        "campaign dimension with start_date / end_date",
+        "events (leads, spend, contracts) keyed by campaign and date"
+      ],
+      "claim": "No events are attributed to a campaign outside its active window, and every campaign with events has dates.",
+      "template": "EVALUATE ROW(\"Outside\", CALCULATE(COUNTROWS(<fact>), FILTER(<fact>, NOT ISBLANK(RELATED(dim_campaign[start_date])) && (<fact>[<date_key>] < RELATED(dim_campaign[start_date]) || <fact>[<date_key>] > RELATED(dim_campaign[end_date])))), \"UndatedCampaignEvents\", CALCULATE(COUNTROWS(<fact>), FILTER(<fact>, NOT ISBLANK(<fact>[campaign_key]) && ISBLANK(RELATED(dim_campaign[start_date])))))"
+    },
+    {
+      "id": "dax.campaign_name_churn",
+      "kind": "dax",
+      "domain": "campaign_time",
+      "severity": "low",
+      "implemented_as": "dax.assert",
+      "applies_when": [
+        "campaign names carried on facts as well as on the dimension",
+        "several source systems for one campaign key"
+      ],
+      "claim": "One campaign key has one name across the dimension and the facts that carry names.",
+      "template": "EVALUATE ROW(\"KeysWithSeveralNames\", COUNTROWS(FILTER(SUMMARIZE(<fact>, <fact>[campaign_key], \"n\", DISTINCTCOUNT(<fact>[<name_column>])), [n] > 1)))"
+    },
+    {
+      "id": "dax.event_day_boundary",
+      "kind": "dax",
+      "domain": "time",
+      "severity": "medium",
+      "implemented_as": "dax.assert",
+      "applies_when": [
+        "a fact has both a timestamp and a date key",
+        "source in one timezone, report in another"
+      ],
+      "claim": "The date key of every event equals the calendar date of its timestamp in the reporting timezone (test with the source offset, e.g. UTC-4/-5 for Toronto).",
+      "template": "EVALUATE ROW(\"Mismatched\", COUNTROWS(FILTER(<fact>, NOT ISBLANK(<fact>[<timestamp>]) && INT(<fact>[<timestamp>] + TIME(<offset_hours>,0,0)) <> INT(<fact>[<date_key>]))), \"Rows\", COUNTROWS(<fact>))",
+      "notes": "Run once with offset 0 (UTC) and once with the reporting-timezone offset; if only the local-time version fails, the date key was cut at UTC midnight. offset_hours is negative west of UTC (Toronto: -4 in summer, -5 in winter); use TIME() with a negative sign via -TIME(4,0,0) if the engine rejects negative TIME arguments."
+    },
+    {
+      "id": "dax.future_or_negative_durations",
+      "kind": "dax",
+      "domain": "time",
+      "severity": "medium",
+      "implemented_as": "dax.assert",
+      "applies_when": [
+        "durations such as days to contract / lead to enrollment",
+        "dates after the import watermark"
+      ],
+      "claim": "Durations are non-negative and no event is dated after the import watermark unless it is a scheduled future event by design.",
+      "template": "EVALUATE ROW(\"Negative\", CALCULATE(COUNTROWS(<fact>), <fact>[<duration>] < 0), \"AfterWatermark\", CALCULATE(COUNTROWS(<fact>), <fact>[<date_key>] > DATE(<y>,<m>,<d>)))"
+    }
   ]
 }

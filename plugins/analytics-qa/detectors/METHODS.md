@@ -133,7 +133,10 @@ The three templates cover the recurring problems when time-stamped events meet
 campaign metadata: events attributed to a campaign before its start or after its
 end (window alignment), one campaign key with several names across sources
 (name churn), and a date key that does not match the calendar date of the event
-timestamp in the reporting timezone (day boundary). All are `dax.assert` probes
+timestamp in the reporting timezone (day boundary). For the day boundary run the
+template twice: with offset 0 (UTC) and with the reporting-timezone offset (for
+example -4 for Toronto in summer). A key that matches UTC but not local time was
+cut at UTC midnight and shifts evening events to the next day. All are `dax.assert` probes
 expected to be zero; a non-zero count is a failed claim with the count and the
 share of the population, and the agent should list the top offending campaigns
 in `observed`.
