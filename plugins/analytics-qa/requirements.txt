@@ -1,0 +1,10 @@
+azure-identity==1.25.3
+pyodbc==5.3.0
+pandas==2.3.3
+scipy==1.18.1
+sqlglot==29.0.1
+jinja2==3.1.6
+pillow==11.3.0
+pythonnet==3.1.0; sys_platform == 'win32'
+playwright==1.62.0
+google-cloud-bigquery==3.45.1

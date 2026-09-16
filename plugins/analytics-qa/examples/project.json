@@ -1,0 +1,9 @@
+{
+  "server": "YOUR-SERVER.database.windows.net",
+  "database": "YOUR-DATABASE",
+  "driver": "ODBC Driver 17 for SQL Server",
+  "dbt_project": "dbt",
+  "powerbi_project": "powerbi/Marketing.pbip",
+  "definition_file": "context/definitions.md",
+  "evidence_directory": "cases"
+}
