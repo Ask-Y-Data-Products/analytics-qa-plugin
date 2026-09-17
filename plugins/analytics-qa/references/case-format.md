@@ -32,6 +32,16 @@ the state's screenshot, observation and receipt (`screen.png`, `state.json`,
 <pbi_cycle output> --spec <component.json>`, never typed by hand; the validator
 requires a description and a screenshot per scenario and known claim IDs. The
 sign-off page (`review_form.py`) renders one card per component.
+A component spec claim's `layer` is one of interaction, render, engine or
+cross-layer; any other value is refused with those four listed.
+
+Run and detector references: every `evidence/runs/<name>/` holding a
+`journal.json` must be the `run` of exactly one component, and every
+`evidence/detectors/<name>/` must be cited by at least one claim's evidence. An
+attached directory that no record accounts for is a validation error — it means
+`case.json` was hand-edited instead of built by `qa.py component` / `detect`.
+Attachment is atomic: nothing is copied until the spec and receipts validate, and
+a copy left over from a refused attempt is removed on the next attach.
 
 Detector claims: created by `qa.py detect` from `model_lint.py` output (`--kind lint`)
 or a `probes.py` run (`--kind probes --component <id>`). They carry `detector`
@@ -74,3 +84,11 @@ Sealing validates records and hashes evidence; it does NOT prove semantic truth.
 Review remains empty until explicit human feedback. A future review revision
 records claim/finding IDs, decision, reviewer, confirmation provenance and the
 reviewed manifest hash. An LLM finding is not a human decision.
+
+Review records: `review` holds only reviewer decision records, written by
+`qa.py review` from an exported decisions file — never by hand and never by the
+agent. Each is `{claim_id, decision, reviewer, confirmation, recorded_at,
+reviewed_manifest_sha256}` where claim_id is a claim in the case, decision is
+accepted, confirmed_defect, unresolved or exception (exception also needs reason,
+scope and expires_at) and reviewer is non-empty. Prose, notes or a sign-off
+narrative in `review` is a validation error.

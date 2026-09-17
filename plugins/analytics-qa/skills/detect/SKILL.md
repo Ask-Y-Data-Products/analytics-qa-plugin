@@ -55,9 +55,18 @@ placeholders: fill them from the model, never guess column names (read
 `evidence/model/TMSCHEMA_COLUMNS.json`).
 
 ```
-python ${CLAUDE_PLUGIN_ROOT}/scripts/probes.py --connection connection.json --plan <run>/plan.json --out <run>
+python ${CLAUDE_PLUGIN_ROOT}/scripts/probes.py --connection connection.json --plan <run>/plan.json --out <run> --model <case>/evidence/model
 python ${CLAUDE_PLUGIN_ROOT}/scripts/qa.py detect --case <case> --run <run> --kind probes --component <component id>
 ```
+
+Always pass `--model` (the case's model capture, or the discovery model
+directory). It checks every `'Table'[Column]` and `[Measure]` in the DAX against
+the captured model before the query is sent: a probe that names a column the
+model does not have, or still carries a `<fact>` placeholder, comes back
+inconclusive with the closest real name and is never executed. Fix the name and
+rerun into a fresh run directory. An inconclusive probe caused by a naming error
+is not a finding: it must not be attached as one and does not count as coverage
+of the failure mode it was meant to test.
 
 `probes.py` writes one evidence file per probe with the query, the result rows,
 the method output and a status: passed, failed (dax.assert only), review (a

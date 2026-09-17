@@ -12,16 +12,33 @@ from powerbi_inventory import visual_bindings
 
 HERE = Path(__file__).resolve().parent
 
+# Layers a component claim may declare, mapped to the coverage they require.
+COMPONENT_LAYERS = {"interaction": ["engine", "render", "interaction"], "render": ["engine", "render"],
+                    "engine": ["engine"], "cross-layer": ["engine", "render"]}
+# Layers any claim in a case may declare (see references/case-format.md).
+CASE_LAYERS = ["sql", "engine", "binding", "render", "interaction", "cross-layer"]
+# Decision vocabulary written by review_revision() and exported by review_form.py.
+REVIEW_DECISIONS = ["accepted", "confirmed_defect", "unresolved", "exception"]
+LAYER_HELP = ("interaction = a slicer/click changed the numbers and receipts prove it; "
+              "render = the screen shows the engine's numbers; engine = DAX only; "
+              "cross-layer = source vs engine comparison")
+
 
 def now():
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
-def safe_path(root, relative):
+def safe_path(root, relative, owner=None):
+    """Resolve an evidence reference inside the case, naming the record that holds it."""
     root = Path(root).resolve()
+    text = str(relative)
+    complaint = (f"{owner + ': ' if owner else ''}path {text!r} escapes the case directory "
+                 "(evidence paths must be relative, like evidence/runs/x/state.json)")
+    if not text.strip() or text.startswith(("/", "\\")) or Path(text).is_absolute():
+        raise ValueError(complaint)
     path = (root / relative).resolve()
     if not path.is_relative_to(root):
-        raise ValueError(f"Evidence path escapes case: {relative}")
+        raise ValueError(complaint)
     return path
 
 
@@ -81,7 +98,7 @@ def inspect_project(project, directory):
             continue
         seen.add(path)
         relative = path.relative_to(project).as_posix()
-        target = safe_path(directory, "evidence/source/" + relative)
+        target = safe_path(directory, "evidence/source/" + relative, f"inspected source {relative}")
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, target)
         entry = {"path": relative, "evidence": target.relative_to(directory).as_posix(), "sha256": digest(target)}
@@ -155,7 +172,7 @@ def validate_case(directory):
                 elif not set(review["visual_ids"]).issubset(known):
                     errors.append("Binding review references unknown visual IDs")
                 for reference in review.get("evidence", []):
-                    if not safe_path(directory, reference).is_file():
+                    if not safe_path(directory, reference, "scope.binding_review evidence").is_file():
                         errors.append(f"Missing binding-review evidence: {reference}")
     if not case.get("claims"):
         errors.append("No claims assessed")
@@ -167,6 +184,8 @@ def validate_case(directory):
             coverage = claim.get("coverage", {})
             if not claim.get("layer") or not coverage.get("required") or not isinstance(coverage.get("observed"), list):
                 errors.append(f"{claim.get('id')}: layer and required/observed coverage are mandatory")
+            elif claim["layer"] not in CASE_LAYERS:
+                errors.append(f"{claim.get('id')}: unknown layer {claim['layer']!r}; use one of {CASE_LAYERS} ({LAYER_HELP})")
         for key in ["expected", "source", "status", "evidence"]:
             if key not in claim:
                 errors.append(f"{claim.get('id')}: missing {key}")
@@ -175,7 +194,7 @@ def validate_case(directory):
         if claim.get("status") in ["passed", "failed"] and not claim.get("evidence"):
             errors.append(f"{claim.get('id')}: measured claim needs evidence")
         for reference in claim.get("evidence", []):
-            path = safe_path(directory, reference)
+            path = safe_path(directory, reference, f"claim {claim.get('id')} evidence")
             if not path.is_file():
                 errors.append(f"Missing evidence: {reference}")
         needs_state = claim.get('layer') == 'interaction' or 'interaction' in claim.get('coverage', {}).get('required', [])
@@ -184,7 +203,7 @@ def validate_case(directory):
         for reference in claim.get('state_checks', []):
             try:
                 from state_checks import verify_receipt
-                receipt = verify_receipt(safe_path(directory, reference), directory)
+                receipt = verify_receipt(safe_path(directory, reference, f"claim {claim.get('id')} state_checks"), directory)
                 if claim.get('status') == 'passed' and receipt['status'] != 'passed':
                     raise ValueError('Passed claim cites a failed state check')
             except (OSError, ValueError, KeyError, TypeError) as exc:
@@ -197,9 +216,10 @@ def validate_case(directory):
             if not isinstance(procedure, dict) or not (procedure.get("commands") or procedure.get("command")):
                 errors.append(f"{experiment.get('id')}: executable replay command is mandatory")
     for category in ["trace", "experiments", "findings"]:
-        for record in case.get(category, []):
+        for index, record in enumerate(case.get(category, [])):
+            owner = f"{category} {record.get('id', index)} evidence"
             for reference in record.get("evidence", []):
-                if not isinstance(reference, str) or not safe_path(directory, reference).is_file():
+                if not isinstance(reference, str) or not safe_path(directory, reference, owner).is_file():
                     errors.append(f"{category}: missing evidence {reference}")
     for finding in case.get("findings", []):
         if strict and not all(k in finding for k in ["id", "title", "explanation", "severity", "claim_ids", "impact", "evidence"]):
@@ -218,7 +238,7 @@ def validate_case(directory):
         try:
             if not all(k in fact for k in ["id", "label", "evidence", "pointer", "value"]):
                 raise ValueError("missing fact fields")
-            actual = read(safe_path(directory, fact["evidence"]))
+            actual = read(safe_path(directory, fact["evidence"], f"fact {fact.get('id')}"))
             if not fact["pointer"].startswith("/"):
                 raise ValueError("expected a JSON pointer beginning with /")
             for token in fact["pointer"][1:].split("/"):
@@ -240,12 +260,57 @@ def validate_case(directory):
             images = [e for e in scenario.get("evidence", []) if str(e).lower().endswith(".png")]
             if not scenario.get("description") or not images:
                 errors.append(f"Component {component['id']} scenario {scenario.get('id')} needs a description and a screenshot")
+            owner = f"component {component['id']} scenario {scenario.get('id')}"
             for reference in scenario.get("evidence", []):
-                if not isinstance(reference, str) or not safe_path(directory, reference).is_file():
+                if not isinstance(reference, str) or not safe_path(directory, reference, owner).is_file():
                     errors.append(f"Component {component['id']}: missing scenario evidence {reference}")
-    if any(r.get("decision") == "accepted" and not r.get("confirmation") for r in case.get("review", [])):
+    if strict:
+        errors += orphan_evidence_errors(directory, case)
+    for index, record in enumerate(case.get("review", [])):
+        reason = review_record_problem(record, ids)
+        if reason:
+            errors.append(f"review[{index}] is not a reviewer decision record; the review block is filled only by "
+                          f"qa.py review from an exported decisions file ({reason})")
+    if any(r.get("decision") == "accepted" and not r.get("confirmation") for r in case.get("review", []) if isinstance(r, dict)):
         errors.append("Accepted decisions require explicit confirmation provenance")
     return case, errors
+
+
+def review_record_problem(record, claim_ids):
+    """Why this review entry is not a reviewer decision record, or None when it is one."""
+    if not isinstance(record, dict):
+        return f"expected an object, got {type(record).__name__}"
+    if record.get("claim_id") not in claim_ids:
+        return f"claim_id {record.get('claim_id')!r} is not a claim in this case"
+    if record.get("decision") not in REVIEW_DECISIONS:
+        return f"decision {record.get('decision')!r} is not one of {REVIEW_DECISIONS}"
+    if not str(record.get("reviewer") or "").strip():
+        return "reviewer is empty"
+    if not record.get("recorded_at"):
+        return "recorded_at is missing"
+    return None
+
+
+def orphan_evidence_errors(directory, case):
+    """Attached run and detector directories that no record in case.json accounts for."""
+    directory = Path(directory)
+    errors = []
+    runs = [c.get("run") for c in case.get("components", [])]
+    for folder in sorted(p for p in (directory / "evidence/runs").glob("*") if (p / "journal.json").is_file()):
+        name = folder.name
+        owners = [r for r in runs if r == f"evidence/runs/{name}/journal.json"]
+        if not owners:
+            errors.append(f"evidence/runs/{name} is attached but no component records it; "
+                          "do not hand-edit case.json, attach runs with qa.py component")
+        elif len(owners) > 1:
+            errors.append(f"evidence/runs/{name} is recorded by {len(owners)} components; "
+                          "a run belongs to exactly one component")
+    cited = [str(e) for claim in case.get("claims", []) for e in claim.get("evidence", []) if isinstance(e, str)]
+    for folder in sorted(p for p in (directory / "evidence/detectors").glob("*") if p.is_dir()):
+        if not any(e.startswith(f"evidence/detectors/{folder.name}/") for e in cited):
+            errors.append(f"evidence/detectors/{folder.name} is attached but no claim cites it; "
+                          "do not hand-edit case.json, attach detector runs with qa.py detect")
+    return errors
 
 
 def seal(directory):
@@ -274,7 +339,9 @@ def verify(directory):
     actual = {"case.json"}
     for folder in ["evidence", "procedures"]:
         actual.update(p.relative_to(directory).as_posix() for p in (directory / folder).rglob("*") if p.is_file())
-    mismatches = [name for name, sha in manifest["files"].items() if not safe_path(directory, name).is_file() or digest(safe_path(directory, name)) != sha]
+    mismatches = [name for name, sha in manifest["files"].items()
+                  if not safe_path(directory, name, f"manifest entry {name}").is_file()
+                  or digest(safe_path(directory, name, f"manifest entry {name}")) != sha]
     if actual != set(manifest["files"]):
         detail = {"added": sorted(actual - set(manifest["files"])),
                   "missing": sorted(set(manifest["files"]) - actual), "changed_or_missing_recorded_files": mismatches}
@@ -330,7 +397,7 @@ def retain_evidence(baseline, directory, files):
     if directory.is_relative_to(baseline) or (directory / "manifest.json").exists():
         raise ValueError("Retain evidence only into a separate unsealed case")
     manifest = read(baseline / "manifest.json")
-    destination = safe_path(directory, "evidence/retained/" + baseline.name)
+    destination = safe_path(directory, "evidence/retained/" + baseline.name, f"retained baseline {baseline.name}")
     if destination.exists():
         raise ValueError("This baseline subset was already retained; use a new case")
     if not files or any(name not in manifest["files"] for name in files):
@@ -338,9 +405,9 @@ def retain_evidence(baseline, directory, files):
     destination.mkdir(parents=True)
     records = []
     for name in files:
-        target = safe_path(destination, name)
+        target = safe_path(destination, name, f"retained file {name}")
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(safe_path(baseline, name), target)
+        shutil.copy2(safe_path(baseline, name, f"baseline file {name}"), target)
         records.append({"source_path": name, "sha256": digest(target),
                         "evidence": target.relative_to(directory).as_posix()})
     shutil.copy2(baseline / "manifest.json", destination / "baseline-manifest.json")
@@ -430,81 +497,125 @@ def attach_component(directory, run, spec_file):
     screenshot, and records the component's claims with their receipts. Facts are
     added for every derived card/table value so the report's numbers stay bound to
     the observation files.
+
+    Everything that can be refused is checked against the SOURCE run before a
+    single file is copied, so a rejected spec leaves no half-attached run behind
+    and the corrected spec still attaches.
     """
     directory, run = Path(directory).resolve(), Path(run).resolve()
     ensure_evidence_writable(directory)
     if (directory / "manifest.json").exists():
         raise ValueError("Case is sealed; attach components before sealing")
     spec = read(spec_file)
+    for key in ("id", "name", "definition", "claims"):
+        if not spec.get(key):
+            raise ValueError(f"Component spec needs a non-empty {key}")
     journal = read(run / "evidence/journal.json")
     if journal.get("status") != "completed":
         raise ValueError(f"Run did not complete cleanly: {journal.get('status')}; repair and rerun into a fresh directory")
-    destination = safe_path(directory, "evidence/runs/" + run.name)
-    if destination.exists():
-        raise ValueError("This run is already attached")
-    shutil.copytree(run / "evidence", destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    if (run / "plan.json").is_file():
-        shutil.copy2(run / "plan.json", destination / "plan.json")
-    rel = lambda name: (destination / name).relative_to(directory).as_posix()
     case = read(directory / "case.json")
     ids = {c["id"] for c in case["claims"]}
-    scenarios, facts = [], []
+    destination = safe_path(directory, "evidence/runs/" + run.name, f"component {spec['id']} run")
+    recovered = clear_leftover_copy(destination, directory, case, f"evidence/runs/{run.name}/journal.json")
+    if any(c["id"] == spec["id"] for c in case.get("components", [])):
+        raise ValueError("Component id already present")
+    source = run / "evidence"
+    states = {s["label"] for s in journal["states"]}
+    from state_checks import verify_receipt
     for state in journal["states"]:
         label = state["label"]
         for suffix in ("screen.png", "state.json", "check.json"):
-            if not (destination / label / suffix).is_file():
+            if not (source / label / suffix).is_file():
                 raise ValueError(f"State {label} lacks {suffix}")
-        from state_checks import verify_receipt
-        receipt = verify_receipt(destination / label / "check.json", directory)
-        if receipt["status"] != "passed":
+        if verify_receipt(source / label / "check.json", run)["status"] != "passed":
             raise ValueError(f"State {label} has a failed receipt; it cannot become a reviewable scenario")
-        observed = read(destination / label / "state.json")
-        scenarios.append({"id": f"{spec['id']}-{label}", "description": describe_state(state.get("description") or label, observed),
-                          "evidence": [rel(f"{label}/screen.png"), rel(f"{label}/state.json"), rel(f"{label}/check.json")]})
-        for card, value in (observed.get("cards") or {}).items():
-            facts.append({"id": f"{spec['id']}-{label}-{re.sub(r'[^A-Za-z0-9]+', '_', card)}", "label": f"{label}: {card}",
-                          "evidence": rel(f"{label}/state.json"), "pointer": "/cards/" + card.replace("~", "~0").replace("/", "~1"), "value": value, "unit": ""})
-        for key, value in (observed.get("tables") or {}).items():
-            facts.append({"id": f"{spec['id']}-{label}-table_{key}", "label": f"{label}: {key} total",
-                          "evidence": rel(f"{label}/state.json"), "pointer": "/tables/" + key, "value": value, "unit": ""})
-    oracle_files = [rel("dax/" + p.name) for p in sorted((destination / "dax").glob("*.json"))] if (destination / "dax").is_dir() else []
-    states = {s["label"] for s in journal["states"]}
     for claim in spec["claims"]:
+        for key in ("id", "expected", "observed"):
+            if not claim.get(key):
+                raise ValueError(f"Claim {claim.get('id')!r} in the spec needs a non-empty {key}")
         if claim["id"] in ids:
             raise ValueError(f"Claim {claim['id']} already exists in the case")
-        chosen = claim.get("states") or sorted(states)
-        unknown = [s for s in chosen if s not in states]
+        layer = claim.get("layer", "interaction")
+        if layer not in COMPONENT_LAYERS:
+            raise ValueError(f"Claim {claim['id']}: unknown layer {layer!r}; use one of {sorted(COMPONENT_LAYERS)} ({LAYER_HELP})")
+        unknown = [s for s in (claim.get("states") or sorted(states)) if s not in states]
         if unknown:
             raise ValueError(f"Claim {claim['id']} cites states that were not captured: {unknown}")
-        layer = claim.get("layer", "interaction")
-        layers = {"interaction": ["engine", "render", "interaction"], "render": ["engine", "render"], "engine": ["engine"], "cross-layer": ["engine", "render"]}[layer]
-        record = {"id": claim["id"], "expected": claim["expected"], "observed": claim["observed"],
-                  "source": claim.get("source", "Observed implementation, verified controls and current DAX; business approval pending."),
-                  "status": claim.get("status", "passed"), "layer": layer,
-                  "coverage": {"required": layers, "observed": layers if claim.get("status", "passed") != "inconclusive" else claim.get("observed_layers", layers)},
-                  "evidence": [rel(f"{s}/state.json") for s in chosen] + oracle_files + list(claim.get("extra_evidence", [])),
-                  "state_checks": [rel(f"{s}/check.json") for s in chosen] if layer == "interaction" else []}
-        case["claims"].append(record)
         ids.add(claim["id"])
-    component = {"id": spec["id"], "name": spec["name"], "page": spec.get("page", journal.get("page")),
-                 "definition": spec["definition"], "claim_ids": [c["id"] for c in spec["claims"]] + list(spec.get("related_claim_ids", [])),
-                 "scenarios": scenarios, "run": rel("journal.json")}
-    if any(c["id"] == component["id"] for c in case.get("components", [])):
-        raise ValueError("Component id already present")
-    case.setdefault("components", []).append(component)
-    case.setdefault("facts", []).extend(facts)
-    if spec.get("visual_ids"):
-        review = case.setdefault("scope", {}).setdefault("binding_review", {"status": "reviewed", "visual_ids": [], "evidence": ["evidence/inventory.json"]})
-        review["status"] = "reviewed"
-        review["visual_ids"] = sorted(set(review.get("visual_ids", [])) | set(spec["visual_ids"]))
-        review.setdefault("evidence", ["evidence/inventory.json"])
-    for experiment in spec.get("experiments", []):
-        experiment.setdefault("evidence", [rel("journal.json")])
-        experiment.setdefault("procedure", {})
-        experiment["procedure"].setdefault("commands", [f"python <plugin>/scripts/pbi_cycle.py --connection connection.json --plan {rel('plan.json')} --out <fresh directory>"])
-        case["experiments"].append(experiment)
-    dump(directory / "case.json", case)
-    return {"component": component["id"], "scenarios": len(scenarios), "claims": [c["id"] for c in spec["claims"]], "facts": len(facts)}
+    copied = False
+    try:
+        shutil.copytree(source, destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        copied = True
+        if (run / "plan.json").is_file():
+            shutil.copy2(run / "plan.json", destination / "plan.json")
+        rel = lambda name: (destination / name).relative_to(directory).as_posix()
+        scenarios, facts = [], []
+        for state in journal["states"]:
+            label = state["label"]
+            observed = read(destination / label / "state.json")
+            scenarios.append({"id": f"{spec['id']}-{label}", "description": describe_state(state.get("description") or label, observed),
+                              "evidence": [rel(f"{label}/screen.png"), rel(f"{label}/state.json"), rel(f"{label}/check.json")]})
+            for card, value in (observed.get("cards") or {}).items():
+                facts.append({"id": f"{spec['id']}-{label}-{re.sub(r'[^A-Za-z0-9]+', '_', card)}", "label": f"{label}: {card}",
+                              "evidence": rel(f"{label}/state.json"), "pointer": "/cards/" + card.replace("~", "~0").replace("/", "~1"), "value": value, "unit": ""})
+            for key, value in (observed.get("tables") or {}).items():
+                facts.append({"id": f"{spec['id']}-{label}-table_{key}", "label": f"{label}: {key} total",
+                              "evidence": rel(f"{label}/state.json"), "pointer": "/tables/" + key, "value": value, "unit": ""})
+        oracle_files = [rel("dax/" + p.name) for p in sorted((destination / "dax").glob("*.json"))] if (destination / "dax").is_dir() else []
+        for claim in spec["claims"]:
+            chosen = claim.get("states") or sorted(states)
+            layer = claim.get("layer", "interaction")
+            layers = COMPONENT_LAYERS[layer]
+            record = {"id": claim["id"], "expected": claim["expected"], "observed": claim["observed"],
+                      "source": claim.get("source", "Observed implementation, verified controls and current DAX; business approval pending."),
+                      "status": claim.get("status", "passed"), "layer": layer,
+                      "coverage": {"required": layers, "observed": layers if claim.get("status", "passed") != "inconclusive" else claim.get("observed_layers", layers)},
+                      "evidence": [rel(f"{s}/state.json") for s in chosen] + oracle_files + list(claim.get("extra_evidence", [])),
+                      "state_checks": [rel(f"{s}/check.json") for s in chosen] if layer == "interaction" else []}
+            case["claims"].append(record)
+        component = {"id": spec["id"], "name": spec["name"], "page": spec.get("page", journal.get("page")),
+                     "definition": spec["definition"], "claim_ids": [c["id"] for c in spec["claims"]] + list(spec.get("related_claim_ids", [])),
+                     "scenarios": scenarios, "run": rel("journal.json")}
+        case.setdefault("components", []).append(component)
+        case.setdefault("facts", []).extend(facts)
+        if spec.get("visual_ids"):
+            review = case.setdefault("scope", {}).setdefault("binding_review", {"status": "reviewed", "visual_ids": [], "evidence": ["evidence/inventory.json"]})
+            review["status"] = "reviewed"
+            review["visual_ids"] = sorted(set(review.get("visual_ids", [])) | set(spec["visual_ids"]))
+            review.setdefault("evidence", ["evidence/inventory.json"])
+        for experiment in spec.get("experiments", []):
+            experiment.setdefault("evidence", [rel("journal.json")])
+            experiment.setdefault("procedure", {})
+            experiment["procedure"].setdefault("commands", [f"python <plugin>/scripts/pbi_cycle.py --connection connection.json --plan {rel('plan.json')} --out <fresh directory>"])
+            case["experiments"].append(experiment)
+        dump(directory / "case.json", case)
+    except BaseException:
+        if copied:
+            shutil.rmtree(destination, ignore_errors=True)
+        raise
+    return {"component": component["id"], "scenarios": len(scenarios), "claims": [c["id"] for c in spec["claims"]],
+            "facts": len(facts), "recovered_leftover_copy": recovered}
+
+
+def clear_leftover_copy(destination, directory, case, reference):
+    """An existing copy is an attachment only if a record in case.json points at it.
+
+    Otherwise it is debris from an attempt that was refused after copying, and is
+    removed so the corrected input can be attached. Returns True when that happened.
+    """
+    destination = Path(destination)
+    if not destination.exists():
+        return False
+    kind = "run" if reference.startswith("evidence/runs/") else "detector run"
+    owners = [c for c in case.get("components", []) if c.get("run") == reference] if kind == "run" else \
+             [c for c in case.get("claims", []) if any(str(e).startswith(reference) for e in c.get("evidence", []))]
+    if owners:
+        raise ValueError(
+            f"This {kind} is already attached: {destination.relative_to(Path(directory).resolve()).as_posix()} is recorded by "
+            f"{sorted(o['id'] for o in owners)} in case.json. Nothing to do; to attach a changed run, rerun it into a fresh "
+            "directory and attach that, or start a new case. If you meant to replace it, delete the recording and the copy together.")
+    shutil.rmtree(destination)
+    return True
 
 
 def attach_detectors(directory, run, kind, component_id=None):
@@ -515,25 +626,28 @@ def attach_detectors(directory, run, kind, component_id=None):
     expects <run>/evidence/journal.json (probes.py); each probe becomes a claim
     whose status follows the probe (passed / failed / inconclusive for review).
     Claims are linked to the component when one is given, otherwise they appear
-    under 'Other expectations' on the sign-off page.
+    under 'Other expectations' on the sign-off page. As with components, every
+    refusal is decided from the source run before anything is copied.
     """
     directory, run = Path(directory).resolve(), Path(run).resolve()
     ensure_evidence_writable(directory)
     if (directory / "manifest.json").exists():
         raise ValueError("Case is sealed; attach detectors before sealing")
-    destination = safe_path(directory, "evidence/detectors/" + run.name)
-    if destination.exists():
-        raise ValueError("This detector run is already attached")
+    if kind not in ("lint", "probes"):
+        raise ValueError("kind must be lint or probes")
     case = read(directory / "case.json")
     ids = {c["id"] for c in case["claims"]}
-    rel = lambda p: p.relative_to(directory).as_posix()
+    if component_id and not any(c["id"] == component_id for c in case.get("components", [])):
+        raise ValueError(f"Component {component_id} is not attached yet; attach the component first")
+    prefix = "evidence/detectors/" + run.name
+    destination = safe_path(directory, prefix, f"detector run {run.name}")
+    recovered = clear_leftover_copy(destination, directory, case, prefix + "/")
+    rel = lambda name: f"{prefix}/{name}"
     new_claims, new_findings, new_facts = [], [], []
     if kind == "lint":
         source = run / "lint.json"
         result = read(source)
-        destination.mkdir(parents=True)
-        shutil.copy2(source, destination / "lint.json")
-        evidence = rel(destination / "lint.json")
+        evidence = rel("lint.json")
         grouped = {}
         for finding in result["findings"]:
             grouped.setdefault(finding["method"], []).append(finding)
@@ -557,12 +671,9 @@ def attach_detectors(directory, run, kind, component_id=None):
         journal = read(run / "evidence/journal.json")
         if journal.get("status") != "completed":
             raise ValueError("Probe run did not complete")
-        shutil.copytree(run / "evidence", destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-        if (run / "plan.json").is_file():
-            shutil.copy2(run / "plan.json", destination / "plan.json")
         for record in journal["probes"]:
-            probe_file = destination / "probes" / f"{record['id']}.json"
-            probe = read(probe_file)
+            probe_file = rel(f"probes/{record['id']}.json")
+            probe = read(run / "evidence/probes" / f"{record['id']}.json")
             cid = f"PRB-{record['id']}"
             if cid in ids:
                 raise ValueError(f"Claim {cid} already exists")
@@ -574,29 +685,41 @@ def attach_detectors(directory, run, kind, component_id=None):
                                "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
                                "status": status, "layer": "engine",
                                "coverage": {"required": ["engine"], "observed": ["engine"]},
-                               "evidence": [rel(probe_file)], "detector": record["method"], "severity": record.get("severity", "review"),
+                               "evidence": [probe_file], "detector": record["method"], "severity": record.get("severity", "review"),
                                "probe_status": record["status"]})
             ids.add(cid)
             if record["status"] in ("failed", "review") and "status" in outcome:
-                new_facts.append({"id": f"{cid}-status", "label": f"{record['id']} outcome", "evidence": rel(probe_file), "pointer": "/outcome/status", "value": outcome["status"], "unit": ""})
+                new_facts.append({"id": f"{cid}-status", "label": f"{record['id']} outcome", "evidence": probe_file, "pointer": "/outcome/status", "value": outcome["status"], "unit": ""})
             if record["status"] == "failed":
                 new_findings.append({"id": f"FD-{cid}", "title": record.get("question") or record["id"], "severity": record.get("severity", "medium"),
                                      "claim_ids": [cid], "explanation": f"Probe {record['method']} failed: {observed[:400]}",
                                      "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
-                                     "evidence": [rel(probe_file)]})
-    else:
-        raise ValueError("kind must be lint or probes")
-    case["claims"] += new_claims
-    case.setdefault("facts", []).extend(new_facts)
-    case.setdefault("findings", []).extend(new_findings)
-    if component_id:
-        component = next((c for c in case.get("components", []) if c["id"] == component_id), None)
-        if component is None:
-            raise ValueError(f"Component {component_id} is not attached yet; attach the component first")
-        component["claim_ids"] += [c["id"] for c in new_claims]
-    dump(directory / "case.json", case)
+                                     "evidence": [probe_file]})
+    copied = False
+    try:
+        if kind == "lint":
+            destination.mkdir(parents=True)
+            copied = True
+            shutil.copy2(run / "lint.json", destination / "lint.json")
+        else:
+            shutil.copytree(run / "evidence", destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            copied = True
+            if (run / "plan.json").is_file():
+                shutil.copy2(run / "plan.json", destination / "plan.json")
+        case["claims"] += new_claims
+        case.setdefault("facts", []).extend(new_facts)
+        case.setdefault("findings", []).extend(new_findings)
+        if component_id:
+            component = next(c for c in case["components"] if c["id"] == component_id)
+            component["claim_ids"] += [c["id"] for c in new_claims]
+        dump(directory / "case.json", case)
+    except BaseException:
+        if copied:
+            shutil.rmtree(destination, ignore_errors=True)
+        raise
     return {"kind": kind, "claims": [c["id"] for c in new_claims], "findings": len(new_findings),
-            "statuses": {s: sum(c["status"] == s for c in new_claims) for s in ("passed", "failed", "inconclusive")}}
+            "statuses": {s: sum(c["status"] == s for c in new_claims) for s in ("passed", "failed", "inconclusive")},
+            "recovered_leftover_copy": recovered}
 
 
 def summarize_outcome(method, outcome):
@@ -671,7 +794,14 @@ def main():
         parser = sub.add_parser(name); parser.add_argument("--case", required=True)
     stats = sub.add_parser("profile"); stats.add_argument("--file", required=True); stats.add_argument("--column", required=True); stats.add_argument("--out", required=True)
     rev = sub.add_parser("review"); rev.add_argument("--case", required=True); rev.add_argument("--decisions", required=True); rev.add_argument("--out", required=True)
-    comp = sub.add_parser("component"); comp.add_argument("--case", required=True); comp.add_argument("--run", required=True); comp.add_argument("--spec", required=True)
+    comp = sub.add_parser("component", help="Attach a completed pbi_cycle run as a reviewable component",
+                          description="Attach a completed pbi_cycle run to an unsealed case as a reviewable component. "
+                                      "Nothing is copied until the spec, the run's receipts and the cited states all pass, "
+                                      "so a refused attempt can be corrected and retried.")
+    comp.add_argument("--case", required=True); comp.add_argument("--run", required=True)
+    comp.add_argument("--spec", required=True, help="Component spec JSON: {id, name, page, definition, visual_ids, claims:[{id, expected, "
+                                                    "observed, layer, states}], experiments}. Claim layer is one of "
+                                                    + ", ".join(sorted(COMPONENT_LAYERS)) + " (" + LAYER_HELP + ").")
     det = sub.add_parser("detect"); det.add_argument("--case", required=True); det.add_argument("--run", required=True); det.add_argument("--kind", choices=["lint", "probes"], required=True); det.add_argument("--component")
     retain = sub.add_parser("retain"); retain.add_argument("--baseline", required=True); retain.add_argument("--case", required=True); retain.add_argument("--files", nargs="+", required=True)
     a = p.parse_args()

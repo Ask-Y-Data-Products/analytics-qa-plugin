@@ -1,0 +1,6 @@
+{
+  "project": "YOUR-GCP-PROJECT",
+  "location": "YOUR-DATASET-LOCATION",
+  "datasets": ["YOUR-ALLOWED-DATASET"],
+  "maximum_bytes_billed": 1000000000
+}

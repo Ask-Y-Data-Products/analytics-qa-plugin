@@ -33,6 +33,22 @@ card's displayed precision). Each capture records `cards` (parsed numbers, null 
 card shows text such as "$240K"), `cards_text` (the raw text), `tables`, `slicers`
 (dropdown caption or the selected options of a list slicer) and `charts`.
 
+Receipt rules, enforced by the runner (a weak receipt stops the run after the
+observation is written, so you can read state.json and fix the plan):
+
+  1. Every capture must assert at least one value besides the five screen guards
+     (/verified_report_title, /active_page, /popup_open, /calendar_open,
+     /edit_overlay_open). Those guards prove the right screen was open, not that
+     it showed the right number. Assert a card, a table total, a date bound, a
+     slicer caption or a chart's selected marks.
+  2. A capture that follows an action step (toggle_member, set_date, click_mark,
+     select_option) must assert at least one pointer whose expected value differs
+     from the previous capture's expected value for the same pointer: assert a
+     changing number in every receipt.
+  3. A capture that genuinely cannot do either carries "allow_weak_receipt": true
+     together with a "weak_receipt_reason" sentence. Both the number of value
+     assertions and the opt-out reason are recorded in the journal state record.
+
 Usage: python pbi_cycle.py --connection connection.json --plan plan.json --out <fresh directory>
 """
 import argparse
@@ -56,6 +72,12 @@ LABELS_JS = """e => Array.from(e.querySelectorAll('svg text.setFocusRing, svg g.
   text: (t.querySelector('title') || {}).textContent || t.textContent,
   x: Math.round(t.getBoundingClientRect().x + t.getBoundingClientRect().width / 2),
   y: Math.round(t.getBoundingClientRect().y + t.getBoundingClientRect().height / 2)}))"""
+
+GUARD_POINTERS = ('/verified_report_title', '/active_page', '/popup_open', '/calendar_open', '/edit_overlay_open')
+ACTION_STEPS = ('toggle_member', 'set_date', 'click_mark', 'select_option')
+POINTER_HINT = ('add expect pointers such as /cards/<title>, /tables/<key>, /date_start, /date_end, '
+                '/slicers/<title>, /charts/<title>/selected_marks, or set "allow_weak_receipt": true '
+                'with a "weak_receipt_reason"')
 
 
 def highlight_active(marks):
@@ -106,6 +128,44 @@ def resolve(expected, oracles):
     return resolved
 
 
+def observed_summary(state):
+    """The values this observation could have asserted, written as pointers the plan can copy."""
+    parts = []
+    cards, texts = state.get('cards') or {}, state.get('cards_text') or {}
+    if cards:
+        parts.append('cards ' + ', '.join(f'/cards/{t}={cards[t]!r} (text {texts.get(t)!r})' for t in cards))
+    if state.get('tables'):
+        parts.append('tables ' + ', '.join(f'/tables/{k}={v!r}' for k, v in state['tables'].items()))
+    parts.append(f"dates /date_start={state.get('date_start')!r}, /date_end={state.get('date_end')!r}")
+    if state.get('slicers'):
+        parts.append('slicers ' + ', '.join(f'/slicers/{k}={v!r}' for k, v in state['slicers'].items()))
+    if state.get('charts'):
+        parts.append('charts ' + ', '.join(f"/charts/{k}/selected_marks={c.get('selected_marks')!r}" for k, c in state['charts'].items()))
+    return '; '.join(parts)
+
+
+def receipt_problem(label, step, values, state, previous, actions_since):
+    """Why this capture's expectations are not a receipt, or None. Fail-closed before the check is written."""
+    if step.get('allow_weak_receipt'):
+        if not str(step.get('weak_receipt_reason', '')).strip():
+            return (f'Capture {label!r} sets "allow_weak_receipt" without a "weak_receipt_reason"; write the sentence '
+                    'that says why this capture cannot assert a changing number.')
+        return None
+    if not values:
+        return (f'Capture {label!r} asserts no value: its expect names only the screen guards, which prove the right '
+                f'screen was open, not that it showed the right number. Observed in this capture: '
+                f'{observed_summary(state)}. To fix, {POINTER_HINT}.')
+    if actions_since and previous:
+        previous_label, previous_values = previous
+        identical = [p for p, v in values.items() if p in previous_values and previous_values[p] == v]
+        if len(identical) == len(values):
+            listed = ', '.join(f'{p}={values[p]!r}' for p in identical)
+            return (f'Capture {label!r} follows {", ".join(actions_since)} but every asserted value is identical to '
+                    f'capture {previous_label!r}: {listed}. A receipt after an action must assert a changing number. '
+                    f'Observed in this capture: {observed_summary(state)}. To fix, {POINTER_HINT}.')
+    return None
+
+
 def derive(state, plan):
     derived = {'cards': {}, 'cards_text': {}, 'tables': {}}
     for title in plan.get('cards', []):
@@ -148,6 +208,7 @@ def run(connection, plan, out):
             pages = pc.report_pages(page)
             pc.go_to_page(page, plan['page'], pages)
             pc.dismiss_edit_overlays(page)
+            previous, actions_since = None, []
             for step in plan['steps']:
                 if 'capture' in step:
                     label = step['capture']
@@ -159,11 +220,23 @@ def run(connection, plan, out):
                     state['description'] = step.get('description', '')
                     state['derived'] = 'cards/tables parsed from this observation\'s own visual text after capture'
                     dump(folder / 'state.json', state)
+                    asserted = resolve(step.get('expect', {}), oracles)
+                    values = {pointer: v for pointer, v in asserted.items() if pointer not in GUARD_POINTERS}
                     expected = {'/verified_report_title': title, '/active_page': plan['page'],
                                 '/popup_open': False, '/calendar_open': False, '/edit_overlay_open': False}
-                    expected.update(resolve(step.get('expect', {}), oracles))
+                    expected.update(asserted)
                     record = {'label': label, 'description': step.get('description', ''), 'cards': state['cards'],
-                              'tables': state['tables'], 'date': [state['date_start'], state['date_end']], 'slicers': state['slicers']}
+                              'tables': state['tables'], 'date': [state['date_start'], state['date_end']], 'slicers': state['slicers'],
+                              'value_assertions': len(values)}
+                    if step.get('allow_weak_receipt'):
+                        record['weak_receipt_reason'] = step.get('weak_receipt_reason', '')
+                    problem = receipt_problem(label, step, values, state, previous, actions_since)
+                    if problem:
+                        record['receipt'] = 'not_written'
+                        journal['states'].append(record)
+                        journal['status'] = 'stopped_on_weak_receipt'
+                        dump(out / 'evidence/journal.json', journal)
+                        raise ValueError(problem)
                     try:
                         receipt = check_state(folder / 'state.json', expected, folder / 'check.json')
                         record['receipt'] = receipt['status']
@@ -173,6 +246,7 @@ def run(connection, plan, out):
                         journal['status'] = 'stopped_on_failed_receipt'
                         raise
                     journal['states'].append(record)
+                    previous, actions_since = (label, values), []
                 elif 'toggle_member' in step:
                     s = step['toggle_member']
                     result = pc.toggle_member(page, pc.find_visual(page, s['slicer']), s['label'], s['selected'], s.get('allow_other_changes', False))
@@ -202,6 +276,8 @@ def run(connection, plan, out):
                     journal['actions'].append({'step': step, 'observed': pc.active_page(page, pages)})
                 else:
                     raise ValueError(f'Unknown step: {step}')
+                performed = [name for name in ACTION_STEPS if name in step]
+                actions_since.extend(performed)
                 dump(out / 'evidence/journal.json', journal)
             journal['status'] = 'completed'
         finally:
@@ -219,8 +295,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         journal = run(args.connection, args.plan, args.out)
-        print(json.dumps({'status': journal['status'], 'states': [{k: s[k] for k in ('label', 'receipt', 'cards', 'tables', 'date')} for s in journal['states']]}, indent=2, default=str))
+        print(json.dumps({'status': journal['status'], 'states': [{k: s[k] for k in ('label', 'receipt', 'value_assertions', 'cards', 'tables', 'date')} for s in journal['states']]}, indent=2, default=str))
     except Exception as exc:
         print(json.dumps({'error': str(exc), 'type': type(exc).__name__,
-                          'note': 'The failed receipt and observation are retained; inspect them before retrying into a fresh output'}), file=sys.stderr)
+                          'note': 'The observation and any failed receipt are retained; read the captured state.json, fix the plan and rerun into a fresh output'}), file=sys.stderr)
         sys.exit(1)

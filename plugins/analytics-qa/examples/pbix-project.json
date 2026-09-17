@@ -1,0 +1,7 @@
+{
+  "powerbi_project": "working/report-copy.pbix",
+  "powerbi_report_snapshot": "discovery/report",
+  "engine_context": "connection.json",
+  "definition_file": "context/definitions.md",
+  "evidence_directory": "cases"
+}

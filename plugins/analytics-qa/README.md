@@ -11,7 +11,7 @@ operations and record integrity, not a universal correctness oracle.
    project environment. Azure SQL evidence uses Azure CLI authentication and an
    installed ODBC driver. Use a read-only database principal for real projects.
    Python 3.13 is the tested runtime. Authenticate Azure CLI outside the agent.
-2. Add `pilot.json` to your project using `examples/project.json` as the format.
+2. Add `pilot.json` to your project using `examples/pbix-project.json` (PBIX + engine) or `examples/bigquery.json` (warehouse helper) as the format.
    Paths are relative to your project, and business definitions are yours.
    Existing dbt `target/manifest.json` and `run_results.json` improve tracing.
 3. Open a working copy of the PBIX or PBIP in Power BI Desktop. Preserve the

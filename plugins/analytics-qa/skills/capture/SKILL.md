@@ -7,6 +7,29 @@ description: Assemble a source-to-screen evidence report and the analyst sign-of
 
 Input: $ARGUMENTS
 
+## Rules an unattended run must follow
+
+- Never hand-edit `case.json`. Every structure in it — claims, components,
+  scenarios, facts, experiments, findings, review — is written by `qa.py init`,
+  `component`, `detect` and `review`. A hand-added or hand-removed record is a
+  validation error (an attached run with no component, a review entry that is not
+  a reviewer decision), not a shortcut.
+- Never hand-write the sign-off page. Only `review_form.py` produces it; it
+  stamps `<meta name="generator" content="analytics-qa review_form <version>">`
+  with the case id and manifest digest, so a hand-written page is detectable.
+- Leave `review` empty during a headless run and say "awaiting review". Filling
+  the analyst decision block yourself is fabricated approval.
+- Keep every evidence path relative to the case directory
+  (`evidence/runs/<run>/state.json`). Absolute paths, empty strings and `/` are
+  refused, and the error names the claim, fact or component that holds them.
+- When a tool refuses, fix the input and rerun it; do not work around the tool.
+  `component` and `detect` validate everything before copying, so a refusal
+  leaves nothing behind and the corrected spec attaches on the next try. If a
+  copy is left over from an interrupted attempt that no record in `case.json`
+  references, the next attach removes it and says so.
+- If a step cannot be completed, stop and report the blocker. Do not degrade the
+  deliverable to produce something that looks finished.
+
 Read [case format](../../references/case-format.md). Ensure the report includes
 business impact, trace, claims, reproducible experiments, actual visual evidence,
 and unresolved coverage. Use `${CLAUDE_PLUGIN_ROOT}/scripts/qa.py validate --case
@@ -32,11 +55,21 @@ captured states that prove it) and the report visual IDs it covers:
  "experiments": [{"id": "EXP-V", "question": "...", "result": "..."}]}
 ```
 
+`layer` is exactly one of `interaction` (a slicer/click changed the numbers and
+receipts prove it), `render` (the screen shows the engine's numbers), `engine`
+(DAX only) or `cross-layer` (source versus engine comparison). Anything else —
+`data`, `sql`, `binding` — is refused with the four accepted values in the
+message. The layer sets the required coverage, and `interaction` is the only one
+that attaches state-check receipts.
+
 The command copies the run into `evidence/runs/<run>`, turns every captured state
 into a scenario with its screenshot and receipt, binds the derived card/table
 numbers as facts and records the claims with their receipts. A run whose journal
 did not complete, or whose receipts failed, cannot be attached: repair the plan
-and rerun into a fresh directory. Do not hand-write scenario lists.
+and rerun into a fresh directory. Do not hand-write scenario lists. The attach is
+atomic — the spec, the receipts and the cited states are checked against the
+source run first, so a refusal copies nothing and you simply fix the spec and
+rerun the same command.
 
 Scenario descriptions come from the plan's step descriptions: write them for the
 analyst ("July 1-7: 2,253 leads; the Google line shortens to seven points"), not

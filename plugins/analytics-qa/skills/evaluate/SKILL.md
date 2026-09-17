@@ -41,6 +41,16 @@ for the plan schema. A plan contains:
   because the runner covers all Desktop slicer types above. Read
   `pbi_cycle.py --help` before writing the first plan.
 
+Receipt rules the runner enforces, so write the `expect` before the step: every
+capture asserts at least one number or caption beyond the five screen guards
+(report title, active page, popup/calendar/edit overlay) - those prove the right
+screen was open, not that it showed the right number; a capture that follows an
+action asserts at least one pointer whose value differs from the previous
+capture's expectation for the same pointer; `"allow_weak_receipt": true` is
+allowed only with a written `"weak_receipt_reason"`. A weak capture stops the run
+after its observation is written, so read that `state.json` for the real numbers
+and put them in the plan.
+
 Always capture a baseline first, then one discriminating change, then the reset
 that restores the baseline values, and expect the baseline numbers again in the
 reset capture. Write every step `description` for the analyst, with the numbers
