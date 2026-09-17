@@ -47,13 +47,45 @@ captured states that prove it) and the report visual IDs it covers:
 
 ```json
 {"id": "C3", "name": "Contract Velocity: starts and percentile cards", "page": "Contract Velocity",
+ "what_it_shows": "How many contracts started in the selected period, and how long they took.",
  "definition": "Starts counts fact_contract rows by contract start date ...",
  "visual_ids": ["d9e6c7b7206716ace6d0"],
  "claims": [{"id": "V1", "expected": "Unchecking one channel changes Starts and the table; re-checking restores them.",
              "observed": "48 -> 17 -> 48 ...", "layer": "interaction",
+             "question": "Should removing one channel take a third of the starts away?",
              "states": ["state1_baseline", "state2_two_channels", "state3_restored"]}],
  "experiments": [{"id": "EXP-V", "question": "...", "result": "..."}]}
 ```
+
+## Write for the analyst
+
+`what_it_shows` (one or two sentences per component) and a claim's `question`
+(one sentence) are the only fields the analyst reads exactly as you wrote them:
+they head the sign-off card and become the decision prompts. `definition`,
+`expected`, `observed` and `source` stay technical and live behind a disclosure
+triangle, so keep the engineering there. Strict validation refuses a
+`what_it_shows` or a `question` that reads like DAX, and the error quotes the
+offending token.
+
+- bad: "Spend card renders '$240K'. DAX oracle Aggregated Spend returns the raw
+  value; K-abbreviated display prevents parse_number match"
+- good: "The Spend card shows $240K for July 1-13 with all six channels. Our own
+  calculation gives $240,213, so the card rounds. Is $240K the figure you expect
+  for this period?"
+
+The page derives the rest itself. The observed table (one row per captured
+situation, one column per figure, with the change against the baseline), the
+situation labels ("Google Ads unchecked in Channel"), and the checks (does the
+reset land back on the baseline, did the change move anything, did it move in a
+possible direction, does the card equal the table, did our own calculation
+agree) all come from the captures, the journal and the plan. Your job is the
+plain framing and the questions - not restating numbers the derivation already
+reads off the evidence.
+
+An analyst's "does this card equal that table" check reaches the page only
+through the plan's `consistency` pairs (see the evaluate skill): declare a pair
+for every figure that appears twice on a page, and the runner evaluates it in
+every situation while the page shows any mismatch as a highlighted question.
 
 `layer` is exactly one of `interaction` (a slicer/click changed the numbers and
 receipts prove it), `render` (the screen shows the engine's numbers), `engine`
@@ -99,9 +131,10 @@ actually reads:
 python ${CLAUDE_PLUGIN_ROOT}/scripts/review_form.py --case <sealed-case> --out <case-parent>/<case-name>-signoff.html
 ```
 
-It shows, per component, the captured Power BI screenshots in story order with
-their descriptions, the open defects and business questions, and Sign off /
-Reject buttons with a comment. The page links the screenshots relative to the
+It shows, per component, what the figure is in one plain sentence, the captured
+Power BI screenshots in story order, a table of what the screen showed in every
+situation, the computed checks, the questions the analyst must answer, and Sign
+off / Reject buttons with a comment. The page links the screenshots relative to the
 case folder; when the analyst will open it elsewhere (mail, a snapshot preview, a
 shared drive without the case), also produce a self-contained copy with
 `--embed-images` (`<case-name>-signoff-embedded.html`), which inlines every

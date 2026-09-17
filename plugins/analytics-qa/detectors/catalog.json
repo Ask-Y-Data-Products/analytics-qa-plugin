@@ -4,6 +4,7 @@
   "detectors": [
     {
       "id": "lint.volatile_time_in_column",
+      "title": "Date flag driven by the clock",
       "kind": "lint",
       "domain": "time",
       "severity": "high",
@@ -15,6 +16,7 @@
     },
     {
       "id": "lint.volatile_time_in_measure",
+      "title": "Measure driven by the clock",
       "kind": "lint",
       "domain": "time",
       "severity": "medium",
@@ -26,6 +28,7 @@
     },
     {
       "id": "lint.date_context_removed",
+      "title": "Whole-period amount under a partial selection",
       "kind": "lint",
       "domain": "time",
       "severity": "medium",
@@ -37,6 +40,7 @@
     },
     {
       "id": "lint.raw_division",
+      "title": "Division without a zero guard",
       "kind": "lint",
       "domain": "ratios",
       "severity": "low",
@@ -47,6 +51,7 @@
     },
     {
       "id": "lint.format_hides_precision",
+      "title": "Rounding hides precision",
       "kind": "lint",
       "domain": "presentation",
       "severity": "low",
@@ -57,6 +62,7 @@
     },
     {
       "id": "lint.multiple_relationship_paths",
+      "title": "Ambiguous attribution path",
       "kind": "lint",
       "domain": "attribution",
       "severity": "medium",
@@ -69,6 +75,7 @@
     },
     {
       "id": "lint.freshness_label_on_business_date",
+      "title": "Refresh label bound to a business date",
       "kind": "lint",
       "domain": "presentation",
       "severity": "medium",
@@ -79,6 +86,7 @@
     },
     {
       "id": "lint.stale_query_name",
+      "title": "Header names a different measure",
       "kind": "lint",
       "domain": "presentation",
       "severity": "low",
@@ -90,6 +98,7 @@
     },
     {
       "id": "dax.fan_out",
+      "title": "Double counting through joins",
       "kind": "dax",
       "domain": "grain",
       "severity": "high",
@@ -102,6 +111,7 @@
     },
     {
       "id": "dax.additivity",
+      "title": "Members do not add up to the total",
       "kind": "dax",
       "domain": "grain",
       "severity": "high",
@@ -114,6 +124,7 @@
     },
     {
       "id": "dax.assert",
+      "title": "Custom data rule",
       "kind": "dax",
       "domain": "generic",
       "severity": "medium",
@@ -124,6 +135,7 @@
     },
     {
       "id": "stat.ratio_of_totals_vs_mean_of_ratios",
+      "title": "Ratio total computed as an average",
       "kind": "stat",
       "domain": "ratios",
       "severity": "medium",
@@ -135,6 +147,7 @@
     },
     {
       "id": "stat.ratio_stability",
+      "title": "Daily ratio outside its usual band",
       "kind": "stat",
       "domain": "ratios",
       "severity": "medium",
@@ -146,6 +159,7 @@
     },
     {
       "id": "stat.weekday_robust_band",
+      "title": "Daily value outside its weekday band",
       "kind": "stat",
       "domain": "time",
       "severity": "medium",
@@ -157,6 +171,7 @@
     },
     {
       "id": "stat.changepoints",
+      "title": "Level shift in the series",
       "kind": "stat",
       "domain": "time",
       "severity": "medium",
@@ -168,6 +183,7 @@
     },
     {
       "id": "stat.population_stability",
+      "title": "Category mix shifted",
       "kind": "stat",
       "domain": "mix",
       "severity": "medium",
@@ -180,6 +196,7 @@
     },
     {
       "id": "dax.campaign_window_alignment",
+      "title": "Events outside the campaign window",
       "kind": "dax",
       "domain": "campaign_time",
       "severity": "medium",
@@ -193,6 +210,7 @@
     },
     {
       "id": "dax.campaign_name_churn",
+      "title": "Campaign renamed across sources",
       "kind": "dax",
       "domain": "campaign_time",
       "severity": "low",
@@ -206,6 +224,7 @@
     },
     {
       "id": "dax.event_day_boundary",
+      "title": "Event dated on the wrong day (timezone)",
       "kind": "dax",
       "domain": "time",
       "severity": "medium",
@@ -220,6 +239,7 @@
     },
     {
       "id": "dax.future_or_negative_durations",
+      "title": "Negative durations or future events",
       "kind": "dax",
       "domain": "time",
       "severity": "medium",

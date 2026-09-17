@@ -14,6 +14,8 @@ Plan (JSON):
   "cards": ["Starts", "Median Days to Contract"],              # numeric value under each card title
   "tables": {"velocity": "channel_name"},                      # key -> text that identifies the table; Total row parsed
   "charts": ["Reinquiries and New Inquiries by Channel"],      # SVG marks, highlight state, selected marks
+  "consistency": [{"label": "Leads card equals the channel table total",
+                   "a": "/cards/Leads", "b": "/tables/leads", "tolerance": 0}],
   "oracles": {"three": "EVALUATE ..."},                        # read-only DAX executed on the connection
   "steps": [
     {"capture": "state1_baseline", "description": "...",
@@ -32,6 +34,19 @@ calendar or edit-mode overlay is open. Expectations may be literal JSON values o
 card's displayed precision). Each capture records `cards` (parsed numbers, null when the
 card shows text such as "$240K"), `cards_text` (the raw text), `tables`, `slicers`
 (dropdown caption or the selected options of a list slicer) and `charts`.
+
+`consistency` declares the pairs an analyst would compare by hand: a figure that
+appears twice on the page (a card and a table total, two charts of the same
+measure) must agree under the same filters. Each pair names the two JSON pointers
+(resolved exactly like an expectation's pointer) and an absolute `tolerance`.
+After every capture the pair is evaluated on that observation and stored as
+`state['consistency'] = [{label, a, b, value_a, value_b, status}]` BEFORE the
+state is written, so the verdict is part of the hashed observation; the same list
+is mirrored in the journal's state record. `status` is `consistent`,
+`inconsistent`, or `not_comparable` when either side is missing or not a number.
+An inconsistent pair does NOT stop the run - it is a finding for the analyst to
+explain or reject - but the state record and the journal count it as
+`inconsistencies: N`.
 
 Receipt rules, enforced by the runner (a weak receipt stops the run after the
 observation is written, so you can read state.json and fix the plan):
@@ -60,7 +75,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from connections import dump, ensure_evidence_writable  # noqa: E402
 from pbi import dax  # noqa: E402
-from state_checks import check_state  # noqa: E402
+from state_checks import check_state, resolve_pointer  # noqa: E402
 import powerbi_controls as pc  # noqa: E402
 
 MARKS_JS = """e => Array.from(e.querySelectorAll('svg rect.bar, svg rect.column, svg path.slice, svg circle.dot')).map(m => ({
@@ -184,6 +199,34 @@ def derive(state, plan):
     return derived
 
 
+def consistency_results(state, pairs):
+    """Evaluate the plan's declared pairs on one observation.
+
+    A pair is a check the analyst would otherwise do by eye: the same figure in
+    two places under the same filters. Both sides resolve through the same JSON
+    pointer logic as an expectation, `tolerance` is absolute, and a side that is
+    missing or not a number makes the pair `not_comparable` rather than a failure.
+    """
+    results = []
+    for pair in pairs or []:
+        if not isinstance(pair, dict):
+            raise ValueError(f'Consistency pair must be an object: {pair!r}')
+        values = []
+        for side in ('a', 'b'):
+            try:
+                values.append(resolve_pointer(state, pair[side]))
+            except (KeyError, IndexError, TypeError, ValueError):
+                values.append(None)
+        comparable = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values)
+        tolerance = abs(float(pair.get('tolerance') or 0))
+        status = 'not_comparable' if not comparable else (
+            'consistent' if abs(values[0] - values[1]) <= tolerance else 'inconsistent')
+        results.append({'label': pair.get('label') or f"{pair.get('a')} vs {pair.get('b')}",
+                        'a': pair.get('a'), 'b': pair.get('b'),
+                        'value_a': values[0], 'value_b': values[1], 'status': status})
+    return results
+
+
 def run(connection, plan, out):
     out = Path(out).resolve()
     ensure_evidence_writable(out)
@@ -199,7 +242,8 @@ def run(connection, plan, out):
         dump(out / 'evidence/dax' / f'{name}.json', oracles[name])
     journal = {'kind': 'pbi_cycle', 'started_at': dt.datetime.now(dt.timezone.utc).isoformat(),
                'connection': {k: conn.get(k) for k in ('port', 'database', 'browser_endpoint', 'page_id', 'report')},
-               'report_title': title, 'page': plan['page'], 'plan': plan, 'states': [], 'actions': [], 'status': 'running'}
+               'report_title': title, 'page': plan['page'], 'plan': plan, 'states': [], 'actions': [],
+               'inconsistencies': 0, 'status': 'running'}
     dump(out / 'evidence/journal.json', journal)
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
@@ -219,6 +263,7 @@ def run(connection, plan, out):
                     state.update(derive(state, plan))
                     state['description'] = step.get('description', '')
                     state['derived'] = 'cards/tables parsed from this observation\'s own visual text after capture'
+                    state['consistency'] = consistency_results(state, plan.get('consistency'))
                     dump(folder / 'state.json', state)
                     asserted = resolve(step.get('expect', {}), oracles)
                     values = {pointer: v for pointer, v in asserted.items() if pointer not in GUARD_POINTERS}
@@ -228,6 +273,10 @@ def run(connection, plan, out):
                     record = {'label': label, 'description': step.get('description', ''), 'cards': state['cards'],
                               'tables': state['tables'], 'date': [state['date_start'], state['date_end']], 'slicers': state['slicers'],
                               'value_assertions': len(values)}
+                    if state['consistency']:
+                        record['consistency'] = state['consistency']
+                        record['inconsistencies'] = sum(1 for c in state['consistency'] if c['status'] == 'inconsistent')
+                        journal['inconsistencies'] = journal.get('inconsistencies', 0) + record['inconsistencies']
                     if step.get('allow_weak_receipt'):
                         record['weak_receipt_reason'] = step.get('weak_receipt_reason', '')
                     problem = receipt_problem(label, step, values, state, previous, actions_since)

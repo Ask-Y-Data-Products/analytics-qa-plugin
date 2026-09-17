@@ -7,6 +7,7 @@ import re
 import shutil
 import sys
 
+from analyst_view import is_technical
 from connections import dump, digest, query, ensure_evidence_writable
 from powerbi_inventory import visual_bindings
 
@@ -22,6 +23,10 @@ REVIEW_DECISIONS = ["accepted", "confirmed_defect", "unresolved", "exception"]
 LAYER_HELP = ("interaction = a slicer/click changed the numbers and receipts prove it; "
               "render = the screen shows the engine's numbers; engine = DAX only; "
               "cross-layer = source vs engine comparison")
+# The two fields the analyst actually reads on the sign-off page. `definition`,
+# `expected`, `observed` and `source` stay technical on purpose; these do not.
+PLAIN_LANGUAGE_HELP = ("write this for the analyst: no DAX, table or column names; "
+                       "say what the figure is and what the reader should compare")
 
 
 def now():
@@ -186,6 +191,9 @@ def validate_case(directory):
                 errors.append(f"{claim.get('id')}: layer and required/observed coverage are mandatory")
             elif claim["layer"] not in CASE_LAYERS:
                 errors.append(f"{claim.get('id')}: unknown layer {claim['layer']!r}; use one of {CASE_LAYERS} ({LAYER_HELP})")
+            token = is_technical(claim.get("question"))
+            if token:
+                errors.append(f"{claim.get('id')}: question reads {token!r}; {PLAIN_LANGUAGE_HELP}")
         for key in ["expected", "source", "status", "evidence"]:
             if key not in claim:
                 errors.append(f"{claim.get('id')}: missing {key}")
@@ -254,6 +262,10 @@ def validate_case(directory):
             continue
         if any(cid not in ids for cid in component["claim_ids"]):
             errors.append(f"Component {component['id']} references unknown claims")
+        if strict:
+            token = is_technical(component.get("what_it_shows"))
+            if token:
+                errors.append(f"Component {component['id']}: what_it_shows reads {token!r}; {PLAIN_LANGUAGE_HELP}")
         if not component["scenarios"]:
             errors.append(f"Component {component['id']} has no captured scenarios")
         for scenario in component["scenarios"]:
@@ -501,6 +513,12 @@ def attach_component(directory, run, spec_file):
     Everything that can be refused is checked against the SOURCE run before a
     single file is copied, so a rejected spec leaves no half-attached run behind
     and the corrected spec still attaches.
+
+    Two optional spec fields are written for the analyst rather than for the
+    record: the component's `what_it_shows` (one or two plain sentences that head
+    the sign-off card) and a claim's `question` (the one sentence the analyst
+    answers). Both are refused by strict validation when they read like DAX;
+    `definition`, `expected`, `observed` and `source` stay technical.
     """
     directory, run = Path(directory).resolve(), Path(run).resolve()
     ensure_evidence_writable(directory)
@@ -572,10 +590,14 @@ def attach_component(directory, run, spec_file):
                       "coverage": {"required": layers, "observed": layers if claim.get("status", "passed") != "inconclusive" else claim.get("observed_layers", layers)},
                       "evidence": [rel(f"{s}/state.json") for s in chosen] + oracle_files + list(claim.get("extra_evidence", [])),
                       "state_checks": [rel(f"{s}/check.json") for s in chosen] if layer == "interaction" else []}
+            if str(claim.get("question") or "").strip():
+                record["question"] = str(claim["question"]).strip()
             case["claims"].append(record)
         component = {"id": spec["id"], "name": spec["name"], "page": spec.get("page", journal.get("page")),
                      "definition": spec["definition"], "claim_ids": [c["id"] for c in spec["claims"]] + list(spec.get("related_claim_ids", [])),
                      "scenarios": scenarios, "run": rel("journal.json")}
+        if str(spec.get("what_it_shows") or "").strip():
+            component["what_it_shows"] = str(spec["what_it_shows"]).strip()
         case.setdefault("components", []).append(component)
         case.setdefault("facts", []).extend(facts)
         if spec.get("visual_ids"):

@@ -23,6 +23,16 @@ for the plan schema. A plan contains:
 - `page`, the slicer titles to record, the date slicer title (or null), the card
   titles and table markers whose numbers matter, the chart titles whose marks
   matter;
+- `consistency`: the pairs an analyst would compare by eye. For every figure that
+  appears twice on the page - a card and a table total, two charts of the same
+  measure, a total and the sum of its rows - declare a pair
+  `{"label": "Leads card equals the channel table total", "a": "/cards/Leads",
+  "b": "/tables/leads", "tolerance": 0}`. The runner evaluates it in every
+  situation, stores the verdict inside the hashed observation, and the sign-off
+  page shows a mismatch as a highlighted question for the analyst. An
+  inconsistent pair is a finding, not a stop; a missing or non-numeric side is
+  recorded as `not_comparable`. This is the only way that kind of check reaches
+  the analyst, so declare the pairs while you are looking at the page.
 - `oracles`: read-only DAX that computes the expected numbers for each state on
   the connected catalog, in the exact filter context of that state (dates,
   members, page filters);

@@ -26,7 +26,8 @@ listed fields and does not replace screenshot interpretation. Historical cases
 without this version marker remain readable, not retroactively certified.
 
 Components: `{id, name, page, definition, claim_ids, scenarios, run}` — the unit the
-analyst signs. Each scenario is `{id, description, evidence}` where evidence holds
+analyst signs, plus the optional `what_it_shows`. Each scenario is
+`{id, description, evidence}` where evidence holds
 the state's screenshot, observation and receipt (`screen.png`, `state.json`,
 `check.json`). Components are created by `qa.py component --case <dir> --run
 <pbi_cycle output> --spec <component.json>`, never typed by hand; the validator
@@ -34,6 +35,27 @@ requires a description and a screenshot per scenario and known claim IDs. The
 sign-off page (`review_form.py`) renders one card per component.
 A component spec claim's `layer` is one of interaction, render, engine or
 cross-layer; any other value is refused with those four listed.
+
+Plain-language fields: a component may carry `what_it_shows` (one or two
+sentences that head its sign-off card) and a claim may carry `question` (the one
+sentence the analyst answers). Both come from the component spec, both are
+optional, and both are written for the analyst: strict validation refuses one
+that reads like DAX — a function call, a `[column]` or `'Table'[Column]`
+reference, a `fact_`/`dim_` identifier, a tool word such as oracle or receipt, a
+file path — and the error quotes the offending token. The filter never applies
+to `definition`, `expected`, `observed` or `source`, which stay technical and
+render inside a collapsed block. Without these fields the page falls back to the
+definition's first sentence and to `expected`, so historical cases still render.
+
+Declared consistency pairs: a plan may carry
+`consistency: [{label, a, b, tolerance}]`, where `a` and `b` are JSON pointers
+into the observation (`/cards/Leads`, `/tables/leads`) for a figure that appears
+twice on the page. `pbi_cycle.py` evaluates every pair after each capture and
+writes `consistency: [{label, a, b, value_a, value_b, status}]` into `state.json`
+before it is hashed, mirrors it in the journal's state record, and counts
+`inconsistencies`. `status` is consistent, inconsistent or, when a side is
+missing or not a number, not_comparable. An inconsistent pair does not stop the
+run: it is a finding the analyst confirms or rejects on the sign-off page.
 
 Run and detector references: every `evidence/runs/<name>/` holding a
 `journal.json` must be the `run` of exactly one component, and every

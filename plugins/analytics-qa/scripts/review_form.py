@@ -1,11 +1,21 @@
 """Create a local sign-off page beside, never inside, a sealed evidence case.
 
-The page is visual first: one card per component with the captured Power BI
-screenshots in story order (baseline, change, reset), the numbers the reviewer
-should recognise, the open defects, and Sign / Reject buttons with a comment.
-Every button maps to per-claim decisions (accepted, confirmed_defect, unresolved)
-so the export stays compatible with `qa.py review`. Nothing is pre-selected and
-the export stays disabled until the reviewer identifies themselves and confirms.
+The page is written for an analyst, not for an engineer. Per component it says
+in one plain sentence what the figure is, shows the captured Power BI
+screenshots in story order, then lays the captures out as a table of what the
+screen actually showed in each situation, the checks an analyst would make by
+hand (does the reset land back on the baseline, did the change move anything,
+did it move the right way, does the card equal the table, did our own
+calculation agree), and finally the questions the analyst has to answer. Every
+technical form - the DAX definition, the per-claim expectations - is kept in a
+collapsed block, and Sign / Reject buttons map to per-claim decisions
+(accepted, confirmed_defect, unresolved) so the export stays compatible with
+`qa.py review`. Nothing is pre-selected and the export stays disabled until the
+reviewer identifies themselves and confirms.
+
+This module renders; `analyst_view.py` derives. Everything the page asserts about
+the captures comes from the sealed observations, the run journal and the plan,
+never from the agent's prose.
 """
 import argparse
 import base64
@@ -17,6 +27,7 @@ from pathlib import Path
 from jinja2 import Template
 from markupsafe import Markup
 
+import analyst_view
 from connections import digest
 from qa import verify
 
@@ -34,6 +45,25 @@ main{max-width:1280px;margin:auto;padding:20px 24px 60px}h1{font-size:26px;margi
 .shot figcaption{padding:8px 10px 10px;font-size:13.5px}.shot .step{display:inline-block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#586066;margin-bottom:3px}
 .shot a{color:inherit;text-decoration:none}.defects{margin:10px 0 0;padding:0;list-style:none}.defects li{padding:8px 12px;border-radius:6px;margin:6px 0;font-size:14px}
 .defects .failed{background:#fdecea;border-left:4px solid #b42318}.defects .inconclusive{background:#fff6df;border-left:4px solid #c27c11}
+h3{font-size:15px;margin:18px 0 6px;letter-spacing:.02em}.shows{margin:6px 0 10px;color:#1f2528;font-size:16px}
+details.tech{margin:0 0 10px}details.tech summary,details.note summary{cursor:pointer;color:#586066;font-size:13px}
+details.tech p{margin:6px 0 0;color:#333b40;font-size:13.5px;overflow-wrap:anywhere}
+.shot .figs{color:#1f2528;font-size:13px;margin-top:4px}.shot .note{color:#586066;font-size:12.5px;margin-top:4px}
+.scroll{overflow-x:auto;border:1px solid #e3e7e9;border-radius:8px}
+table.observed{width:100%;min-width:640px;margin:0;font-size:13.5px}table.observed th{background:#f7f9f9;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#586066;white-space:nowrap}
+table.observed td,table.observed th{padding:8px 10px;border-bottom:1px solid #e3e7e9}table.observed tr:last-child td{border-bottom:0}
+table.observed td:first-child{width:auto;font-weight:600}table.observed .num{text-align:right;white-space:nowrap}
+table.observed .delta{display:block;font-size:11.5px;color:#586066;font-weight:400}
+table.observed tr.base{background:#f7f9f9}.ok{color:#16794a;font-weight:600}.bad{color:#b42318;font-weight:600}
+ul.checks{margin:0;padding:0;list-style:none}ul.checks li{padding:6px 0 6px 26px;position:relative;font-size:14px;border-bottom:1px solid #f0f3f4}
+ul.checks li:last-child{border-bottom:0}ul.checks .mark{position:absolute;left:0;top:6px;font-weight:700}
+ul.checks .pass .mark{color:#16794a}ul.checks .fail .mark{color:#b42318}ul.checks .unknown .mark{color:#8a5a00}
+ul.checks li.fail{background:#fdecea;border-radius:6px;padding-left:26px;padding-right:10px;border-bottom:0;margin:4px 0}
+ol.asks{margin:0;padding-left:20px}ol.asks li{margin:8px 0;font-size:14.5px}ol.asks li.issue{color:#1f2528}
+ol.asks .detail{display:block;color:#586066;font-size:13.5px;margin-top:2px}
+ol.asks .meta{display:inline-block;color:#8b959a;font-size:11.5px;margin-left:6px}
+ol.asks details.note{margin-top:4px}ol.asks details.note p{margin:4px 0 0;font-size:12.5px;color:#586066;overflow-wrap:anywhere}
+ol.asks li.issue::marker{color:#b42318;font-weight:700}ol.asks li.open::marker{color:#c27c11;font-weight:700}
 .decide{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #e3e7e9}
 .decide button{font:inherit;font-weight:600;padding:10px 20px;border:2px solid transparent;border-radius:8px;cursor:pointer;min-width:120px}
 .sign{background:#16794a;color:#fff}.reject{background:#fff;color:#b42318;border-color:#b42318!important}
@@ -77,7 +107,9 @@ button.addEventListener('click',()=>{if(button.disabled)return;const at=new Date
  a.href=url;a.download=p.case_id+'-decisions.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  document.getElementById('status').textContent='Decisions exported ('+decisions.length+'). Hand the file back to create the sealed review revision.';});'''
 
-STEP_WORDS = ['Baseline', 'Change', 'Reset']
+MARKS = {'pass': '✓', 'fail': '✗', 'unknown': '?'}
+BLANK_CELL = '—'
+DOT = ' · '
 
 
 def plugin_version():
@@ -87,15 +119,6 @@ def plugin_version():
                               .read_text(encoding='utf-8-sig'))['version'])
     except (OSError, ValueError, KeyError, TypeError):
         return 'unknown'
-
-
-def step_label(index, total, description):
-    text = description.lower()
-    if index == 0:
-        return 'Baseline'
-    if any(word in text for word in ('restore', 'reset', 'return', 'cleared', 'back to')):
-        return 'Reset'
-    return 'Change'
 
 
 def claim_row(claim):
@@ -112,37 +135,125 @@ def claim_row(claim):
             f'<textarea class="small" rows="2" placeholder="Comment for this expectation only"></textarea></td></tr>')
 
 
-def component_card(component, claims, report_dir_rel, findings):
+def screenshot_strip(observations, report_dir_rel):
+    """Each captured situation: what was on screen, under which filters, with its figures."""
     esc = html.escape
     shots = []
-    scenarios = component.get('scenarios', [])
-    for index, scenario in enumerate(scenarios):
-        images = [e for e in scenario.get('evidence', []) if e.lower().endswith('.png')]
-        if not images:
+    for index, observation in enumerate(observations):
+        if not observation['screenshots']:
             continue
-        src = report_dir_rel + '/' + images[0]
-        shots.append(f'<figure class="shot"><a href="{esc(src)}" target="_blank" title="Open the full screenshot"><div class="crop"><img src="{esc(src)}" alt="{esc(scenario["description"])}" loading="lazy"></div></a>'
-                     f'<figcaption><span class="step">{esc(step_label(index, len(scenarios), scenario["description"]))} {index + 1}/{len(scenarios)}</span><br>{esc(scenario["description"])}</figcaption></figure>')
+        src = report_dir_rel + '/' + observation['screenshots'][0]
+        figures = DOT.join(f"{f['name']} {f['display']}" for f in observation['figures'] if f['display'])
+        note = observation.get('plan_description') or observation.get('description') or ''
+        note = '' if analyst_view.is_technical(note) else note
+        caption = (f'<span class="step">Situation {index + 1}/{len(observations)}</span><br>'
+                   f'<b>{esc(observation["situation"])}</b>: {esc(analyst_view.filter_phrase(observation))}')
+        if figures:
+            caption += f'<div class="figs">{esc(figures)}</div>'
+        if note:
+            caption += f'<div class="note">{esc(note)}</div>'
+        shots.append(f'<figure class="shot"><a href="{esc(src)}" target="_blank" title="Open the full screenshot">'
+                     f'<div class="crop"><img src="{esc(src)}" alt="{esc(observation["situation"])}" loading="lazy"></div></a>'
+                     f'<figcaption>{caption}</figcaption></figure>')
+    return ''.join(shots)
+
+
+def observed_table(observations):
+    """One row per captured situation, one column per figure, deltas against the baseline."""
+    esc = html.escape
+    if not observations:
+        return '<p>No captures are attached to this component.</p>'
+    baseline = observations[0]
+    columns = []
+    for observation in observations:
+        for figure in observation['figures']:
+            if figure['key'] not in [c['key'] for c in columns]:
+                columns.append(figure)
+    statuses = {o['label']: analyst_view.baseline_status(o, baseline) for o in observations}
+    show_status = any(statuses.values())
+    head = ''.join(f'<th class="num">{esc(c["name"])}</th>' for c in columns)
+    head = f'<tr><th>Situation</th><th>Dates</th><th>Filters</th>{head}' + ('<th>Back to baseline?</th>' if show_status else '') + '</tr>'
+    rows = []
+    for index, observation in enumerate(observations):
+        base = analyst_view.figures_of(baseline)
+        cells = []
+        for column in columns:
+            figure = analyst_view.figures_of(observation).get(column['key'])
+            if figure is None:
+                cells.append(f'<td class="num">{BLANK_CELL}</td>')
+                continue
+            change = analyst_view.delta(figure, base.get(column['key'])) if index else None
+            small = f'<span class="delta">{esc(change["text"])}</span>' if change else ''
+            cells.append(f'<td class="num">{esc(figure["display"] or BLANK_CELL)}{small}</td>')
+        status = statuses.get(observation['label'])
+        cell = ''
+        if show_status:
+            if status:
+                mark = MARKS['pass'] if status['status'] == 'pass' else MARKS['fail']
+                klass = 'ok' if status['status'] == 'pass' else 'bad'
+                cell = f'<td class="{klass}">{esc(status["text"])} {mark}</td>'
+            else:
+                cell = '<td></td>'
+        rows.append(f'<tr class="{"base" if index == 0 else ""}"><td>{esc(observation["situation"])}</td>'
+                    f'<td>{esc(observation["dates"])}</td>'
+                    f'<td>{esc(analyst_view.changed_filters(observation, baseline if index else None))}</td>'
+                    + ''.join(cells) + cell + '</tr>')
+    return ('<div class="scroll"><table class="observed"><thead>' + head + '</thead><tbody>'
+            + ''.join(rows) + '</tbody></table></div>')
+
+
+def checks_list(checks):
+    esc = html.escape
+    if not checks:
+        return '<p>Nothing could be checked automatically from these captures.</p>'
+    items = [f'<li class="{c["status"]}"><span class="mark">{MARKS.get(c["status"], "?")}</span>{esc(c["text"])}</li>'
+             for c in checks]
+    return '<ul class="checks">' + ''.join(items) + '</ul>'
+
+
+def questions_list(asks):
+    esc = html.escape
+    items = []
+    for ask in asks:
+        body = esc(ask['text'])
+        if ask.get('detail'):
+            body += f'<span class="detail">{esc(ask["detail"])}</span>'
+        if ask.get('meta'):
+            body += f'<span class="meta">{esc(ask["meta"])}</span>'
+        if ask.get('technical_note'):
+            body += ('<details class="note"><summary>Technical note</summary><p>'
+                     + esc(ask['technical_note'][:600]) + '</p></details>')
+        items.append(f'<li class="{ask["severity"]}">{body}</li>')
+    return '<ol class="asks">' + ''.join(items) + '</ol>'
+
+
+def component_card(component, claims, report_dir_rel, case_dir, catalog=None):
+    esc = html.escape
+    observations = analyst_view.component_observations(component, case_dir)
+    journal, plan = analyst_view.component_journal(component, case_dir)
+    checks = analyst_view.automatic_checks(observations, plan, journal)
     own = [claims[c] for c in component.get('claim_ids', []) if c in claims]
-    defects = []
-    for claim in own:
-        tag = f' <small>[{esc(claim["detector"])}]</small>' if claim.get('detector') else ''
-        if claim['status'] == 'failed':
-            defects.append(f'<li class="failed"><b>Defect {esc(claim["id"])}:</b>{tag} {esc(claim["expected"])} <br><small>{esc(claim.get("observed", ""))[:400]}</small></li>')
-        elif claim['status'] == 'inconclusive':
-            detail = f'<br><small>{esc(claim.get("observed", ""))[:300]}</small>' if claim.get('detector') else ''
-            defects.append(f'<li class="inconclusive"><b>Needs your decision {esc(claim["id"])}:</b>{tag} {esc(claim["expected"])}{detail}</li>')
+    asks = analyst_view.questions(component, own, checks, catalog)
     passed = sum(1 for c in own if c['status'] == 'passed')
     rows = ''.join(claim_row(c) for c in own)
+    definition = component.get('definition', '')
+    technical = (f'<details class="tech"><summary>Technical definition</summary><p>{esc(definition)}</p></details>'
+                 if definition else '')
     return f'''<section class="card" data-component="{esc(component["id"])}">
 <div class="head"><div><h2>{esc(component["name"])}</h2><div class="page">Report page: {esc(component.get("page", ""))} · {passed} of {len(own)} expectations passed</div></div></div>
-<p class="definition">{esc(component.get("definition", ""))}</p>
-<div class="strip">{''.join(shots) or '<p>No screenshots captured for this component.</p>'}</div>
-{('<ul class="defects">' + ''.join(defects) + '</ul>') if defects else ''}
+<h3>What this shows</h3><p class="shows">{esc(analyst_view.what_it_shows(component))}</p>
+{technical}
+<div class="strip">{screenshot_strip(observations, report_dir_rel) or '<p>No screenshots captured for this component.</p>'}</div>
+<h3>What we observed</h3>
+{observed_table(observations)}
+<h3>Checks</h3>
+{checks_list(checks)}
+<h3>Questions for you</h3>
+{questions_list(asks)}
 <div class="decide"><button type="button" class="sign" data-mode="sign" aria-pressed="false">Sign off</button><button type="button" class="reject" data-mode="reject" aria-pressed="false">Reject</button>
 <textarea placeholder="Comment (applies to every expectation of this component unless overridden below)"></textarea><button type="button" class="clear">Clear</button>
 <div class="state">No decision recorded for this component.</div></div>
-<details class="claims"><summary>Decide expectation by expectation ({len(own)})</summary><table><thead><tr><th>ID</th><th>Expectation and observation</th><th>Decision</th></tr></thead><tbody>{rows}</tbody></table></details>
+<details class="claims"><summary>Every expectation, with the technical detail ({len(own)})</summary><table><thead><tr><th>ID</th><th>Expectation and observation</th><th>Decision</th></tr></thead><tbody>{rows}</tbody></table></details>
 </section>'''
 
 
@@ -190,7 +301,8 @@ def prepare(case_path, out_path, embed_images=False):
     claims = {c['id']: c for c in case['claims']}
     components = case.get('components') or []
     covered = {cid for comp in components for cid in comp.get('claim_ids', [])}
-    cards = [component_card(comp, claims, report_dir_rel, case.get('findings', [])) for comp in components]
+    catalog = analyst_view.load_catalog()
+    cards = [component_card(comp, claims, report_dir_rel, case_dir, catalog) for comp in components]
     leftover = [claims[c] for c in claims if c not in covered]
     if leftover:
         cards.append('<section class="card" data-component="other"><div class="head"><h2>Other expectations</h2></div>'
@@ -205,7 +317,7 @@ def prepare(case_path, out_path, embed_images=False):
     document = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="generator" content="{generator}"><meta name="analytics-qa-case" content="{case_id}"><meta name="analytics-qa-manifest-sha256" content="{sha}">
 <title>{{{{ title }}}}</title><style>{STYLE}</style><main data-generator="{generator}" data-case-id="{case_id}" data-manifest-sha256="{sha}">
-<h1>{{{{ title }}}}</h1><p class="lead">Look at the screenshots, check the numbers you recognise, then sign off or reject each component. <a href="{{{{ report }}}}" target="_blank">Full evidence report</a></p>
+<h1>{{{{ title }}}}</h1><p class="lead">For each component: what it shows, what the screen showed in every situation we captured, the checks we ran on those numbers, and the questions only you can answer. Then sign off or reject. <a href="{{{{ report }}}}" target="_blank">Full evidence report</a></p>
 <p class="notice">Awaiting your decisions. No business approval has been recorded.</p>
 <div class="summary"><span class="pill pass"><b>{counts["passed"]}</b> passed</span><span class="pill fail"><b>{counts["failed"]}</b> defects found</span><span class="pill open"><b>{counts["inconclusive"]}</b> need a business decision</span><span class="pill"><b>{len(components)}</b> components</span></div>
 {{{{ cards }}}}
