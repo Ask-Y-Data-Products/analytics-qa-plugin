@@ -101,7 +101,11 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/review_form.py --case <sealed-case> --out <
 
 It shows, per component, the captured Power BI screenshots in story order with
 their descriptions, the open defects and business questions, and Sign off /
-Reject buttons with a comment. It starts with no decisions, requires reviewer
+Reject buttons with a comment. The page links the screenshots relative to the
+case folder; when the analyst will open it elsewhere (mail, a snapshot preview, a
+shared drive without the case), also produce a self-contained copy with
+`--embed-images` (`<case-name>-signoff-embedded.html`), which inlines every
+screenshot. It starts with no decisions, requires reviewer
 name and confirmation, and exports decisions pinned to the manifest. Open it in
 a headless browser (or read it back) and confirm every screenshot resolves and
 each component card shows its scenarios before reporting the path. The final

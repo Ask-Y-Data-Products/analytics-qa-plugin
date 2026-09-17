@@ -8,9 +8,11 @@ so the export stays compatible with `qa.py review`. Nothing is pre-selected and
 the export stays disabled until the reviewer identifies themselves and confirms.
 """
 import argparse
+import base64
 import html
 import json
 import os
+import re
 from pathlib import Path
 from jinja2 import Template
 from markupsafe import Markup
@@ -144,7 +146,35 @@ def component_card(component, claims, report_dir_rel, findings):
 </section>'''
 
 
-def prepare(case_path, out_path):
+PNG_LINK = re.compile(r'(src|href)="([^"]+\.png)"')
+
+
+def embed_png_links(document, base_dir):
+    """Replace relative PNG links with data URIs so the page works wherever it is opened.
+
+    A sign-off page normally references the sealed case's screenshots relatively,
+    which breaks when the file is mailed, previewed as a snapshot or moved away from
+    the case folder. Embedding trades a bigger file for a self-contained one; the
+    evidence itself stays in the sealed case.
+    """
+    base_dir = Path(base_dir)
+    cache = {}
+
+    def replace(match):
+        attribute, link = match.group(1), html.unescape(match.group(2))
+        if link.startswith('data:'):
+            return match.group(0)
+        if link not in cache:
+            path = (base_dir / link).resolve()
+            if not path.is_file():
+                raise ValueError(f'Screenshot referenced by the page is missing: {link}')
+            cache[link] = 'data:image/png;base64,' + base64.b64encode(path.read_bytes()).decode('ascii')
+        return f'{attribute}="{cache[link]}"'
+
+    return PNG_LINK.sub(replace, document), len(cache)
+
+
+def prepare(case_path, out_path, embed_images=False):
     case_dir, out = Path(case_path).resolve(), Path(out_path).resolve()
     if out.exists() or out.is_relative_to(case_dir):
         raise ValueError('Use a new output outside the sealed case')
@@ -187,10 +217,13 @@ def prepare(case_path, out_path):
     rendered = Template(document, autoescape=True).render(
         title=str(case.get('target', 'Analytics evidence review')), report=report,
         manifest=manifest_sha, cards=Markup('\n'.join(cards)), payload=Markup(payload))
+    embedded = 0
+    if embed_images:
+        rendered, embedded = embed_png_links(rendered, out.parent)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(rendered, encoding='utf-8')
     print(json.dumps({'form': str(out), 'manifest_sha256': manifest_sha, 'components': len(components),
-                      'generator': f'analytics-qa review_form {version}',
+                      'generator': f'analytics-qa review_form {version}', 'embedded_images': embedded,
                       'state': 'awaiting actual user decisions'}))
 
 
@@ -198,5 +231,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--case', required=True)
     parser.add_argument('--out', required=True)
+    parser.add_argument('--embed-images', action='store_true',
+                        help='inline every screenshot as a data URI so the page renders when opened away from the case folder (mail, snapshot previews)')
     args = parser.parse_args()
-    prepare(args.case, args.out)
+    prepare(args.case, args.out, embed_images=args.embed_images)
