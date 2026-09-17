@@ -56,7 +56,10 @@ COMMON_CAPITALISED = {
     "every", "not", "no", "yes", "one", "two", "three", "first", "last", "next", "same", "other",
     "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
     "january", "february", "march", "april", "may", "june", "july", "august", "september",
-    "october", "november", "december", "utc", "iso", "id", "ids", "url", "uri", "http", "https"}
+    "october", "november", "december", "utc", "iso", "id", "ids", "url", "uri", "http", "https",
+    "webview", "html", "css", "dom", "blank", "import", "mode", "custom", "visuals", "template",
+    "forecast", "median", "percentile", "mtd", "ytd", "refresh", "last", "run", "adding", "total",
+    "totals", "row", "rows", "value", "values", "step", "steps", "plan", "receipt", "receipts"}
 
 STOPWORDS = {
     "the", "and", "for", "are", "but", "not", "you", "all", "any", "can", "had", "her", "was", "one",
@@ -365,9 +368,14 @@ def residual_scan(text, replace, allow):
     for number, line in enumerate(text.splitlines(), start=1):
         for match in CAPITALISED.finditer(line):
             words = re.split(r"[ \-]", match.group(0))
-            if all(w.lower() in COMMON_CAPITALISED or w.lower() in allow for w in words):
-                continue
             if match.group(0).lower() in allow:
+                continue
+            # A client identity needs at least two words that are neither ordinary BI vocabulary,
+            # allowlisted, nor an all-caps token (DAX functions, acronyms). "The Power BI Desktop
+            # WebView" or "Run DAX" has none; "Northwind Traders" has two.
+            unusual = [w for w in words
+                       if w.lower() not in COMMON_CAPITALISED and w.lower() not in allow and not (w.isupper() and len(w) >= 3)]
+            if len(unusual) < 2:
                 continue
             residual.append({"kind": "name", "text": match.group(0), "line": number})
         for match in CURRENCY.finditer(line):
