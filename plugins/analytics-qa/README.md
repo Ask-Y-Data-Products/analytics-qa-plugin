@@ -7,7 +7,7 @@ so the next change can be compared against it. The scripts provide evidence
 operations and record integrity, never a universal correctness oracle.
 
 The story, the screenshots and the community knowledge base are in the
-[repository README](https://github.com/Ask-Y-Data-Products/analytics-qa-plugin).
+[repository README](https://github.com/Ask-Y-Data-Products/measure-qa-harness).
 
 ## The pipeline
 

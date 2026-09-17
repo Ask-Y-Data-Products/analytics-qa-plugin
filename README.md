@@ -1,12 +1,32 @@
 # Measure QA Community Harness
 
-**QA for dashboards, done the way an analyst does it, driven by your AI agent, signed by you.**
+**Put an AI agent to work on the QA you never have time for: it applies the
+community's own testing methods to your dashboard, hands you evidence your
+stakeholders can read and sign, and leaves a regression suite that catches what
+your next change breaks.**
 
-A Claude Code plugin — skills, Python tools and a shared knowledge base — that
-takes a Power BI report apart, stress-tests its numbers, shows you what it saw,
-asks you the questions a reviewer would ask, and keeps a sealed record so the next
-change can be compared against it. Open source, MIT, built by
-[Ask-Y](https://ask-y.ai) for the Measure community.
+A Claude Code plugin — skills, Python tools and a shared knowledge base — for the
+people who have to stand behind the numbers. The agent takes a Power BI report
+apart, stress-tests it the way a senior analyst would, shows you what it saw, asks
+the questions a reviewer would ask, and seals the whole thing so the next version
+of the report can be measured against it. Open source, MIT, built by
+[Ask-Y](https://ask-y.ai) with and for the Measure community.
+
+What you get out of it:
+
+- **The QA gets done.** The agent drives the report, runs the queries and writes
+  the evidence. You review, you do not click.
+- **Expert method, not guesswork.** A catalog of the failure modes that actually
+  bite marketing analytics — fan-out, ratio-of-averages, clock-driven flags,
+  timezone day boundaries, campaign windows, mix shifts — plus statistics over the
+  full series, applied per component.
+- **Something a stakeholder can read.** Screenshots, figures and plain questions,
+  not DAX. One page, signed or rejected per component, with the evidence sealed
+  behind it.
+- **A regression suite for your BI.** Every review becomes the baseline for the
+  next change, so BI gets tested the way software does.
+- **The community behind it.** Each review can publish what it learned, anonymised
+  and approved by you, into a knowledge base the next review searches first.
 
 > Installs as the `analytics-qa` plugin, so every skill is `/analytics-qa:…`.
 
@@ -15,7 +35,7 @@ change can be compared against it. Open source, MIT, built by
 ## Start here
 
 ```text
-/plugin marketplace add Ask-Y-Data-Products/analytics-qa-plugin
+/plugin marketplace add Ask-Y-Data-Products/measure-qa-harness
 /plugin install analytics-qa@ask-y-analytics-qa
 ```
 
@@ -64,9 +84,14 @@ nobody has, so the check gets skipped and the report drifts.
 
 We hit this twice at Ask-Y: our agents build analytics apps, and we convert Power
 BI dashboards to Prism. We needed a validation tool an agent can drive and an
-analyst can trust, and a regression tool that says exactly what changed. It only
-makes sense as a community project, because every team letting an agent near a
-dashboard needs the same harness.
+analyst can trust, and a regression tool that says exactly what changed.
+
+Software solved this decades ago with test suites nobody argues about. BI never
+did, because the checks live in people's heads: this card should equal that table,
+this ratio cannot exceed one, this month should not move when I change the date
+filter. This harness writes those checks down, has an agent run them, and keeps
+the result. And because the checks are the same everywhere, it only makes sense as
+a community project — every team letting an agent near a dashboard needs them.
 
 ---
 
