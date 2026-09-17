@@ -761,6 +761,9 @@ def search(config, project, query, topic=None, limit=5, kb=None):
 
 
 def main():
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
     dig = sub.add_parser("digest", help="Summarise recent sessions, inputs and cases into a local digest")
