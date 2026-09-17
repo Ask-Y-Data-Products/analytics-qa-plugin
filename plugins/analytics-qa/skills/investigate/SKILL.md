@@ -12,6 +12,15 @@ Use the user's project and existing connections. This plugin's scripts live at
 Use the project's virtual environment when present. Do not install or change
 the user's data/model without their request. Scope shell operations to this case.
 
+If the project has `kb.json`, search prior know-how before designing:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/scripts/retrospective.py search --config kb.json --project . --query "<report domain, visual type, failure mode>"
+```
+
+Read the top hits. When an article shaped a test you designed, cite it in the
+case's `limitations` or in the relevant finding.
+
 1. Read `pilot.json` (or ask the caller for equivalent connection/target context),
    business definitions and prior cases. Create a new case with `QA init --case
    <dir> --target <component> --project <root>`. This captures the current source

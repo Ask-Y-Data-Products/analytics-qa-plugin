@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "note": "Controlled vocabulary for knowledge-base articles. Topics are the searchable axis other skills query; free-form --tags carry everything else. Add a topic only when several articles would use it.",
+  "topics": [
+    {"id": "data-model", "label": "Data model and grain", "description": "Star/snowflake shape, grain choices, keys, bridges, and the modelling decisions that prevent a class of error."},
+    {"id": "fan-out-joins", "label": "Fan-out and duplicate keys", "description": "Row multiplication through relationships or joins, duplicated business keys, and the counts they inflate."},
+    {"id": "dax-time-intelligence", "label": "DAX time intelligence", "description": "Date tables, marked date roles, MTD/YTD, period comparisons, and context removal over dates."},
+    {"id": "ratios-and-averages", "label": "Ratios and averages", "description": "Ratio of totals versus mean of ratios, DIVIDE, weighted averages, and totals that do not equal their parts."},
+    {"id": "conversion-rate", "label": "Conversion rate", "description": "Conversion, close and qualification rates: numerator/denominator populations, bounds, and unstable days."},
+    {"id": "attribution", "label": "Attribution", "description": "First/last touch lenses, multi-path relationships, and comparisons across attribution models."},
+    {"id": "meta-ads", "label": "Meta ads reporting", "description": "Meta platform reporting behaviour: modelled conversions, restatement windows, breakdown limits."},
+    {"id": "google-ads", "label": "Google Ads reporting", "description": "Google Ads reporting behaviour: conversion lag, segment totals, currency and account scoping."},
+    {"id": "ga4", "label": "GA4", "description": "GA4 exports and API: sampling, thresholding, session/user scope, and day boundaries."},
+    {"id": "crm-vs-platform", "label": "CRM versus platform", "description": "Reconciling a CRM population with an ad platform's counts: definitions, lag, dedupe and matching."},
+    {"id": "reporting-gaps", "label": "Reporting gaps", "description": "Missing days, partial imports, late-arriving rows and other completeness failures that look like business change."},
+    {"id": "timezone-day-boundary", "label": "Timezone and day boundary", "description": "Timestamp versus date key, source and report timezones, and events landing on the wrong day."},
+    {"id": "campaign-windows", "label": "Campaign windows and naming", "description": "Campaign start/end alignment, events outside the window, renamed or churned campaign keys."},
+    {"id": "freshness-and-clock", "label": "Freshness and clock dependence", "description": "TODAY()/NOW() in the model, refresh watermarks, 'last updated' labels bound to a business date."},
+    {"id": "slicers-and-interactions", "label": "Slicers and interactions", "description": "Slicer, cross-filter and drill behaviour: what actually changes on screen and what silently does not."},
+    {"id": "statistical-detection", "label": "Statistical detection", "description": "Weekday bands, changepoints, ratio stability, population stability: thresholds, minimum points and pitfalls."},
+    {"id": "qa-process", "label": "QA process", "description": "How to run a review: scoping, evidence discipline, claim layers, what to leave inconclusive."},
+    {"id": "bi-acceleration", "label": "Accelerating BI work", "description": "What to automate, plan and template patterns, and the tool mistakes that cost the most time."},
+    {"id": "power-bi-desktop-automation", "label": "Power BI Desktop automation", "description": "Driving Desktop for observed states: connection, controls, capture, receipts and their failure modes."},
+    {"id": "bigquery", "label": "BigQuery", "description": "BigQuery as the source of truth: partitions, byte bounds, dry runs, and query patterns for evidence."},
+    {"id": "dbt", "label": "dbt", "description": "dbt models, tests, manifests and compiled versus deployed SQL divergence."},
+    {"id": "regression-testing", "label": "Regression testing", "description": "Re-running a case over changed models, restatements and new reporting dates without assuming stability."},
+    {"id": "sign-off-and-governance", "label": "Sign-off and governance", "description": "Analyst sign-off, decision records, exceptions, and keeping approval explicit and attributable."},
+    {"id": "headless-agents", "label": "Headless agents", "description": "Unattended runs: allowlists, budgets, transcripts, and what an exit code does not prove."},
+    {"id": "visual-rendering", "label": "Visual rendering", "description": "What the canvas shows versus what the engine computed: titles, formats, hidden filters, truncated axes."}
+  ]
+}

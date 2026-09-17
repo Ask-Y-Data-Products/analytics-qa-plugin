@@ -107,6 +107,11 @@ a headless browser (or read it back) and confirm every screenshot resolves and
 each component card shows its scenarios before reporting the path. The final
 message must give the absolute paths of report.html and the sign-off page.
 
+After the sign-off page exists, run the retrospective skill; it is part of
+finishing a review, not an extra. It reviews the sessions and the case, writes an
+anonymised know-how article for the plugin community, and publishes nothing
+without the user's explicit approval in chat.
+
 Before sealing, audit the report against the inventory and actual result files:
 each numerical claim must reproduce from its cited result; forecasts derived
 from static formulas must be labeled inferred, never observed in Power BI.

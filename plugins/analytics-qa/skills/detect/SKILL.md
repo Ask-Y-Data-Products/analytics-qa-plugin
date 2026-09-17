@@ -31,8 +31,12 @@ rest as review questions. Do not delete findings.
 ## 2. Select detectors per component
 
 From the investigation you know each component's measures, relationships, date
-role and visual type. Walk `catalog.json` and pick every detector whose
-`applies_when` matches; write down why the others do not apply. Typical minimum:
+role and visual type. When the project has `kb.json`, search the knowledge base
+for that shape first — `python ${CLAUDE_PLUGIN_ROOT}/scripts/retrospective.py
+search --config kb.json --project . --query "conversion rate Meta reporting
+gaps"` — and pick up the detectors and thresholds other reviews found useful.
+Then walk `catalog.json` and pick every detector whose `applies_when` matches;
+write down why the others do not apply. Typical minimum:
 
 | Component shape | Detectors |
 | --- | --- |

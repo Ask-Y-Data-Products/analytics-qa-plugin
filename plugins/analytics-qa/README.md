@@ -5,6 +5,17 @@ path, challenge business claims, preserve executable evidence, and revisit the
 case under changed models or data. The agent reasons; scripts provide evidence
 operations and record integrity, not a universal correctness oracle.
 
+## Skills
+
+| Skill | What it does |
+| --- | --- |
+| `investigate` | Reconstruct the source-to-screen path and open an evidence-backed case. |
+| `evaluate` | Challenge the claims with independent SQL, DAX, statistical and interaction experiments. |
+| `detect` | Run the failure-mode detectors per component and turn results into claims. |
+| `capture` | Assemble the evidence report and the analyst sign-off page. |
+| `regress` | Revisit a case under changed models, restatements or new reporting dates. |
+| `retrospective` | Write an anonymised know-how article from the finished review and, with the user's explicit approval, publish it to the shared knowledge base. |
+
 ## Run on another project
 
 1. Install Python dependencies from this directory's `requirements.txt` into your
@@ -65,6 +76,24 @@ buttons with a comment. Its exported
 decisions pin the exact manifest; this is a local attestation, not an authenticated
 digital signature. `qa.py review` creates a separate sealed revision
 from a decision JSON file; it does not overwrite the original evidence.
+
+## Knowledge base
+
+`scripts/retrospective.py` turns a finished review into an anonymised article
+other users of the plugin can search. `digest` summarises the project's recent
+Claude Code transcripts, the analyst's prompts and definitions and the cases'
+findings into a local file; that digest contains client material and never leaves
+the machine. The agent writes a draft, `redact` applies the project's
+`kb.json` replacements and scrubs emails, ids, user paths, URLs and phone-like
+numbers, then reports every capitalised name, currency amount and large figure it
+could not decide about. Only after the user explicitly approves in chat does
+`publish` write `articles/<date>-<slug>.md` into the configured git repository and
+rebuild `index.json` and `README.md`; it refuses without `--confirm` and
+`--approved-by`, on an unknown topic, or while a configured term still appears.
+`search` ranks articles with TF-IDF over title, topics, summary and body, so
+`investigate` and `detect` can ask "conversion rate Meta reporting gaps" before
+designing tests. Topics are the controlled vocabulary in
+`retrospective/topics.json`. See [references/knowledge-base.md](references/knowledge-base.md).
 
 ## Boundaries
 

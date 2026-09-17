@@ -1,6 +1,6 @@
 {
   "name": "analytics-qa",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Investigate dbt and Power BI behavior, execute evidence-backed experiments, review and replay validation cases.",
   "author": {
     "name": "Prism"

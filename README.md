@@ -47,6 +47,11 @@ what a passing result looks like: the project repository's
 | `/analytics-qa:detect` | Run the failure-mode detectors that apply to each component (model lint, DAX invariants, statistics over series) and attach the results as claims |
 | `/analytics-qa:capture` | Attach components (`qa.py component`), validate, seal, render, and generate the sign-off page (`review_form.py`) |
 | `/analytics-qa:regress` | Replay a sealed baseline against a changed report or period; classify preserved / regressed / expected changes with negative controls |
+| `/analytics-qa:retrospective` | After a review: digest the recent sessions and inputs locally, write an anonymised know-how article, get the user's explicit approval, publish it with topics to the shared knowledge base and index it for search |
+
+## Knowledge base
+
+Articles the community approved live in [analytics-qa-knowledge](https://github.com/Ask-Y-Data-Products/analytics-qa-knowledge). The `investigate` and `detect` skills search it before designing tests; `retrospective` writes to it. Configure `kb.json` in your project (see `references/knowledge-base.md`); point it at your own repository to keep articles internal.
 
 ## Scripts
 
