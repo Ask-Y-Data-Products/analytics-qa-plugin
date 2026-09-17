@@ -39,6 +39,19 @@ card shows text such as "$240K"), `cards_text` (the raw text), `tables`, `slicer
 appears twice on the page (a card and a table total, two charts of the same
 measure) must agree under the same filters. Each pair names the two JSON pointers
 (resolved exactly like an expectation's pointer) and an absolute `tolerance`.
+Besides that equality a pair may be derived from other figures on the same page:
+
+  {"label": "Conversion equals Starts / Leads", "ratio": ["/cards/Starts", "/cards/Leads"],
+   "equals": "/cards/Conversion", "tolerance": 0.1, "percent": true}
+  {"label": "Total Spend equals Spend + Other Expenses",
+   "sum": ["/cards/Spend", "/cards/Other Expenses"], "equals": "/cards/Total Spend", "tolerance": 1}
+  {"label": "CAC never below 0", "min": 0, "value": "/cards/CAC"}
+
+`percent` says the target card is stated as 0-100 while the ratio is 0-1, so the
+ratio is scaled before `tolerance` is applied. `value_a` is always the computed
+left side and `value_b` the target (or the limit), so the sign-off page can show
+the arithmetic. A card that displays an abbreviated value ("$240K") is
+`not_comparable` with that reason: declare the exact figure through an oracle.
 After every capture the pair is evaluated on that observation and stored as
 `state['consistency'] = [{label, a, b, value_a, value_b, status}]` BEFORE the
 state is written, so the verdict is part of the hashed observation; the same list
@@ -73,6 +86,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import analyst_view  # noqa: E402
 from connections import dump, ensure_evidence_writable  # noqa: E402
 from pbi import dax  # noqa: E402
 from state_checks import check_state, resolve_pointer  # noqa: E402
@@ -199,31 +213,48 @@ def derive(state, plan):
     return derived
 
 
+def state_lookup(state):
+    """`(value, text)` at a JSON pointer, for the consistency evaluator.
+
+    The text is what a card displayed when its number could not be parsed
+    ("$240K"), so an abbreviated card is reported as not comparable with the
+    reason, instead of silently reading as a missing figure.
+    """
+    def read(pointer):
+        try:
+            value = resolve_pointer(state, pointer)
+        except (KeyError, IndexError, TypeError, ValueError):
+            value = None
+        text = None
+        if str(pointer).startswith('/cards/'):
+            text = (state.get('cards_text') or {}).get(str(pointer)[len('/cards/'):])
+        return value, text
+    return read
+
+
 def consistency_results(state, pairs):
     """Evaluate the plan's declared pairs on one observation.
 
-    A pair is a check the analyst would otherwise do by eye: the same figure in
-    two places under the same filters. Both sides resolve through the same JSON
-    pointer logic as an expectation, `tolerance` is absolute, and a side that is
-    missing or not a number makes the pair `not_comparable` rather than a failure.
+    A pair is a check the analyst would otherwise do by eye. Besides the plain
+    equality of a figure that appears twice (`a`/`b`), a pair may be derived:
+    `{"ratio": ["/cards/Starts", "/cards/Leads"], "equals": "/cards/Conversion",
+    "percent": true}` for a ratio card against the two figures it divides,
+    `{"sum": [...], "equals": ...}` for a total against its parts, and
+    `{"min": 0, "value": "/cards/CAC"}` (or `max`) for a figure that may not
+    cross a limit. Every side resolves through the same JSON pointer logic as an
+    expectation, `tolerance` is absolute, and a side that is missing, is text or
+    divides by zero makes the pair `not_comparable` rather than a failure. The
+    arithmetic itself lives in `analyst_view.evaluate_consistency`, so the runner
+    and the sign-off page cannot drift apart.
     """
     results = []
     for pair in pairs or []:
         if not isinstance(pair, dict):
             raise ValueError(f'Consistency pair must be an object: {pair!r}')
-        values = []
-        for side in ('a', 'b'):
-            try:
-                values.append(resolve_pointer(state, pair[side]))
-            except (KeyError, IndexError, TypeError, ValueError):
-                values.append(None)
-        comparable = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values)
-        tolerance = abs(float(pair.get('tolerance') or 0))
-        status = 'not_comparable' if not comparable else (
-            'consistent' if abs(values[0] - values[1]) <= tolerance else 'inconsistent')
-        results.append({'label': pair.get('label') or f"{pair.get('a')} vs {pair.get('b')}",
-                        'a': pair.get('a'), 'b': pair.get('b'),
-                        'value_a': values[0], 'value_b': values[1], 'status': status})
+        if analyst_view.consistency_form(pair) is None:
+            raise ValueError(f'Consistency pair declares no comparison: {pair!r}. Give it "a" and "b", '
+                             'or "ratio"/"sum" with "equals", or "min"/"max" with "value".')
+        results.append(analyst_view.evaluate_consistency(pair, state_lookup(state)))
     return results
 
 

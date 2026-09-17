@@ -311,6 +311,14 @@ def orphan_evidence_errors(directory, case):
     for folder in sorted(p for p in (directory / "evidence/runs").glob("*") if (p / "journal.json").is_file()):
         name = folder.name
         owners = [r for r in runs if r == f"evidence/runs/{name}/journal.json"]
+        try:
+            status = read(folder / "journal.json").get("status")
+        except (OSError, ValueError):
+            status = None
+        if not owners and status != "completed":
+            # A run that stopped on a failed or weak receipt is retained evidence of the attempt,
+            # not an attachment; it can never be recorded by a component and must not block the case.
+            continue
         if not owners:
             errors.append(f"evidence/runs/{name} is attached but no component records it; "
                           "do not hand-edit case.json, attach runs with qa.py component")
@@ -534,7 +542,12 @@ def attach_component(directory, run, spec_file):
     case = read(directory / "case.json")
     ids = {c["id"] for c in case["claims"]}
     destination = safe_path(directory, "evidence/runs/" + run.name, f"component {spec['id']} run")
-    recovered = clear_leftover_copy(destination, directory, case, f"evidence/runs/{run.name}/journal.json")
+    if directory in run.parents or run == directory:
+        raise ValueError(
+            f"The cycle run lives inside the case ({run}). pbi_cycle output must be written outside the case, for example "
+            "<project>/runs/<name>, because qa.py component copies it into evidence/runs/<name> and would otherwise "
+            "overwrite its own source. Move the run directory out of the case and attach it again; nothing was changed.")
+    recovered = clear_leftover_copy(destination, directory, case, f"evidence/runs/{run.name}/journal.json", source=run)
     if any(c["id"] == spec["id"] for c in case.get("components", [])):
         raise ValueError("Component id already present")
     source = run / "evidence"
@@ -619,7 +632,7 @@ def attach_component(directory, run, spec_file):
             "facts": len(facts), "recovered_leftover_copy": recovered}
 
 
-def clear_leftover_copy(destination, directory, case, reference):
+def clear_leftover_copy(destination, directory, case, reference, source=None):
     """An existing copy is an attachment only if a record in case.json points at it.
 
     Otherwise it is debris from an attempt that was refused after copying, and is
@@ -627,6 +640,10 @@ def clear_leftover_copy(destination, directory, case, reference):
     """
     destination = Path(destination)
     if not destination.exists():
+        return False
+    if source is not None and (Path(source).resolve() == destination or destination in Path(source).resolve().parents):
+        # The caller is attaching a directory that IS the destination; deleting it would
+        # destroy the evidence being attached. attach_* refuses this earlier; never delete here.
         return False
     kind = "run" if reference.startswith("evidence/runs/") else "detector run"
     owners = [c for c in case.get("components", []) if c.get("run") == reference] if kind == "run" else \
@@ -663,7 +680,11 @@ def attach_detectors(directory, run, kind, component_id=None):
         raise ValueError(f"Component {component_id} is not attached yet; attach the component first")
     prefix = "evidence/detectors/" + run.name
     destination = safe_path(directory, prefix, f"detector run {run.name}")
-    recovered = clear_leftover_copy(destination, directory, case, prefix + "/")
+    if directory in run.parents or run == directory:
+        raise ValueError(
+            f"The detector run lives inside the case ({run}). Write lint and probe output outside the case, for example "
+            "<project>/runs/<name>, then attach it; nothing was changed.")
+    recovered = clear_leftover_copy(destination, directory, case, prefix + "/", source=run)
     rel = lambda name: f"{prefix}/{name}"
     new_claims, new_findings, new_facts = [], [], []
     if kind == "lint":
@@ -680,7 +701,11 @@ def attach_detectors(directory, run, kind, component_id=None):
             shown = hits[:12]
             listing = "; ".join(f"{h['object']}: {h['fragment'][:120]}" for h in shown)
             more = f" ... and {len(hits) - len(shown)} more (see the lint file)" if len(hits) > len(shown) else ""
-            new_claims.append({"id": cid, "expected": catalog_claim(method),
+            new_claims.append({"id": cid,
+                               "question": (f'The "{catalog_title(method)}" check flagged {len(hits)} '
+                                            + ("object" if len(hits) == 1 else "objects")
+                                            + " in this report. Is that intended here?"),
+                               "expected": catalog_claim(method),
                                "observed": f"{len(hits)} object(s). {hits[0]['why']} Hits: {listing}{more}",
                                "source": f"Model lint {method} (severity {hits[0]['severity']}); agent explanation pending.",
                                "status": "inconclusive", "layer": "cross-layer",
@@ -702,7 +727,14 @@ def attach_detectors(directory, run, kind, component_id=None):
             status = {"passed": "passed", "failed": "failed"}.get(record["status"], "inconclusive")
             outcome = probe.get("outcome", {})
             observed = probe.get("error") or summarize_outcome(record["method"], outcome)
-            new_claims.append({"id": cid, "expected": record.get("question") or catalog_claim(record["method"]),
+            asked = str(record.get("question") or "").strip()
+            if not asked or is_technical(asked):
+                asked = (f'The "{catalog_title(record["method"])}" check '
+                         + ("found a problem" if status == "failed" else
+                            "did not settle" if status == "inconclusive" else "passed")
+                         + " for this component. Does that match what you expect?")
+            new_claims.append({"id": cid, "question": asked,
+                               "expected": record.get("question") or catalog_claim(record["method"]),
                                "observed": f"{record['method']}: {observed}",
                                "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
                                "status": status, "layer": "engine",
@@ -795,6 +827,16 @@ def summarize_outcome(method, outcome):
     if method == "dax.assert":
         return f"Observed {outcome.get('actual')} {outcome.get('operator')} expected {outcome.get('expected')}" + (f" (tolerance {outcome.get('tolerance')})" if outcome.get("tolerance") is not None else "") + f": {'holds' if status == 'clean' else 'does not hold'}."
     return json.dumps({k: v for k, v in outcome.items() if k != "method"}, default=str)[:1200]
+
+
+def catalog_title(method):
+    """The short analyst-facing name of a detector, e.g. 'Events outside the campaign window'."""
+    catalog = HERE.parent / "detectors/catalog.json"
+    if catalog.is_file():
+        for entry in read(catalog).get("detectors", []):
+            if entry["id"] == method or entry.get("implemented_as") == method:
+                return entry.get("title") or entry["id"]
+    return str(method).split(".")[-1].replace("_", " ")
 
 
 def catalog_claim(method):

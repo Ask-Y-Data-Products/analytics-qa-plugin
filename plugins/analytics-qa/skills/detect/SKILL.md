@@ -7,6 +7,17 @@ description: Select and run failure-mode detectors (model lint, DAX invariants, 
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are step 3 of investigate → evaluate → detect → capture → (regress) → retrospective.
+
+Evaluate asks "does the control work". You ask "is the number right anyway". These are the
+failures that survive a working dashboard: double counting through a join, members that do
+not add up, a date flag driven by the clock, a ratio computed as an average of ratios,
+events attributed outside their campaign window, a timezone that moves a day, a spike or a
+level shift nobody explained, a channel mix that quietly changed.
+
+
 The capture cycles prove that controls do what they say. This skill hunts for
 the ways marketing analytics go wrong even when every control works: grain and
 join fan-out, ratios computed as averages, date flags driven by the clock,

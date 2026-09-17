@@ -51,11 +51,38 @@ Declared consistency pairs: a plan may carry
 `consistency: [{label, a, b, tolerance}]`, where `a` and `b` are JSON pointers
 into the observation (`/cards/Leads`, `/tables/leads`) for a figure that appears
 twice on the page. `pbi_cycle.py` evaluates every pair after each capture and
-writes `consistency: [{label, a, b, value_a, value_b, status}]` into `state.json`
-before it is hashed, mirrors it in the journal's state record, and counts
-`inconsistencies`. `status` is consistent, inconsistent or, when a side is
-missing or not a number, not_comparable. An inconsistent pair does not stop the
-run: it is a finding the analyst confirms or rejects on the sign-off page.
+writes `consistency: [{label, form, a, b, value_a, value_b, inputs, status}]`
+into `state.json` before it is hashed, mirrors it in the journal's state record,
+and counts `inconsistencies`. `status` is consistent, inconsistent or, when a
+side is missing or not a number, not_comparable (with `note` saying why - an
+abbreviated card such as "$240K" asks for the exact figure through an oracle).
+An inconsistent pair does not stop the run: it is a finding the analyst confirms
+or rejects on the sign-off page.
+
+Besides that equality (`form: "equality"`), a pair may be derived from other
+figures on the same page:
+
+* `{"label": ..., "ratio": ["/cards/Starts", "/cards/Leads"], "equals":
+  "/cards/Conversion", "tolerance": 0.1, "percent": true}` - a ratio card against
+  the two figures it divides. `percent` scales the 0-1 ratio to the 0-100 card
+  before `tolerance` is applied; a zero divider is not_comparable.
+* `{"label": ..., "sum": ["/cards/Spend", "/cards/Other Expenses"], "equals":
+  "/cards/Total Spend", "tolerance": 1}` - a total against its parts.
+* `{"label": "CAC never below 0", "min": 0, "value": "/cards/CAC"}`, or `max` -
+  a figure that may not cross a limit.
+
+`value_a` is always the computed left side and `value_b` the target (the figure
+it must equal, or the limit), and `inputs` records each pointer's own value, so
+the sign-off page can show the arithmetic. `tolerance` is absolute in every form.
+A pair that declares none of these four shapes is refused by the runner.
+
+Regression classification: a claim revisited by the regress skill may carry
+`change_classification`, exactly one of `preserved`, `expected change pending
+review`, `new regression`, `defect fixed`, `still open` or `inconclusive`. It is
+orthogonal to `status`, which stays passed, failed or inconclusive. The sign-off
+page counts the values in a strip under the header, badges each claim, and leads
+the component's questions with its `new regression` items. A case whose claims
+carry none renders exactly as before.
 
 Run and detector references: every `evidence/runs/<name>/` holding a
 `journal.json` must be the `run` of exactly one component, and every

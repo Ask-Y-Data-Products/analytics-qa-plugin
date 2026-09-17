@@ -7,6 +7,16 @@ description: Revisit an analytics validation case across model changes, source r
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are step 5 of investigate → evaluate → detect → capture → (regress) → retrospective, run when the report, the data or the period changed.
+
+The analyst wants one answer: did this change break anything. Replay the sealed baseline
+against the new report, separate what the change was meant to do from what it did by
+accident, and keep untouched pages as negative controls. Data moves too: a dashboard that
+was right in June can be wrong in August with nobody touching it.
+
+
 For Power BI targets, apply [Power BI investigation](../../references/powerbi-investigation.md)
 to the changed dependency closure and [Power BI testing](../../references/powerbi-testing.md)
 for stateful UI replay and period-aware comparisons.
@@ -68,5 +78,17 @@ defect fixed/still open, or inconclusive; explain numerical contributions and an
 unexplained remainder. Use capture to deliver the new report without auto-approval.
 Store this in `change_classification`; `status` remains passed, failed or
 inconclusive. Preserving an inconclusive claim does not turn it into a pass.
+
+The sign-off page renders `change_classification` literally, so write exactly one
+of these six values, in lower case: `preserved`, `expected change pending
+review`, `new regression`, `defect fixed`, `still open`, `inconclusive`. It
+counts them into a strip under the page header ("Since the reviewed baseline:
+2 preserved, 1 new regression"), badges each claim in its expectation table, and
+leads every affected component's "Questions for you" with its regressions,
+phrased "Since the baseline, <expected> no longer holds: <observed first
+sentence>. Is this an intended change?" - so write `expected` and `observed` for
+that sentence: plain, one sentence of observation first, no DAX (a technical
+wording is replaced by a neutral question and moved into the technical note). A
+case whose claims carry no `change_classification` renders exactly as before.
 Invoke the capture skill before delivery. Restore and capture the final UI state
 before sealing, then validate, seal, render and verify without further evidence writes.

@@ -7,6 +7,16 @@ description: Assemble a source-to-screen evidence report and the analyst sign-of
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are step 4 of investigate → evaluate → detect → capture → (regress) → retrospective.
+
+Everything found so far becomes two things: a sealed case, which is the input for a fix and
+the baseline for the next regression, and the sign-off page, which is what the analyst
+actually reads and signs. The page derives its own tables and checks from the evidence, so
+your job is the plain framing and the questions.
+
+
 ## Rules an unattended run must follow
 
 - Never hand-edit `case.json`. Every structure in it — claims, components,
@@ -84,8 +94,23 @@ reads off the evidence.
 
 An analyst's "does this card equal that table" check reaches the page only
 through the plan's `consistency` pairs (see the evaluate skill): declare a pair
-for every figure that appears twice on a page, and the runner evaluates it in
-every situation while the page shows any mismatch as a highlighted question.
+for every figure that appears twice on a page, and every derived pair (a ratio
+card against the figures it divides, a total against its parts, a bound a figure
+may not cross), and the runner evaluates them in every situation while the page
+shows any mismatch as a highlighted question.
+
+The page also lays the captures out for the eye, and you do not restate any of
+it. Per component it renders a **Situations** grid: one tile per capture, headed
+by its number and situation title, with the dates and changed filters, the key
+figures, and the screenshot itself - clicking any screenshot, the camera button
+on an observed row, or a "view" link beside a check opens the same full-size
+lightbox, and hovering an observed row highlights its tile. A page-level
+**Across components** card compares figures that carry the same name on more
+than one component: identical dates and identical slicer captions make the two
+values comparable and the page says whether they agree; anything else is listed
+side by side with no verdict, because a shared name does not prove a shared
+meaning. So capture two pages under the same dates and selections when you want
+them compared, and name the same figure the same way on both.
 
 `layer` is exactly one of `interaction` (a slicer/click changed the numbers and
 receipts prove it), `render` (the screen shows the engine's numbers), `engine`

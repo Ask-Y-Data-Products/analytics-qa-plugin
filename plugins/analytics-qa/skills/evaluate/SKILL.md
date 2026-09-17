@@ -7,6 +7,18 @@ description: Challenge marketing model and BI claims with independent SQL, DAX, 
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are step 2 of investigate → evaluate → detect → capture → (regress) → retrospective.
+
+Investigate mapped the component. Now test it the way an analyst would by hand: check one
+figure against another, the same figure on two pages, a card against its table, a ratio
+against the two numbers it divides; move one filter and see whether the numbers move the
+way they must; put it back and check it lands where it started; try a period where the
+data is stable and one where it is not. Every step is performed on the live report and
+checked against an independent calculation.
+
+
 For multi-component requests, finish one component's baseline/change/reset
 experiments before starting the next. Keep a worklist of requested states and
 actual evidence. Page navigation and duplicate screenshots do not count as
@@ -33,6 +45,28 @@ for the plan schema. A plan contains:
   inconsistent pair is a finding, not a stop; a missing or non-numeric side is
   recorded as `not_comparable`. This is the only way that kind of check reaches
   the analyst, so declare the pairs while you are looking at the page.
+  A pair does not have to be an equality between twins: it may be derived from
+  the other figures on the same page, which is how "does it make sense that this
+  is the ratio of those" becomes a check rather than an opinion.
+
+  ```json
+  {"label": "Conversion equals Starts / Leads", "ratio": ["/cards/Starts", "/cards/Leads"],
+   "equals": "/cards/Conversion", "tolerance": 0.1, "percent": true}
+  {"label": "Total Spend equals Spend + Other Expenses",
+   "sum": ["/cards/Spend", "/cards/Other Expenses"], "equals": "/cards/Total Spend", "tolerance": 1}
+  {"label": "CAC never below 0", "min": 0, "value": "/cards/CAC"}
+  ```
+
+  `percent` says the target card is stated as 0-100 while the ratio is 0-1, so
+  the ratio is scaled before `tolerance` is applied; `min`/`max` bound a figure
+  that may not cross a limit. The page shows the arithmetic it used ("Starts 66 /
+  Leads 1,978 = 3.3% vs Conversion 3.3%"), so declare the inputs you actually
+  want compared. Every ratio card on a page gets a derived pair against the
+  figures it is computed from; every total that also appears as a table total
+  gets an equality pair; when the same figure appears on two pages, capture both
+  pages under the same dates and slicer selections so the page can compare them.
+  A card that displays an abbreviated value ("$240K") is `not_comparable` and
+  says so - give the exact figure through an oracle instead.
 - `oracles`: read-only DAX that computes the expected numbers for each state on
   the connected catalog, in the exact filter context of that state (dates,
   members, page filters);
@@ -84,6 +118,12 @@ wrong member label, wrong card title), and rerun into a fresh output directory.
 Retain the failed run. Do not write your own Playwright when the runner covers
 the action; extend a plan instead. Save each plan as `plan.json` inside its run
 directory so `qa.py component` can retain it.
+
+Write every run OUTSIDE the case, one directory per attempt:
+`<project>/runs/<component>-<n>`. `qa.py component` copies the run into the
+case's `evidence/runs/<name>`, so a run written inside the case is refused (it
+would overwrite its own source). Failed attempts stay where they are as evidence
+of the attempt; only completed runs are attached.
 
 Before designing, inspect the page: `pbi.py capture --out <scratch> --page-id ...
 --report-title ...` records every visible visual's text, so you learn the exact

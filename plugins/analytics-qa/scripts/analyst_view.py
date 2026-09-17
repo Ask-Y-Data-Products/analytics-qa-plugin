@@ -17,7 +17,10 @@ missing (no `plan.consistency`, no claim `question`, no component
   component_observations(component, case_dir) -> one record per captured situation
   situation_labels(journal, plan)             -> capture label -> plain situation label
   automatic_checks(observations, plan, journal) -> computed pass/fail checks
+  cross_component_checks(views)               -> the same figure seen on several pages
   questions(component, claims, checks, catalog) -> the decisions asked of the analyst
+  evaluate_consistency(pair, lookup)          -> one declared pair, equality or derived
+  classification_counts(claims)               -> the regression strip, when a case carries one
   phrase_action(step)                         -> "Google Ads unchecked in Channel"
   format_number(value)                        -> "1,978"
   is_technical(text)                          -> the first engineer-only token, or None
@@ -116,6 +119,39 @@ def figure_name(kind, key):
         return str(key)
     base = pretty_key(key)
     return base if 'total' in base.lower() else base + ' total'
+
+
+def pointer_name(pointer):
+    """'/cards/Starts' -> 'Starts'; '/tables/leads' -> 'Leads total'; anything else unchanged."""
+    text = str(pointer or '')
+    if text.startswith('/cards/'):
+        return figure_name('card', text[len('/cards/'):])
+    if text.startswith('/tables/'):
+        return figure_name('table', text[len('/tables/'):])
+    return text
+
+
+def anchor_slug(text):
+    """A value safe to use inside an element id."""
+    slug = re.sub(r'[^A-Za-z0-9_-]+', '-', str(text or '')).strip('-')
+    return slug or 'component'
+
+
+def situation_anchor(component_id, index):
+    """The id of one situation tile; `index` is zero-based, the anchor counts from 1."""
+    return f'sit-{anchor_slug(component_id)}-{index + 1}'
+
+
+def component_anchor(component_id):
+    return f'comp-{anchor_slug(component_id)}'
+
+
+def first_sentence(text):
+    """The first sentence of a paragraph, without its final full stop."""
+    body = str(text or '').strip()
+    if not body:
+        return ''
+    return re.split(r'(?<=[.!?])\s+', body)[0].strip().rstrip('.').strip()
 
 
 def parse_date(text):
@@ -483,8 +519,148 @@ def baseline_status(observation, baseline):
 
 # --- automatic checks ------------------------------------------------------
 
+def _number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def _numbers(pair):
-    return all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in pair)
+    return all(_number(v) for v in pair)
+
+
+ABBREVIATED_NOTE = ('the card shows an abbreviated value; declare the exact figure '
+                    'through an oracle')
+UNREADABLE_NOTE = 'one of the figures could not be read as a number'
+ZERO_DIVIDER_NOTE = 'the figure it is divided by is zero'
+
+
+def consistency_form(pair):
+    """Which declared comparison this pair is, or None when it declares none.
+
+      equality  {a, b}                     the same figure in two places
+      ratio     {ratio: [p, q], equals}    a ratio card against the figures it divides
+      sum       {sum: [p, ...], equals}    a total against its parts
+      bound     {min|max, value}           a figure that may not cross a limit
+    """
+    if not isinstance(pair, dict):
+        return None
+    if isinstance(pair.get('ratio'), (list, tuple)) and len(pair['ratio']) == 2 and pair.get('equals'):
+        return 'ratio'
+    if isinstance(pair.get('sum'), (list, tuple)) and len(pair['sum']) >= 2 and pair.get('equals'):
+        return 'sum'
+    if ('min' in pair or 'max' in pair) and pair.get('value'):
+        return 'bound'
+    if pair.get('a') and pair.get('b'):
+        return 'equality'
+    return None
+
+
+def evaluate_consistency(pair, lookup):
+    """One declared pair evaluated on one observation.
+
+    `lookup(pointer)` returns `(value, text)`: the value at that JSON pointer and,
+    for a card, the text the card displayed when its number could not be parsed.
+    `tolerance` is absolute and is applied after `percent` has scaled a ratio to
+    0-100, so a conversion card stated as 3.3 is compared with 3.3 and not 0.033.
+    `value_a` is always the computed left side and `value_b` the target (the
+    figure it must equal, or the limit it may not cross), so the page can say
+    "Starts 66 / Leads 1,978 = 3.3% vs Conversion 3.3%".
+
+    A side that is missing, is text ("$240K") or divides by zero makes the pair
+    `not_comparable` rather than a failure, and `note` says so in plain words.
+    Never raises: an old case and a malformed pair both come back as a result.
+    """
+    pair = pair if isinstance(pair, dict) else {}
+    form = consistency_form(pair)
+    result = {'label': str(pair.get('label') or '').strip() or 'Declared pair', 'form': form,
+              'a': pair.get('a'), 'b': pair.get('b'), 'value_a': None, 'value_b': None,
+              'status': 'not_comparable', 'inputs': [], 'percent': bool(pair.get('percent')), 'note': None}
+    if form is None:
+        result['note'] = 'the pair declares no comparison'
+        return result
+
+    def read(pointer):
+        value, text = lookup(pointer)
+        entry = {'pointer': pointer, 'name': pointer_name(pointer), 'value': value, 'text': text,
+                 'display': format_number(value) if _number(value) else (text or format_number(value))}
+        result['inputs'].append(entry)
+        return entry
+
+    note = None
+    if form == 'equality':
+        left, right = read(pair['a']), read(pair['b'])
+        result['label'] = str(pair.get('label') or '').strip() or f"{pair['a']} vs {pair['b']}"
+        value_a, value_b = left['value'], right['value']
+    elif form == 'ratio':
+        top, bottom = (read(reference) for reference in pair['ratio'])
+        target = read(pair['equals'])
+        result['a'], result['b'] = list(pair['ratio']), pair['equals']
+        value_a, value_b = None, target['value']
+        if _numbers((top['value'], bottom['value'])):
+            if bottom['value']:
+                value_a = top['value'] / bottom['value'] * (100 if result['percent'] else 1)
+            else:
+                note = ZERO_DIVIDER_NOTE
+    elif form == 'sum':
+        parts = [read(reference) for reference in pair['sum']]
+        target = read(pair['equals'])
+        result['a'], result['b'] = list(pair['sum']), pair['equals']
+        value_a = sum(p['value'] for p in parts) if _numbers([p['value'] for p in parts]) else None
+        value_b = target['value']
+    else:
+        entry = read(pair['value'])
+        kind = 'min' if 'min' in pair else 'max'
+        result['a'], result['b'] = pair['value'], kind
+        result['bound_kind'], result['bound'] = kind, pair[kind]
+        value_a, value_b = entry['value'], pair[kind]
+    result['value_a'], result['value_b'] = value_a, value_b
+    if not _numbers((value_a, value_b)):
+        result['status'] = 'not_comparable'
+        if note:
+            result['note'] = note
+        elif any(entry['text'] and not _number(entry['value']) for entry in result['inputs']):
+            result['note'] = ABBREVIATED_NOTE
+        else:
+            result['note'] = UNREADABLE_NOTE
+        return result
+    if form == 'bound':
+        held = value_a >= value_b if result['bound_kind'] == 'min' else value_a <= value_b
+        result['status'] = 'consistent' if held else 'inconsistent'
+        return result
+    tolerance = abs(float(pair.get('tolerance') or 0))
+    result['status'] = 'consistent' if abs(value_a - value_b) <= tolerance else 'inconsistent'
+    return result
+
+
+def _figure_display(result, index):
+    entries = result.get('inputs') or []
+    return entries[index] if index < len(entries) else {'name': '', 'display': ''}
+
+
+def _scaled(result, value):
+    text = format_number(round(value, 4) if _number(value) else value)
+    return text + '%' if result.get('percent') else text
+
+
+def consistency_phrase(result, agree=False):
+    """The arithmetic behind one evaluated pair, in one short phrase.
+
+    'Starts 66 / Leads 1,978 = 3.3% vs Conversion 3.3%' for a ratio, the two
+    values joined by '=' (agreeing) or 'vs' (differing) for a plain equality.
+    """
+    left, right = result.get('value_a'), result.get('value_b')
+    form = result.get('form') or 'equality'
+    if form == 'equality':
+        joiner = ' = ' if agree else ' vs '
+        return format_number(left) + joiner + format_number(right)
+    if form == 'bound':
+        entry = _figure_display(result, 0)
+        limit = 'never below' if result.get('bound_kind') == 'min' else 'never above'
+        return f"{entry['name']} {format_number(left)}, {limit} {format_number(right)}"
+    parts = (result.get('inputs') or [])[:-1]
+    target = (result.get('inputs') or [{}])[-1]
+    operator = ' / ' if form == 'ratio' else ' + '
+    computed = operator.join(f"{p['name']} {p['display']}" for p in parts)
+    return f"{computed} = {_scaled(result, left)} vs {target.get('name', 'the card')} {_scaled(result, right)}"
 
 
 def consistency_of(observation, pairs):
@@ -495,27 +671,18 @@ def consistency_of(observation, pairs):
         return []
     figures = figures_of(observation)
 
-    def resolve(reference):
+    def lookup(reference):
         reference = str(reference or '')
+        figure = None
         if reference.startswith('/cards/'):
-            return figures.get('card:' + reference[len('/cards/'):], {}).get('value')
-        if reference.startswith('/tables/'):
-            return figures.get('table:' + reference[len('/tables/'):], {}).get('value')
-        return None
+            figure = figures.get('card:' + reference[len('/cards/'):])
+        elif reference.startswith('/tables/'):
+            figure = figures.get('table:' + reference[len('/tables/'):])
+        if figure is None:
+            return None, None
+        return figure.get('value'), figure.get('text')
 
-    results = []
-    for pair in pairs:
-        if not isinstance(pair, dict):
-            continue
-        left, right = resolve(pair.get('a')), resolve(pair.get('b'))
-        tolerance = abs(float(pair.get('tolerance') or 0))
-        if not _numbers((left, right)):
-            status = 'not_comparable'
-        else:
-            status = 'consistent' if abs(left - right) <= tolerance else 'inconsistent'
-        results.append({'label': pair.get('label') or 'Declared pair', 'a': pair.get('a'), 'b': pair.get('b'),
-                        'value_a': left, 'value_b': right, 'status': status})
-    return results
+    return [evaluate_consistency(pair, lookup) for pair in pairs if isinstance(pair, dict)]
 
 
 def automatic_checks(observations, plan=None, journal=None):
@@ -541,12 +708,12 @@ def automatic_checks(observations, plan=None, journal=None):
         situation = observation['situation']
         if status['status'] == 'pass':
             checks.append({'id': f"reset-{observation['label']}", 'kind': 'reset', 'status': 'pass',
-                           'situation': situation,
+                           'situation': situation, 'capture_labels': [baseline['label'], observation['label']],
                            'text': f'Putting the filters back gave the baseline figures again ({situation}).'})
         else:
             names = join_phrases(status['figures'])
             checks.append({'id': f"reset-{observation['label']}", 'kind': 'reset', 'status': 'fail',
-                           'situation': situation,
+                           'situation': situation, 'capture_labels': [baseline['label'], observation['label']],
                            'text': f'{situation}: the filters are back to the baseline but {names} '
                                    f'did not return to the baseline value.',
                            'question': f'{names} did not come back to the baseline figure after the filters '
@@ -568,12 +735,14 @@ def automatic_checks(observations, plan=None, journal=None):
             if other is not None and figure['display'] != other['display']:
                 moved.append(f"{figure['name']} ({other['display'] or 'blank'} → {figure['display'] or 'blank'})")
         situation = observation['situation']
+        pair_labels = [previous['label'], observation['label']]
         if moved:
             checks.append({'id': f"changed-{observation['label']}", 'kind': 'changed', 'status': 'pass',
-                           'situation': situation, 'text': f'{situation} changed {join_phrases(moved)}.'})
+                           'situation': situation, 'capture_labels': pair_labels,
+                           'text': f'{situation} changed {join_phrases(moved)}.'})
         else:
             checks.append({'id': f"changed-{observation['label']}", 'kind': 'changed', 'status': 'fail',
-                           'situation': situation,
+                           'situation': situation, 'capture_labels': pair_labels,
                            'text': f'{situation} left every figure unchanged.',
                            'question': f'{situation} did not move any figure on this page.',
                            'prompt': 'Should this change have had no effect here?'})
@@ -593,13 +762,13 @@ def automatic_checks(observations, plan=None, journal=None):
                 wrong.append(f"{figure['name']} ({other['display']} → {figure['display']})")
         if wrong:
             checks.append({'id': f"direction-{observation['label']}", 'kind': 'direction', 'status': 'fail',
-                           'situation': situation,
+                           'situation': situation, 'capture_labels': pair_labels,
                            'text': f"{situation}: {expectation['because']}, yet {join_phrases(wrong)} moved the other way.",
                            'question': f'{join_phrases(wrong)} moved the wrong way when {situation[:1].lower() + situation[1:]}.',
                            'prompt': expectation['prompt']})
         else:
             checks.append({'id': f"direction-{observation['label']}", 'kind': 'direction', 'status': 'pass',
-                           'situation': situation,
+                           'situation': situation, 'capture_labels': pair_labels,
                            'text': f"{situation}: {expectation['because']}, and no figure moved the other way."})
 
     # 4. Declared consistency pairs, per situation.
@@ -610,28 +779,41 @@ def automatic_checks(observations, plan=None, journal=None):
             if result.get('label') not in labels:
                 labels.append(result.get('label'))
     for label in labels:
-        failures, comparisons, comparable = [], [], 0
+        failures, comparisons, notes = [], [], []
+        failed_labels, comparable_labels = [], []
+        bound = False
         for observation in observations:
             result = next((r for r in consistency_of(observation, pairs) if r.get('label') == label), None)
             if not result:
                 continue
+            bound = bound or result.get('form') == 'bound'
             if result.get('status') == 'inconsistent':
-                failures.append(f"{observation['situation']} ({format_number(result.get('value_a'))} vs "
-                                f"{format_number(result.get('value_b'))})")
+                failures.append(f"{observation['situation']} ({consistency_phrase(result)})")
+                failed_labels.append(observation['label'])
             elif result.get('status') == 'consistent':
-                comparable += 1
-                comparisons.append(f"{format_number(result.get('value_a'))} = {format_number(result.get('value_b'))}")
+                comparable_labels.append(observation['label'])
+                comparisons.append(consistency_phrase(result, agree=True))
+            elif result.get('note') and result['note'] not in notes:
+                notes.append(result['note'])
         if failures:
             checks.append({'id': f'consistency-{label}', 'kind': 'consistency', 'status': 'fail',
-                           'text': f"{label}: they do not agree in {', '.join(failures)}.",
-                           'question': f"{label}, but they do not: {failures[0]}.",
-                           'prompt': 'Is one of them meant to ignore a filter?'})
-        elif comparable:
+                           'capture_labels': failed_labels,
+                           'text': (f"{label}: it does not hold in {', '.join(failures)}." if bound else
+                                    f"{label}: they do not agree in {', '.join(failures)}."),
+                           'question': f"{label}, but they do not: {failures[0]}." if not bound else
+                                       f"{label}, but it does not: {failures[0]}.",
+                           'prompt': 'Is one of them meant to ignore a filter?' if not bound else
+                                     'Is that figure allowed to cross this limit?'})
+        elif comparable_labels:
             checks.append({'id': f'consistency-{label}', 'kind': 'consistency', 'status': 'pass',
-                           'text': f"{label}: they agree in every situation ({comparisons[0]})."})
+                           'capture_labels': comparable_labels,
+                           'text': (f'{label}: it held in every situation ({comparisons[0]}).' if bound else
+                                    f'{label}: they agree in every situation ({comparisons[0]}).')})
         else:
+            reason = notes[0] if notes else 'one of the figures was not readable'
             checks.append({'id': f'consistency-{label}', 'kind': 'consistency', 'status': 'unknown',
-                           'text': f'{label}: one of the two figures was not readable, so they could not be compared.'})
+                           'capture_labels': [],
+                           'text': f'{label}: not compared - {reason}.'})
 
     # 5. What our own independent calculation said.
     statuses = [o.get('receipt_status') for o in observations if o.get('receipt_status')]
@@ -678,6 +860,107 @@ def direction_expectation(steps, previous, observation):
     return None
 
 
+# --- across components -----------------------------------------------------
+
+def context_key(observation):
+    """The filter context of a capture: its dates and every slicer caption."""
+    slicers = observation.get('slicers') or {}
+    return (observation.get('date_start'), observation.get('date_end'),
+            tuple(sorted((str(k), str(v)) for k, v in slicers.items())))
+
+
+def figure_entries(views):
+    """Every figure of every capture, keyed by the figure's name in lower case.
+
+    `views` is `[{'component': component, 'observations': [...]}, ...]` - what the
+    page already derived per card, so nothing is read twice.
+    """
+    entries = {}
+    for view in views or []:
+        component = (view or {}).get('component') or {}
+        component_id = str(component.get('id') or '')
+        name = str(component.get('name') or component_id)
+        for index, observation in enumerate(view.get('observations') or []):
+            for figure in observation.get('figures') or []:
+                figure_title = str(figure.get('name') or '').strip()
+                if not figure_title:
+                    continue
+                entries.setdefault(figure_title.lower(), []).append({
+                    'name': figure_title, 'component_id': component_id, 'component': name,
+                    'situation': observation.get('situation'), 'anchor': situation_anchor(component_id, index),
+                    'dates': observation.get('dates'), 'filters': filter_phrase(observation),
+                    'context': context_key(observation), 'value': figure.get('value'),
+                    'display': figure.get('display'),
+                    'screenshot': (observation.get('screenshots') or [None])[0]})
+    return entries
+
+
+MAX_SHARED_ROWS = 12
+BLANK = 'nothing'
+
+
+def _link(entry):
+    return {'label': f"{entry['component']} - {entry['situation']}", 'anchor': entry['anchor'],
+            'screenshot': entry['screenshot']}
+
+
+def cross_component_checks(views):
+    """The same figure name seen on more than one component.
+
+    Only one thing is asserted: under the same dates and the same slicer
+    captions, a figure that carries the same name on two pages must show the same
+    value. Everything else is listed side by side without a verdict, because a
+    name alone does not say what a figure means - no relationship is inferred
+    from names, only what the plan declared and what identical context proves.
+
+    Returns `{'checks': [...], 'shared': [...]}`; both are empty when no figure
+    name occurs on two components.
+    """
+    entries = figure_entries(views)
+    checks, shared = [], []
+    for key in sorted(entries):
+        rows = entries[key]
+        if len({row['component_id'] for row in rows}) < 2:
+            continue
+        name = rows[0]['name']
+        compared_contexts = []
+        for context in dict.fromkeys(row['context'] for row in rows):
+            group = [row for row in rows if row['context'] == context]
+            components = list(dict.fromkeys(row['component_id'] for row in group))
+            if len(components) < 2:
+                continue
+            compared_contexts.append(context)
+            picked = [next(row for row in group if row['component_id'] == cid) for cid in components]
+            names = join_phrases([f"'{row['component']}'" for row in picked])
+            where = picked[0]['filters']
+            displays = {row['display'] for row in picked}
+            check = {'id': f'cross-{anchor_slug(key)}-{len(compared_contexts)}', 'kind': 'cross',
+                     'links': [_link(row) for row in picked]}
+            if len(displays) == 1:
+                check.update({'status': 'pass',
+                              'text': f'{name} on {names} agree ({picked[0]["display"]}) for {where}.'})
+            else:
+                listed = join_phrases([f"'{row['component']}' shows {row['display'] or BLANK}" for row in picked])
+                check.update({'status': 'fail',
+                              'text': f'{name} does not agree for {where}: {listed}.',
+                              'question': f'{name} is not the same on every page for {where}: {listed}.',
+                              'prompt': 'Which page is right, or do they intentionally count different things?'})
+            checks.append(check)
+        leftover, seen = [], set()
+        for row in rows:
+            if row['context'] in compared_contexts:
+                continue
+            marker = (row['component_id'], row['context'])
+            if marker in seen:
+                continue
+            seen.add(marker)
+            leftover.append(row)
+        if len({row['component_id'] for row in leftover}) >= 2:
+            shared.append({'name': name, 'rows': leftover[:MAX_SHARED_ROWS],
+                           'prompt': 'Are these meant to differ?'})
+    return {'checks': checks, 'shared': shared}
+
+
 # --- questions -------------------------------------------------------------
 
 def load_catalog(path=None):
@@ -704,19 +987,80 @@ def detector_label(catalog, method):
 
 NOTHING_TO_ASK = ('Nothing looked inconsistent. Do these figures match what you expect for these dates and filters?')
 
+# The vocabulary the regress skill writes into a claim's `change_classification`.
+# Anything else a case carries is shown as written, never renamed.
+CLASSIFICATIONS = ('preserved', 'expected change pending review', 'new regression',
+                   'defect fixed', 'still open', 'inconclusive')
+REGRESSION = 'new regression'
 
-def questions(component, claims, checks, catalog=None):
-    """The decisions asked of the analyst: every computed failure, then every open claim."""
-    items = []
+
+def classification_of(claim):
+    """A claim's `change_classification` in lower case, or None on a non-regression case."""
+    value = str((claim or {}).get('change_classification') or '').strip().lower()
+    return value or None
+
+
+def classification_counts(claims):
+    """[(classification, count)] for the regression strip; empty when no claim carries one.
+
+    The known vocabulary keeps its order so the strip reads the same on every
+    case; a value the skill did not define is appended as written rather than
+    dropped or corrected.
+    """
+    found = [classification_of(claim) for claim in claims or []]
+    found = [value for value in found if value]
+    if not found:
+        return []
+    order = list(CLASSIFICATIONS) + [value for value in dict.fromkeys(found) if value not in CLASSIFICATIONS]
+    return [(value, found.count(value)) for value in order if found.count(value)]
+
+
+def regression_question(claim, catalog=None):
+    """"Since the baseline, X no longer holds: Y. Is this an intended change?"
+
+    Falls back to the neutral phrasing (and moves the wording into the technical
+    note) exactly as an ordinary claim does when the agent wrote for engineers.
+    """
+    expected = str(claim.get('expected') or '').strip().rstrip('.')
+    observed = first_sentence(claim.get('observed'))
+    entry = {'kind': 'claim', 'id': claim.get('id'), 'claim_id': claim.get('id'), 'severity': 'issue',
+             'meta': claim.get('detector'), 'detail': None, 'technical_note': None,
+             'classification': REGRESSION}
+    if expected and observed and not is_technical(expected) and not is_technical(observed):
+        entry['text'] = (f'Since the baseline, {expected} no longer holds: {observed}. '
+                         'Is this an intended change?')
+        return entry
+    label = detector_label(catalog, claim.get('detector')) if claim.get('detector') else None
+    subject = f'the "{label}" check' if label else f'one expectation ({claim.get("id")})'
+    entry['text'] = (f'Since the baseline, {subject} no longer holds; see the technical note. '
+                     'Is this an intended change?')
+    entry['technical_note'] = '. '.join(part for part in (expected, str(claim.get('observed') or '').strip()) if part) or None
+    return entry
+
+
+def questions(component, claims, checks, catalog=None, fallback=True):
+    """The decisions asked of the analyst.
+
+    Order: what the baseline lost (`change_classification` = new regression), then
+    every computed failure, then every open claim. `fallback` off leaves the list
+    empty instead of asking for a confirmation - the page-level card has nothing
+    to confirm when nothing was comparable.
+    """
+    items, regressions = [], []
+    for claim in claims or []:
+        if classification_of(claim) == REGRESSION:
+            regressions.append(claim.get('id'))
+            items.append(regression_question(claim, catalog))
     for check in checks or []:
         if check.get('status') != 'fail':
             continue
         items.append({'kind': 'check', 'id': check.get('id'), 'severity': 'issue',
                       'text': check.get('question') or check.get('text'),
-                      'detail': check.get('prompt'), 'meta': None, 'technical_note': None})
+                      'detail': check.get('prompt'), 'meta': None, 'technical_note': None,
+                      'capture_labels': check.get('capture_labels') or [], 'links': check.get('links') or []})
     for claim in claims or []:
         status = claim.get('status')
-        if status not in ('failed', 'inconclusive'):
+        if claim.get('id') in regressions or status not in ('failed', 'inconclusive'):
             continue
         method = claim.get('detector')
         raw = str(claim.get('question') or claim.get('expected') or '').strip()
@@ -724,7 +1068,7 @@ def questions(component, claims, checks, catalog=None):
         prefix = 'Defect: ' if status == 'failed' else ''
         entry = {'kind': 'claim', 'id': claim.get('id'), 'claim_id': claim.get('id'),
                  'severity': 'issue' if status == 'failed' else 'open', 'meta': method, 'detail': None,
-                 'technical_note': None}
+                 'technical_note': None, 'classification': classification_of(claim)}
         if raw and not token:
             entry['text'] = prefix + raw
         else:
@@ -742,7 +1086,7 @@ def questions(component, claims, checks, catalog=None):
             note = raw if raw else str(claim.get('observed') or '')
             entry['technical_note'] = note or None
         items.append(entry)
-    if not items:
+    if not items and fallback:
         items.append({'kind': 'none', 'id': 'none', 'severity': 'ok', 'text': NOTHING_TO_ASK,
                       'detail': None, 'meta': None, 'technical_note': None})
     return items

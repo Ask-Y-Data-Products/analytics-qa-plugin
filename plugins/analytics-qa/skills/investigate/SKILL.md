@@ -7,6 +7,17 @@ description: Reconstruct how a dbt-backed Power BI component works, trace source
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are step 1 of investigate → evaluate → detect → capture → (regress) → retrospective.
+
+The analyst has a dashboard they need to trust: they built it, an agent built it, it was
+rebuilt on another platform, or someone changed one measure. Your job here is to find out
+how it actually works before anyone tests it: which visual shows what, which measure feeds
+it, which table and warehouse column that measure reads, and which filters reach it. You
+end with a case the next skills fill. You prove nothing yet.
+
+
 Use the user's project and existing connections. This plugin's scripts live at
 `${CLAUDE_PLUGIN_ROOT}/scripts`; examples below use `QA` for `python <that path>/qa.py`.
 Use the project's virtual environment when present. Do not install or change

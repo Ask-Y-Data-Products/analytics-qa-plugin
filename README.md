@@ -1,81 +1,219 @@
-# Analytics QA plugin for Claude Code
+# Measure QA Community Harness
 
-Investigate, test, capture and regress analytics components — Power BI reports
-backed by dbt / BigQuery / Azure SQL — with evidence an analyst can sign.
+**QA for dashboards, done the way an analyst does it, driven by your AI agent, signed by you.**
 
-The agent reconstructs how a component is produced (source → semantic model →
-visual), designs baseline / change / reset experiments, runs them against the
-live Power BI Desktop report one observed step at a time, and assembles a sealed
-evidence case plus a **sign-off page**: per component, the captured screenshots in
-story order with the observed numbers, the open defects and questions, and
-Sign off / Reject buttons. Later runs compare a changed report against that
-evidence and explain what changed and why.
+A Claude Code plugin — skills, Python tools and a shared knowledge base — that
+takes a Power BI report apart, stress-tests its numbers, shows you what it saw,
+asks you the questions a reviewer would ask, and keeps a sealed record so the next
+change can be compared against it. Open source, MIT, built by
+[Ask-Y](https://ask-y.ai) for the Measure community.
 
-## Install
+> Installs as the `analytics-qa` plugin, so every skill is `/analytics-qa:…`.
 
-Inside Claude Code:
+---
+
+## Start here
 
 ```text
 /plugin marketplace add Ask-Y-Data-Products/analytics-qa-plugin
 /plugin install analytics-qa@ask-y-analytics-qa
 ```
 
-Or from a checkout:
+Open a **working copy** of your report in Power BI Desktop with the debugging port:
 
 ```powershell
-git clone https://github.com/Ask-Y-Data-Products/analytics-qa-plugin.git
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r plugins\analytics-qa\requirements.txt
-claude --plugin-dir <checkout>\plugins\analytics-qa
+$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9333"
+& "$((Get-AppxPackage Microsoft.MicrosoftPowerBIDesktop).InstallLocation)\bin\PBIDesktop.exe" C:\qa\my-report\working\my-report.pbix
 ```
 
-Windows with Power BI Desktop is required for the Power BI parts (ADOMD model
-queries and the report WebView). Start Desktop with
-`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333` and open a
-working copy of the report; never refresh or save the copy under test.
+Put three small files in a project folder (`connection.json`, `pilot.json`,
+`context.md` — two minutes, [the exact contents are here](https://github.com/Ask-Y-Data-Products/analytics-qa/blob/main/docs/INSTALL_AND_TEST.md)),
+start Claude Code in it, and ask:
 
-Full install and first-run walkthrough, including the project folder layout and
-what a passing result looks like: the project repository's
-`docs/INSTALL_AND_TEST.md` (Ask-Y-Data-Products/analytics-qa).
+```text
+/analytics-qa:investigate Review this report. Cover the Leads, Velocity and P&L
+pages, one baseline / change / reset cycle each, run the detectors, and finish
+with cases/first-review-signoff.html.
+```
 
-## Skills
+Half an hour later you open one HTML page, look at the screenshots and the
+figures, and press **Sign off** or **Reject** per component.
 
-| Skill | Purpose |
+Requirements: Windows with Power BI Desktop, Python 3.13, Claude Code. BigQuery
+or Azure SQL access is optional and read-only. The harness never refreshes, saves
+or edits the report.
+
+---
+
+## Why this exists
+
+Dashboards are never done.
+
+You build one, or an agent builds one for you, or you rebuild a Power BI report on
+another platform, or you change a single measure to fix a complaint. Every time,
+the same three questions: does it still work, does it say the same as before, did
+the fix break something else?
+
+And even when nobody touches the report, the data moves under it. New campaigns
+are named differently, a feed skips a week, a timezone shifts a day, a segment
+stops reporting. A dashboard that was right in June is quietly wrong in August.
+
+AI made changing dashboards cheap. With an MCP server or a chat, a rebinding or a
+new measure takes a minute. Verifying it still takes an afternoon of clicking that
+nobody has, so the check gets skipped and the report drifts.
+
+We hit this twice at Ask-Y: our agents build analytics apps, and we convert Power
+BI dashboards to Prism. We needed a validation tool an agent can drive and an
+analyst can trust, and a regression tool that says exactly what changed. It only
+makes sense as a community project, because every team letting an agent near a
+dashboard needs the same harness.
+
+---
+
+## What it finds
+
+Here is a real page from the anonymised report that ships with the project. The
+CRM says Meta produced 133 leads on 7 July; the platform's own export says 60. The
+ratio line goes through 100% and keeps going.
+
+![A Power BI page where CRM-attributed leads exceed the platform's own count on one day, 221.7%](docs/images/powerbi-ratio-above-100.png)
+
+Nobody watching a dashboard notices that on a Tuesday. A ratio-stability probe with
+an upper bound of 1.0 does, on every day of the series at once. In one 32-minute
+run on that report the harness also found:
+
+| What the analyst sees | How it was caught |
 | --- | --- |
-| `/analytics-qa:investigate` | Bind the component to its visuals, measures, relationships, partitions and physical sources; open a case |
-| `/analytics-qa:evaluate` | Design discriminating experiments; run them with `scripts/pbi_cycle.py` plans and DAX oracles; classify interactions from rendered marks |
-| `/analytics-qa:detect` | Run the failure-mode detectors that apply to each component (model lint, DAX invariants, statistics over series) and attach the results as claims |
-| `/analytics-qa:capture` | Attach components (`qa.py component`), validate, seal, render, and generate the sign-off page (`review_form.py`) |
-| `/analytics-qa:regress` | Replay a sealed baseline against a changed report or period; classify preserved / regressed / expected changes with negative controls |
-| `/analytics-qa:retrospective` | After a review: digest the recent sessions and inputs locally, write an anonymised know-how article, get the user's explicit approval, publish it with topics to the shared knowledge base and index it for search |
+| 5,942 inquiries dated on the wrong day | The day-boundary probe run twice: zero mismatches in UTC, 5,942 in the reporting timezone |
+| 534 contracts with a value of zero or less | A data rule the agent wrote from the component's own definition |
+| 1,674 spend rows attributed outside their campaign's active window | Campaign-window alignment against the campaign dimension |
+| A monthly chart that ignores the page date slicer | A baseline / change / reset cycle: the dates moved, that visual did not |
+| 22 measures and columns whose value depends on the machine clock | Deterministic model lint, raised as questions rather than verdicts |
+| The same figure reading 48 on one page and 68 on another | The cross-component comparison, which reads every page's captures together |
 
-## Knowledge base
+---
 
-Articles the community approved live in [analytics-qa-knowledge](https://github.com/Ask-Y-Data-Products/analytics-qa-knowledge). The `investigate` and `detect` skills search it before designing tests; `retrospective` writes to it. Configure `kb.json` in your project (see `references/knowledge-base.md`); point it at your own repository to keep articles internal.
+## What the analyst actually gets
 
-## Scripts
+One HTML page, per component, self-contained if you want to mail it.
 
-| Script | Role |
+![One component of the sign-off page: what it shows, four situations with screenshots, the observed table, the checks and the questions](docs/images/signoff-component.png)
+
+Read it top to bottom, the way you would check the report yourself:
+
+- **What this shows** — one plain sentence. The DAX lives behind a disclosure
+  triangle, not in your face.
+- **Situations** — every state the agent captured, titled by what it did
+  ("Dates changed to August 1–13"), with the filters, the key figures and the
+  screenshot. Click any screenshot for the full-size view.
+- **What we observed** — one row per situation: dates, filters, every figure, the
+  change against the baseline, and whether the reset landed back where it started.
+  Every row opens its screenshot.
+- **Checks** — computed from the captures, never asserted by the agent: the reset
+  returned to the baseline, the change actually moved the numbers, it moved in a
+  possible direction, the card equals the table total, the ratio card equals its
+  two inputs, every figure matched an independent calculation.
+- **Questions for you** — the only thing you have to answer. "Is it expected that
+  CRM leads sometimes exceed platform-reported leads?"
+- **Sign off / Reject** with a comment, per component. Your decisions export to a
+  file pinned to the sealed evidence.
+
+And because the same number lives on more than one page, the harness reads the
+pages together:
+
+![The across-components card: the same figure name captured on two pages, with both values side by side](docs/images/signoff-across.png)
+
+Behind the page sits the **capture**: a sealed, hash-verified record of every
+screenshot, observation, receipt, query and claim. It is what you hand to an agent
+to fix the problem, and the baseline the next regression is measured against.
+
+![The capture report: review summary, findings, per-component expectations and captured states](docs/images/capture-report.png)
+
+---
+
+## How it works
+
+Six skills. Each leaves evidence the next one uses.
+
+| Skill | What happens |
 | --- | --- |
-| `scripts/pbi.py` | Engine status, browser targets, catalogs, model metadata, read-only DAX, query replay, page capture |
-| `scripts/pbi_cycle.py` | Plan-driven UI cycle: capture / toggle_member / select_option / set_date / click_mark / go_to_page, receipts per state |
-| `scripts/powerbi_controls.py` | Observed WebView control mechanics (dropdowns, tile slicers, date inputs, page tabs, overlays) |
-| `scripts/qa.py` | Case lifecycle: init, inspect, component, detect, validate, seal, verify, render, review, retain |
-| `scripts/model_lint.py`, `probes.py`, `stats_lib.py` | Failure-mode detectors: deterministic model/report lint, DAX invariants and statistics (weekday band, changepoints, ratio stability, PSI, additivity, fan-out); catalog in `plugins/analytics-qa/detectors/` |
-| `scripts/state_checks.py` | Hash-bound typed receipts for captured observations |
-| `scripts/review_form.py` | The analyst sign-off page |
-| `scripts/pbix_snapshot.py`, `powerbi_inventory.py` | Legacy PBIX layout extraction and visual/field binding map |
-| `scripts/bigquery_evidence.py`, `connections.py` | Cost-bounded BigQuery and read-only Azure SQL evidence queries |
-| `scripts/compare.py` | Typed keyed comparison of evidence exports |
+| **`/analytics-qa:investigate`** | You point at a report, and optionally at a page, a component or a worry. The agent reads the report definition, the semantic model and the warehouse SQL behind it, takes screenshots, and traces every visual and filter back to its source. It opens a case. Nothing is proven yet. |
+| **`/analytics-qa:evaluate`** | It designs experiments and runs them on the live report, one observed step at a time, each figure checked against an independent DAX or SQL calculation. Baseline, one discriminating change, reset. A card against its table, a ratio against its inputs, the same figure on two pages, a stable period against a volatile one. A step whose receipt fails stops the run. |
+| **`/analytics-qa:detect`** | The failure-mode catalog: fan-out through joins, members that do not add up, clock-driven date flags, ratios computed as averages of ratios, events outside campaign windows, timezone day boundaries, weekday-adjusted spikes, level shifts, mix changes. Deterministic lint plus statistics over the full series, each flag explained with a query or left as an explicit question. |
+| **`/analytics-qa:capture`** | Everything becomes a sealed case and the sign-off page you just saw. |
+| **`/analytics-qa:regress`** | Point it at the changed report. It replays the baseline, and classifies every expectation: preserved, expected change pending review, new regression, defect fixed, still open, inconclusive. Untouched pages are negative controls. |
+| **`/analytics-qa:retrospective`** | Turns what this review taught into an anonymised article for everyone else. See below. |
 
-Reference playbooks live in `plugins/analytics-qa/references/`.
+The agent never hand-writes the deliverable. Runs that fail a receipt cannot be
+attached, the case structure is written only by the tools, the sign-off page
+carries a generator stamp, and an external evaluator judges the result from
+outside the session — because an agent's "all done" is not evidence.
 
-## What it does not do
+---
 
-It does not decide business truth: a sealed manifest proves integrity, a passing
-receipt proves the recorded fields, and only the analyst's exported decisions are
-a sign-off (a local attestation, not an authenticated signature). It does not
-refresh, save or edit reports or data. Prism/GitHub publishing of cases is not
-built in.
+## The community part
 
-MIT licensed. Version: see `plugins/analytics-qa/.claude-plugin/plugin.json`.
+Every team using AI on dashboards learns the same lessons alone. This turns them
+into a shared asset:
+
+1. After a review, `/analytics-qa:retrospective` digests the session and the case
+   **on your machine**. That digest never leaves it.
+2. It drafts an article: the symptom, how it was detected, the root cause, the
+   data-model or DAX rule that avoids it, and what made the work faster. Client
+   names, people, paths, ids and absolute business figures are stripped, and a
+   residual scan lists whatever a human still has to judge.
+3. You read it, edit it, approve it. Only then is it published to
+   [analytics-qa-knowledge](https://github.com/Ask-Y-Data-Products/analytics-qa-knowledge),
+   tagged with topics and indexed.
+4. The next `investigate` or `detect`, on anyone's machine, searches that base
+   first: *"conversion rate Meta reporting gaps"*, *"campaign window alignment"*.
+
+Point `kb.json` at your own repository if your articles should stay internal.
+
+We think community harnesses like this are how we all keep control of agents that
+touch analytics: shared rules, shared failure modes, shared evidence of what
+actually works — and everyone free to take from it and give back.
+
+---
+
+## Principles
+
+- **Observe before acting.** A click attempt is not a state change. Every capture
+  carries a hash-bound receipt of the fields it asserts.
+- **Engine and screen are both evidence.** DAX results and rendered pixels are
+  compared; neither substitutes for the other.
+- **Never touch the report under test.** No refresh, no save, no edit.
+- **A seal proves integrity, a receipt proves fields, only you prove truth.** No
+  approval is ever fabricated; an unattended run ends "awaiting review".
+- **Fail loudly.** A tool that refuses leaves nothing behind, and an exit code of
+  zero is not a result.
+
+## Repository layout
+
+```
+plugins/analytics-qa/
+  skills/        investigate, evaluate, detect, capture, regress, retrospective
+  scripts/       pbi.py, pbi_cycle.py, qa.py, probes.py, model_lint.py, stats_lib.py,
+                 review_form.py, analyst_view.py, retrospective.py, …
+  detectors/     catalog.json (20 failure modes), METHODS.md
+  references/    case format, Power BI playbooks, knowledge-base contract
+  retrospective/ topic vocabulary
+```
+
+| Repository | What is in it |
+| --- | --- |
+| this one | the plugin, installable from the marketplace |
+| [analytics-qa](https://github.com/Ask-Y-Data-Products/analytics-qa) | tests, synthetic fixture, unattended runner, external evaluator, install and trial guides |
+| [analytics-qa-knowledge](https://github.com/Ask-Y-Data-Products/analytics-qa-knowledge) | the community articles and their index |
+
+## Contributing
+
+Issues and pull requests are welcome. Good first contributions: a new detector
+(an entry in `detectors/catalog.json`, a method in `probes.py` or `stats_lib.py`,
+and a test), control mechanics for slicer types we do not drive yet, playbooks for
+other BI hosts, and articles through the retrospective.
+
+Keep customer material out of anything you push. The redaction tooling is a
+checklist for a human, not a guarantee.
+
+MIT licensed. Version: `plugins/analytics-qa/.claude-plugin/plugin.json`.

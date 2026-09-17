@@ -7,6 +7,16 @@ description: Review the recent QA sessions and the analyst's inputs, write an an
 
 Input: $ARGUMENTS
 
+## Where this fits
+
+You are the last step of investigate → evaluate → detect → capture → (regress) → retrospective, and the one that helps everyone else.
+
+What this review taught is not specific to one client: how a dashboard failed, how it was
+spotted, how the model should have been built. Turn that into an anonymised article, get
+the analyst to approve it, and publish it to the shared knowledge base so the next review,
+on any machine, starts from it.
+
+
 Run this after a capture (the sign-off page exists) or after a regression, or
 whenever the user asks for a write-up. It turns one real review into an article
 another analyst can use on a different report.

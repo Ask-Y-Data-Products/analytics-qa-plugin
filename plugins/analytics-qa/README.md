@@ -1,20 +1,26 @@
-# Analytics QA plugin
+# Measure QA Community Harness (`analytics-qa`)
 
-An agent-led review workflow for dbt and Power BI: investigate the source-to-screen
-path, challenge business claims, preserve executable evidence, and revisit the
-case under changed models or data. The agent reasons; scripts provide evidence
-operations and record integrity, not a universal correctness oracle.
+QA for dashboards, done the way an analyst does it, driven by an agent, signed by
+a human. The agent takes a Power BI report apart, tests its numbers against
+independent calculations, shows the analyst what it saw, and keeps a sealed record
+so the next change can be compared against it. The scripts provide evidence
+operations and record integrity, never a universal correctness oracle.
 
-## Skills
+The story, the screenshots and the community knowledge base are in the
+[repository README](https://github.com/Ask-Y-Data-Products/analytics-qa-plugin).
+
+## The pipeline
+
+`investigate → evaluate → detect → capture → (regress) → retrospective`
 
 | Skill | What it does |
 | --- | --- |
-| `investigate` | Reconstruct the source-to-screen path and open an evidence-backed case. |
-| `evaluate` | Challenge the claims with independent SQL, DAX, statistical and interaction experiments. |
-| `detect` | Run the failure-mode detectors per component and turn results into claims. |
-| `capture` | Assemble the evidence report and the analyst sign-off page. |
-| `regress` | Revisit a case under changed models, restatements or new reporting dates. |
-| `retrospective` | Write an anonymised know-how article from the finished review and, with the user's explicit approval, publish it to the shared knowledge base. |
+| `investigate` | Map the component: visual, binding, measure, relationships, partitions, warehouse column. Open the case. Prove nothing yet. |
+| `evaluate` | Test it as an analyst would: a figure against another figure, a card against its table, a ratio against its inputs, the same figure on two pages, one filter moved and put back, a stable period and a volatile one. Every step observed on the live report and checked against its own oracle. |
+| `detect` | Hunt the failures that survive a working dashboard: fan-out, non-additive members, clock-driven flags, ratio-of-averages, campaign windows, timezone day boundaries, spikes, level shifts, mix changes. |
+| `capture` | Seal the evidence and produce the sign-off page the analyst signs. |
+| `regress` | Replay the sealed baseline against a changed report, period or model; classify preserved / expected change / new regression / fixed / still open, with untouched pages as negative controls. |
+| `retrospective` | Turn the review into an anonymised know-how article and, only with the user's explicit approval, publish it to the shared knowledge base that `investigate` and `detect` search. |
 
 ## Run on another project
 
