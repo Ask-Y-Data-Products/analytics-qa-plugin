@@ -27,6 +27,15 @@ Create a new run; preserve IDs. If the previous run is unapproved, call this a
 provisional comparison, not a signed-baseline regression.
 
 Create the run with `qa.py init --case <new> --target <component> --project <root>`.
+
+A regression case is built exactly like a baseline review, with the same tools:
+replay each baseline plan with `pbi_cycle.py` into `<project>/runs/<component>-regression`,
+then attach every replayed component with `qa.py component` (keeping the baseline's
+claim ids so the two cases line up), attach the detector runs with `qa.py detect`,
+and record the verdicts with `qa.py classify`. Do not write claims or components
+into `case.json` yourself: a hand-written case has no scenarios, so the analyst
+gets a page with no screenshots and nothing to compare. A component whose replay
+could not run is a limitation, recorded as such, not a hand-made claim.
 Immediately Read its generated case.json before Write/Edit; script creation does
 not satisfy Claude Code's read-before-write requirement.
 For an existing unfinished run, call `qa.py inspect --project <root> --case <new>`.
@@ -76,7 +85,15 @@ tooltips and screenshots together. Never reduce visual correctness to pixel diff
 Classify each claim as preserved, expected change pending review, new regression,
 defect fixed/still open, or inconclusive; explain numerical contributions and any
 unexplained remainder. Use capture to deliver the new report without auto-approval.
-Store this in `change_classification`; `status` remains passed, failed or
+Record it with the tool, never by editing the case:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/scripts/qa.py classify --case <new> --classifications <file.json>
+```
+
+where the file maps each claim id to `{"change_classification": "...", "note": "..."}`.
+The command refuses an unknown claim or an unknown value, and lower-cases the
+vocabulary for you. Store this in `change_classification`; `status` remains passed, failed or
 inconclusive. Preserving an inconclusive claim does not turn it into a pass.
 
 The sign-off page renders `change_classification` literally, so write exactly one

@@ -7,7 +7,7 @@ import re
 import shutil
 import sys
 
-from analyst_view import is_technical
+from analyst_view import CLASSIFICATIONS, is_technical
 from connections import dump, digest, query, ensure_evidence_writable
 from powerbi_inventory import visual_bindings
 
@@ -829,6 +829,46 @@ def summarize_outcome(method, outcome):
     return json.dumps({k: v for k, v in outcome.items() if k != "method"}, default=str)[:1200]
 
 
+def classify_claims(directory, classifications_file):
+    """Record how each baseline claim fared in a regression, without hand-editing the case.
+
+    The regress skill classifies every replayed claim; that verdict is part of the
+    record, so it needs a tool rather than an editor. The file maps claim ids to
+    `{"change_classification": ..., "note": ...}` (or to the bare classification
+    string), the vocabulary is the one the sign-off page renders, and an unknown
+    claim id or value is refused before anything is written.
+    """
+    directory = Path(directory).resolve()
+    ensure_evidence_writable(directory)
+    if (directory / "manifest.json").exists():
+        raise ValueError("Case is sealed; classify before sealing")
+    case = read(directory / "case.json")
+    wanted = read(classifications_file)
+    if not isinstance(wanted, dict) or not wanted:
+        raise ValueError('Expected {"<claim id>": {"change_classification": "...", "note": "..."}}')
+    claims = {c["id"]: c for c in case["claims"]}
+    resolved = {}
+    for claim_id, value in wanted.items():
+        if claim_id not in claims:
+            raise ValueError(f"Unknown claim {claim_id}; classify claims that this case actually carries")
+        record = value if isinstance(value, dict) else {"change_classification": value}
+        classification = str(record.get("change_classification") or "").strip().lower()
+        if classification not in CLASSIFICATIONS:
+            raise ValueError(f"{claim_id}: unknown change_classification {record.get('change_classification')!r}; "
+                             f"use one of {list(CLASSIFICATIONS)}")
+        resolved[claim_id] = (classification, str(record.get("note") or "").strip())
+    for claim_id, (classification, note) in resolved.items():
+        claims[claim_id]["change_classification"] = classification
+        if note:
+            claims[claim_id]["change_note"] = note
+    dump(directory / "case.json", case)
+    counts = {}
+    for classification, _ in resolved.values():
+        counts[classification] = counts.get(classification, 0) + 1
+    return {"case": str(directory), "classified": len(resolved), "counts": counts,
+            "note": "status stays passed/failed/inconclusive; the classification says what changed since the baseline"}
+
+
 def catalog_title(method):
     """The short analyst-facing name of a detector, e.g. 'Events outside the campaign window'."""
     catalog = HERE.parent / "detectors/catalog.json"
@@ -867,6 +907,11 @@ def main():
                                                     "observed, layer, states}], experiments}. Claim layer is one of "
                                                     + ", ".join(sorted(COMPONENT_LAYERS)) + " (" + LAYER_HELP + ").")
     det = sub.add_parser("detect"); det.add_argument("--case", required=True); det.add_argument("--run", required=True); det.add_argument("--kind", choices=["lint", "probes"], required=True); det.add_argument("--component")
+    classify = sub.add_parser("classify", help="record how each baseline claim fared in a regression")
+    classify.add_argument("--case", required=True)
+    classify.add_argument("--classifications", required=True,
+                          help='JSON: {"<claim id>": {"change_classification": "preserved|expected change pending review|'
+                               'new regression|defect fixed|still open|inconclusive", "note": "..."}}')
     retain = sub.add_parser("retain"); retain.add_argument("--baseline", required=True); retain.add_argument("--case", required=True); retain.add_argument("--files", nargs="+", required=True)
     a = p.parse_args()
     if a.command == "init":
@@ -891,6 +936,8 @@ def main():
         dump(a.out, result)
     elif a.command == "review":
         result = review_revision(a.case, a.decisions, a.out)
+    elif a.command == "classify":
+        result = classify_claims(a.case, a.classifications)
     elif a.command == "component":
         result = attach_component(a.case, a.run, a.spec)
     elif a.command == "detect":

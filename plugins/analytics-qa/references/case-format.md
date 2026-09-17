@@ -77,7 +77,7 @@ the sign-off page can show the arithmetic. `tolerance` is absolute in every form
 A pair that declares none of these four shapes is refused by the runner.
 
 Regression classification: a claim revisited by the regress skill may carry
-`change_classification`, exactly one of `preserved`, `expected change pending
+`change_classification`, written by `qa.py classify`, exactly one of `preserved`, `expected change pending
 review`, `new regression`, `defect fixed`, `still open` or `inconclusive`. It is
 orthogonal to `status`, which stays passed, failed or inconclusive. The sign-off
 page counts the values in a strip under the header, badges each claim, and leads

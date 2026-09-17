@@ -141,13 +141,34 @@ Six skills. Each leaves evidence the next one uses.
 | **`/analytics-qa:evaluate`** | It designs experiments and runs them on the live report, one observed step at a time, each figure checked against an independent DAX or SQL calculation. Baseline, one discriminating change, reset. A card against its table, a ratio against its inputs, the same figure on two pages, a stable period against a volatile one. A step whose receipt fails stops the run. |
 | **`/analytics-qa:detect`** | The failure-mode catalog: fan-out through joins, members that do not add up, clock-driven date flags, ratios computed as averages of ratios, events outside campaign windows, timezone day boundaries, weekday-adjusted spikes, level shifts, mix changes. Deterministic lint plus statistics over the full series, each flag explained with a query or left as an explicit question. |
 | **`/analytics-qa:capture`** | Everything becomes a sealed case and the sign-off page you just saw. |
-| **`/analytics-qa:regress`** | Point it at the changed report. It replays the baseline, and classifies every expectation: preserved, expected change pending review, new regression, defect fixed, still open, inconclusive. Untouched pages are negative controls. |
+| **`/analytics-qa:regress`** | Point it at the changed report. It replays the baseline and classifies every expectation: preserved, expected change pending review, new regression, defect fixed, still open, inconclusive. Untouched pages are negative controls. |
 | **`/analytics-qa:retrospective`** | Turns what this review taught into an anonymised article for everyone else. See below. |
 
 The agent never hand-writes the deliverable. Runs that fail a receipt cannot be
 attached, the case structure is written only by the tools, the sign-off page
 carries a generator stamp, and an external evaluator judges the result from
 outside the session — because an agent's "all done" is not evidence.
+
+---
+
+## When something changes
+
+We took the same report, rebound one column of one table from `Leads` to
+`New Inquiries` — heading, query name and display name all left saying "Leads" —
+and asked a fresh session to find out whether anything broke. It was not told
+what had changed.
+
+Twenty-seven minutes later: **3 new regressions, 14 preserved, 15 still open**,
+one visual definition file differing out of 252, and this card.
+
+![The regressed component: what changed in plain words, then the situations that prove it](docs/images/regression-card.png)
+
+It did not stop at "the number moved". It proved which layer moved — the engine
+still returns the old measure, the screen shows the new one — checked that the
+slicer and the date range still work on the rebound column, confirmed the other
+five pages replay identically, and handed back one sentence for the report owner:
+the table now silently excludes reinquiries while still labelled "Leads",
+understating the count by about 12%.
 
 ---
 
