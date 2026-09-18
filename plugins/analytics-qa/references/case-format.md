@@ -32,7 +32,18 @@ the state's screenshot, observation and receipt (`screen.png`, `state.json`,
 `check.json`). Components are created by `qa.py component --case <dir> --run
 <pbi_cycle output> --spec <component.json>`, never typed by hand; the validator
 requires a description and a screenshot per scenario and known claim IDs. The
-sign-off page (`review_form.py`) renders one card per component.
+sign-off page (`review_form.py`) renders one card per component, in this order:
+the status chip and what the figure shows, the **Situations** (the screenshots),
+what we observed, the checks, and only then the questions — the evidence is
+always on the page before the question about it, and a question that concerns
+particular situations repeats them as a thumbnail strip directly above itself.
+Every page of the review shows the captures it is discussing: the findings page
+puts the screenshots of a defect above its text, the how-it-works page heads each
+report page with that page's own capture, and `qa.py render` shows a component's
+captures before the expectations it asks about. A screenshot is always found from
+the evidence (`screen.png` beside the `state.json` a claim cites, or the captures
+of the claim's component), never assumed, and an item with no capture behind it
+renders without one.
 A component spec claim's `layer` is one of interaction, render, engine or
 cross-layer; any other value is refused with those four listed.
 

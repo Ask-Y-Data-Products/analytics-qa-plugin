@@ -1,0 +1,450 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-18T18:42:19.246417+00:00",
+  "verified_report_title": "sample-dashboard",
+  "label": "restored_jul1_13",
+  "active_page": "Marketing Overview",
+  "slicers": {
+    "Channel": "All"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 795,
+        "y": 167,
+        "width": 347,
+        "height": 74
+      }
+    },
+    {
+      "index": 1,
+      "title": "Channel",
+      "text": "Channel\nAll",
+      "rect": {
+        "x": 1156,
+        "y": 167,
+        "width": 348,
+        "height": 74
+      }
+    },
+    {
+      "index": 2,
+      "title": "Marketing Overview",
+      "text": "Marketing Overview",
+      "rect": {
+        "x": 50,
+        "y": 169,
+        "width": 487,
+        "height": 51
+      }
+    },
+    {
+      "index": 3,
+      "title": "Total Leads",
+      "text": "Total Leads\n\n4,360",
+      "rect": {
+        "x": 50,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 4,
+      "title": "Leads (selected period)",
+      "text": "Leads (selected period)\n\n4,360",
+      "rect": {
+        "x": 342,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 5,
+      "title": "Leads this month",
+      "text": "Leads this month\n\n535",
+      "rect": {
+        "x": 635,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 6,
+      "title": "Total Spend",
+      "text": "Total Spend\n\n$240K",
+      "rect": {
+        "x": 936,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 7,
+      "title": "Cost per Lead",
+      "text": "Cost per Lead\n\n74.29",
+      "rect": {
+        "x": 1228,
+        "y": 248,
+        "width": 288,
+        "height": 121
+      }
+    },
+    {
+      "index": 8,
+      "title": "month to date",
+      "text": "month to date",
+      "rect": {
+        "x": 635,
+        "y": 371,
+        "width": 278,
+        "height": 30
+      }
+    },
+    {
+      "index": 9,
+      "title": "Meta leads: platform vs CRM by day",
+      "text": "Meta leads: platform vs CRM by day\n0\n50\n100\nDate\nPlatform reported \u2026\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13\nPlatform reported\nCRM attributed",
+      "rect": {
+        "x": 50,
+        "y": 403,
+        "width": 719,
+        "height": 258
+      }
+    },
+    {
+      "index": 10,
+      "title": "Meta lead match rate by day",
+      "text": "Meta lead match rate by day\n0%\n100%\n200%\nDate\nMatch rate\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13",
+      "rect": {
+        "x": 783,
+        "y": 403,
+        "width": 733,
+        "height": 258
+      }
+    },
+    {
+      "index": 11,
+      "title": "Leads by channel",
+      "text": "Leads by channel\n0\n500\n1,000\nLeads\nChannel\nReferrals\nMeta\nLocal We\u2026\nAgents\nNational \u2026\nNational \u2026\nAsk-Stud\u2026\nHS Other\u2026",
+      "rect": {
+        "x": 50,
+        "y": 665,
+        "width": 336,
+        "height": 320
+      }
+    },
+    {
+      "index": 12,
+      "title": "Leads by channel",
+      "text": "Leads by channel\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nChannel\nLeads\nSelect Row\nAgents\n453\nSelect Row\nAsk-Students Call Center\n94\nSelect Row\nBillboards & Signage\n4\nSelect Row\nDirect or Unknown\n78\nSelect Row\nGoogle Ads\n907\nSelect Row\nGovernment Funded\n25\nSelect Row\nHS Other Media Group\n90\nSelect Row\nLocal Social Media\n32\nSelect Row\nLocal Web Organic\n47\nSelect Row\nLocal Web Site Paid\n591\nSelect Row\nMeta\n680\nSelect Row\nNational PPL - GE\n99\nSelect Row\nNational Web Organic\n208\nSelect Row\nPhone Inquiry\n12\nSelect Row\nPortal Life\n5\nSelect Row\nReferrals\n996\nSelect Row\nVendor\n39\nTotal\n4,360",
+      "rect": {
+        "x": 396,
+        "y": 665,
+        "width": 324,
+        "height": 320
+      }
+    },
+    {
+      "index": 13,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\n0K\n20K\nSpend\nCampaign\nEastermo\u2026\nNorvale - \u2026\nWestmere\u2026\nEastermo\u2026\nEastermo\u2026",
+      "rect": {
+        "x": 730,
+        "y": 665,
+        "width": 359,
+        "height": 320
+      }
+    },
+    {
+      "index": 14,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nCampaign\nSpend\nSelect Row\nBC - Google_Ads - Campaign 0985\n2,536.01\nSelect Row\nBC - Google_Ads - Campaign 0997\n1,176.22\nSelect Row\nBC - Google_Ads - Campaign 0998\n1,154.50\nSelect Row\nBC - Google_Ads - Campaign 0999\n965.79\nSelect Row\nBC - Google_Ads - Campaign 1000\n1,568.53\nSelect Row\nBC - Google_Ads - Campaign 1001\n955.13\nSelect Row\nBC - Google_Ads - Campaign 1002\n3,776.03\nSelect Row\nBC - Google_Ads - Campaign 1003\n4,224.19\nSelect Row\nBC - Google_Ads - Campaign 1004\n1,474.62\nSelect Row\nBC - Google_Ads - Campaign 1038\n758.73\nSelect Row\nBC - Google_Ads - Campaign 1045\n2,125.93\nSelect Row\nCampaign 8591\n9,900.00\nSelect Row\nEastermoor - Google_Ads - Campaign 0986\n10,293.47\nSelect Row\nEastermoor - Google_Ads - Campaign 1011\n1,699.07\nSelect Row\nEastermoor - Google_Ads - Campaign 1012\n8,285.25\nSelect Row\nEastermoor - Google_Ads - Campaign 1013\n2,076.08\nSelect Row\nEastermoor - Google_Ads - Campaign 1014\n2,516.87\nSelect Row\nEastermoor - Google_Ads - Campaign 1015\n14,708.49\nSelect Row\nEastermoor - Google_Ads - Campaign 1016\n887.01\nSelect Row\nEastermoor - Google_Ads - Campaign 1017\n1,232.22\nTotal\n240,468.28",
+      "rect": {
+        "x": 1098,
+        "y": 665,
+        "width": 418,
+        "height": 320
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Meta leads: platform vs CRM by day": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "0",
+          "x": 101,
+          "y": 608
+        },
+        {
+          "text": "50",
+          "x": 97,
+          "y": 558
+        },
+        {
+          "text": "100",
+          "x": 93,
+          "y": 508
+        },
+        {
+          "text": "Jul 01",
+          "x": 128,
+          "y": 622
+        },
+        {
+          "text": "Jul 03",
+          "x": 230,
+          "y": 622
+        },
+        {
+          "text": "Jul 05",
+          "x": 333,
+          "y": 622
+        },
+        {
+          "text": "Jul 07",
+          "x": 436,
+          "y": 622
+        },
+        {
+          "text": "Jul 09",
+          "x": 538,
+          "y": 622
+        },
+        {
+          "text": "Jul 11",
+          "x": 641,
+          "y": 622
+        },
+        {
+          "text": "Jul 13",
+          "x": 743,
+          "y": 622
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    },
+    "Meta lead match rate by day": {
+      "marks": [
+        {
+          "cls": "column setFocusRing",
+          "value": "0.609375",
+          "x": 861,
+          "y": 564,
+          "w": 41,
+          "h": 46,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.6964285714285714",
+          "x": 911,
+          "y": 557,
+          "w": 41,
+          "h": 52,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.625",
+          "x": 962,
+          "y": 563,
+          "w": 41,
+          "h": 47,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.6973684210526315",
+          "x": 1013,
+          "y": 557,
+          "w": 41,
+          "h": 52,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.6461538461538462",
+          "x": 1063,
+          "y": 561,
+          "w": 41,
+          "h": 48,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.6428571428571429",
+          "x": 1114,
+          "y": 561,
+          "w": 41,
+          "h": 48,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "2.216666666666667",
+          "x": 1164,
+          "y": 444,
+          "w": 41,
+          "h": 166,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.8428571428571429",
+          "x": 1215,
+          "y": 546,
+          "w": 41,
+          "h": 63,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.796875",
+          "x": 1266,
+          "y": 550,
+          "w": 41,
+          "h": 60,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.7090909090909091",
+          "x": 1316,
+          "y": 556,
+          "w": 41,
+          "h": 53,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.7543859649122807",
+          "x": 1367,
+          "y": 553,
+          "w": 41,
+          "h": 56,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.7076923076923077",
+          "x": 1418,
+          "y": 556,
+          "w": 41,
+          "h": 53,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "0.7368421052631579",
+          "x": 1468,
+          "y": 554,
+          "w": 41,
+          "h": 55,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0%",
+          "x": 840,
+          "y": 608
+        },
+        {
+          "text": "100%",
+          "x": 832,
+          "y": 534
+        },
+        {
+          "text": "200%",
+          "x": 832,
+          "y": 459
+        },
+        {
+          "text": "Jul 01",
+          "x": 881,
+          "y": 622
+        },
+        {
+          "text": "Jul 03",
+          "x": 982,
+          "y": 622
+        },
+        {
+          "text": "Jul 05",
+          "x": 1084,
+          "y": 622
+        },
+        {
+          "text": "Jul 07",
+          "x": 1185,
+          "y": 622
+        },
+        {
+          "text": "Jul 09",
+          "x": 1286,
+          "y": 622
+        },
+        {
+          "text": "Jul 11",
+          "x": 1387,
+          "y": 622
+        },
+        {
+          "text": "Jul 13",
+          "x": 1489,
+          "y": 622
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        "0.609375",
+        "0.6964285714285714",
+        "0.625",
+        "0.6973684210526315",
+        "0.6461538461538462",
+        "0.6428571428571429",
+        "2.216666666666667",
+        "0.8428571428571429",
+        "0.796875",
+        "0.7090909090909091",
+        "0.7543859649122807",
+        "0.7076923076923077",
+        "0.7368421052631579"
+      ]
+    }
+  },
+  "cards": {
+    "Total Leads": 4360,
+    "Leads (selected period)": 4360,
+    "Leads this month": 535
+  },
+  "cards_text": {
+    "Total Leads": "4,360",
+    "Leads (selected period)": "4,360",
+    "Leads this month": "535"
+  },
+  "tables": {},
+  "description": "Date range restored to 1-13 July 2026. Both charts should return to the baseline pattern, confirming the date slicer drives them.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

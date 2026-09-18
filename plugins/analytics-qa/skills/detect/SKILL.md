@@ -122,7 +122,11 @@ wrong with the report, worst first. It reads `case.json` only - every failed
 claim and finding as a defect card, every inconclusive claim as an open question
 grouped by component, the model lint grouped by detector and folded away as the
 least urgent section, and a compact table of what was checked and passed, so the
-reader sees the scope and not only the problems. `--signoff` is the file name the
+reader sees the scope and not only the problems. Every defect and open question
+shows its evidence before its words: the screenshots of the situations behind it
+(the captures its claim cites, or its component's first and last situation when
+it cites none), then what we saw, why it matters, where, and the analyst question
+as the closing line under a short heading. `--signoff` is the file name the
 capture skill will write beside the case; every item then links to that
 component's card there, and every item carries a stable `#item-<claim id>` anchor
 the deck and the sign-off page can link to. Report the absolute path. Run it

@@ -30,8 +30,9 @@
   about it — then a fix, and the regression run that checked the fix.</p>
   <p class="story">The dashboard is an ordinary-looking Power BI page over an anonymised data set:
   a total leads card, leads by channel, a Meta platform-versus-CRM comparison, spend by campaign.
-  Four things are wrong with it and none of them is visible at a glance. Everything below was
-  produced by unattended agent runs; nothing on these pages was written by hand.</p>
+  Four things are wrong with it and none is visible at a glance. Every page below came out of an
+  unattended agent run, and each shows the screenshots the agent captured, so you can see what it
+  saw before you read what it concluded.</p>
 
   <p class="note">Demo copy: the screenshots are downscaled for the web and the report's internal
   file name is replaced, so this bundle no longer matches the evidence manifest of the sealed case
@@ -51,31 +52,32 @@
     <li>
       <span class="step">/analytics-qa:detect</span><br>
       <a class="title" href="findings.html">Findings</a>
-      <p>What is wrong with it: six defects worst first, eight open questions and seven model
-      warnings, each with what we saw, why it matters and where.</p>
+      <p>What is wrong with it: five defects worst first, then the open questions and the model
+      warnings. Each one opens with the screenshots behind it, then what we saw, then why it
+      matters, and closes with the question to settle.</p>
       <span class="who">For whoever has to fix it</span>
     </li>
     <li>
       <span class="step">/analytics-qa:capture</span><br>
       <a class="title" href="signoff.html">Sign-off page</a>
-      <p>What the screen showed in each situation, which checks hold, and the questions to answer —
-      including "the bar chart hides 2,006 leads the table next to it shows; is that intentional?"
-      Sign off or reject, per part of the page.</p>
+      <p>Per part of the page: what it shows, every situation captured, what the screen showed in
+      each, the checks, and only then the questions — each with the thumbnails of the situations it
+      is about. Sign off or reject, with a comment.</p>
       <span class="who">For the analyst or stakeholder who signs</span>
     </li>
     <li>
       <span class="step">/analytics-qa:capture</span><br>
       <a class="title" href="capture-report.html">Capture report</a>
-      <p>The sealed record behind every claim, with the reviewer's own decisions and comments
-      folded in. This is what the next regression is measured against.</p>
+      <p>The sealed record behind every claim, with the reviewer's own decisions and comments folded
+      in. This is what the next regression is measured against.</p>
       <span class="who">For an auditor, or for the agent asked to fix it</span>
     </li>
     <li>
       <span class="step">/analytics-qa:regress</span><br>
       <a class="title" href="regression.html">Regression report</a>
-      <p>Two of the four problems were fixed by an agent reading the findings. This is what the
-      replay found: two defects fixed, four still open, sixteen expectations preserved — and one new
-      regression, because removing a filter exposed $18,400 of spend on a campaign with no name.</p>
+      <p>An agent read the findings and removed two filters. This is what the replay found: what was
+      repaired, what was left alone on purpose, and the new problem the fix exposed — spend on a
+      campaign with no name, which the filter had been hiding.</p>
       <span class="who">For the person approving a change</span>
     </li>
   </ol>

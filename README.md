@@ -165,8 +165,8 @@ Every page below came out of an unattended run; nothing was written by hand.
 | Report | What it answers | Who reads it |
 | --- | --- | --- |
 | [How it works](https://ask-y-data-products.github.io/measure-qa-harness/demo/how-it-works.html) | How is this page built: follow one number from the card on screen to the measure, to what it does in plain words, to the warehouse table | Whoever inherited the report |
-| [Findings](https://ask-y-data-products.github.io/measure-qa-harness/demo/findings.html) | What is wrong with it, worst first, each with what we saw and why it matters | Whoever has to fix it |
-| [Sign-off page](https://ask-y-data-products.github.io/measure-qa-harness/demo/signoff.html) | What the screen showed in each situation, what checks out, what needs your decision | The analyst or stakeholder who signs |
+| [Findings](https://ask-y-data-products.github.io/measure-qa-harness/demo/findings.html) | What is wrong with it, worst first: each opens with the screenshots behind it, then what we saw and why it matters | Whoever has to fix it |
+| [Sign-off page](https://ask-y-data-products.github.io/measure-qa-harness/demo/signoff.html) | The evidence first: every situation captured, what the screen showed, the checks, and only then the questions | The analyst or stakeholder who signs |
 | [Capture report](https://ask-y-data-products.github.io/measure-qa-harness/demo/capture-report.html) | The sealed evidence, with the reviewer's decisions and comments folded in | An auditor, or the agent asked to fix it |
 | [Regression report](https://ask-y-data-products.github.io/measure-qa-harness/demo/regression.html) | What the fix repaired, what it left, and what it exposed | The person approving a change |
 

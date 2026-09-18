@@ -38,12 +38,14 @@ DAX in the disclosure, because a wrong sentence about a number is worse than non
 import argparse
 import html
 import json
+import os
 import re
 from pathlib import Path
 
 from jinja2 import Template
 from markupsafe import Markup
 
+import analyst_view
 from analyst_view import anchor_slug, read_json
 
 HERE = Path(__file__).resolve().parent
@@ -88,6 +90,18 @@ main{max-width:1400px;margin:auto;padding:20px 24px 60px}h1{font-size:26px;margi
 h3{font-size:17.5px;margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid #e9eded}
 h4{font-size:15.5px;margin:0 0 4px}
 .hint{color:#586066;font-size:13.5px;margin:4px 0 8px}
+.shots{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px}
+.shot{margin:0;flex:1 1 260px;min-width:200px;max-width:420px}
+.shot a{display:block;border:1px solid #d9dfe2;border-radius:6px;overflow:hidden;background:#fff}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{font-size:12.5px;color:#586066;margin:4px 0 0;line-height:1.35}
+.shot figcaption b{color:#1f2528;font-weight:600}
+.chain .shots{margin:8px 0 0}.chain .shot{flex:0 1 320px}
+dialog.lightbox{border:0;border-radius:10px;padding:0;background:#fff;max-width:96vw;max-height:96vh;overflow:auto}
+dialog.lightbox::backdrop{background:rgba(15,22,26,.72)}dialog.lightbox figure{margin:0}
+dialog.lightbox img{display:block;max-width:95vw;max-height:85vh;width:auto;height:auto}
+dialog.lightbox figcaption{padding:10px 14px;font-size:14px;color:#1f2528}
+dialog.lightbox .close{display:block;color:#586066;font-size:12.5px;margin:0;padding:0 14px 12px}
 .vis{display:grid;grid-template-columns:1fr;gap:11px;margin:10px 0 4px}
 @media(min-width:1100px){.vis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .v{margin:0;padding:10px 12px 12px;border:1px solid #d9dfe2;border-radius:8px;background:#fafbfb;scroll-margin-top:var(--sticky,240px)}
@@ -113,7 +127,9 @@ code{font:12.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:#f3f5
 @media(max-width:760px){main{padding:12px}}
 @media print{body{background:#fff}main{max-width:none;padding:0}
 .toc,.totop,.find,.up{display:none!important}
-.card,.chain,.v{break-inside:avoid;box-shadow:none}
+dialog.lightbox{display:none!important}
+.shots{display:flex!important}.shot img{max-width:100%}
+.card,.chain,.v,.shot{break-inside:avoid;box-shadow:none}
 details{display:block}details summary{font-weight:600;color:#1f2528;list-style:none}
 details>*{display:revert!important}
 details::details-content{content-visibility:visible!important;block-size:auto!important;display:block!important}
@@ -184,13 +200,15 @@ def rows_of(document):
     return document if isinstance(document, list) else []
 
 
-def load_model(case_dir):
+def load_model(case_dir, model_dir=None):
     """The model capture as this page needs it; `captured` is False when there is none.
 
     Measures are keyed by lower-case name because that is how a visual references
-    them (`Measure.Property`); the raw rows stay in the case.
+    them (`Measure.Property`); the raw rows stay in the case. `model_dir` reads the
+    capture from outside the case, for a case that was sealed without one; the page
+    then says where it came from, because that part is no longer sealed evidence.
     """
-    folder = Path(case_dir) / 'evidence/model'
+    folder = Path(model_dir) if model_dir else Path(case_dir) / 'evidence/model'
     measures = rows_of(read_json(folder / 'TMSCHEMA_MEASURES.json'))
     tables = rows_of(read_json(folder / 'TMSCHEMA_TABLES.json'))
     partitions = rows_of(read_json(folder / 'TMSCHEMA_PARTITIONS.json'))
@@ -1075,13 +1093,80 @@ def details(summary, body, pre=True):
 
 MAX_APPEARANCES = 3
 MAX_CHAIN_TABLES = 6
+MAX_PAGE_SHOTS = 2
+
+LIGHTBOX = ('<dialog class="lightbox" id="lightbox" aria-label="Screenshot"><figure>'
+            '<img id="lightbox-img" alt=""><figcaption id="lightbox-cap"></figcaption>'
+            '<span class="close">Click anywhere or press Escape to close.</span></figure></dialog>')
+LIGHTBOX_SCRIPT = '''<script>
+(function () {
+  var box = document.getElementById('lightbox');
+  var image = document.getElementById('lightbox-img');
+  var caption = document.getElementById('lightbox-cap');
+  if (!box || typeof box.showModal !== 'function') { return; }
+  Array.prototype.forEach.call(document.querySelectorAll('a.shot-link'), function (link) {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      image.src = link.getAttribute('href');
+      image.alt = link.dataset.caption || '';
+      caption.textContent = link.dataset.caption || '';
+      box.showModal();
+    });
+  });
+  box.addEventListener('click', function () { box.close(); });
+  box.addEventListener('close', function () { image.removeAttribute('src'); });
+})();
+</script>'''
+
+
+def shot_figure(shot, prefix, title):
+    """One captured screenshot, clickable, with a caption saying what it is a picture of."""
+    source = prefix + '/' + shot['screenshot']
+    detail = ' · '.join(part for part in (shot.get('situation'), shot.get('filters')) if part)
+    caption = shot.get('caption') or title
+    return (f'<figure class="shot"><a class="shot-link" href="{esc(source)}" target="_blank" rel="noopener" '
+            f'data-caption="{esc(caption)}" title="Open the screenshot of {esc(title)}">'
+            f'<img src="{esc(source)}" alt="{esc(title)}" loading="lazy"></a>'
+            f'<figcaption><b>{esc(title)}</b>' + (f'<br>{esc(detail)}' if detail else '')
+            + '</figcaption></figure>')
+
+
+def shots_strip(shots, prefix, title):
+    """A strip of captured screenshots, or nothing at all when the case holds none."""
+    if not shots or not prefix:
+        return ''
+    return '<div class="shots">' + ''.join(shot_figure(shot, prefix, title) for shot in shots) + '</div>'
+
+
+def page_shots(page, shots, prefix):
+    """What this page looked like when it was captured, or the whole-report capture instead.
+
+    A capture names the page it was taken on, so a page the review never opened
+    shows nothing of its own; the whole-report capture is offered instead and says
+    plainly that it is not a picture of this page.
+    """
+    name = str(page.get('name') or 'This page')
+    own = analyst_view.page_screenshots(shots, page.get('name'))
+    if own:
+        return shots_strip(own[:MAX_PAGE_SHOTS], prefix, f'{name}, as this review captured it')
+    whole = analyst_view.whole_report_screenshots(shots)
+    if whole:
+        return shots_strip(whole[:1], prefix, 'A capture of the report, not of this page')
+    return ''
+
+
+def chain_shots(chain, shots, prefix):
+    """A situation where this number was on the screen, when a capture recorded one by that name."""
+    names = [chain['name']] + [place.get('label') for place in chain['seen'] if place.get('label')]
+    found = analyst_view.screenshots_showing(shots, names)
+    return shots_strip(found[:1], prefix, f'{chain["name"]} on the screen')
 
 
 def unknown_step(reason):
     return f'<p class="unknown">{esc(UNKNOWN)} &mdash; {esc(reason)}</p>'
 
 
-def chain_block(chain):
+def chain_block(chain, shots=None, prefix=''):
     """One measure's five-step chain, screen to source, as boxes and arrows."""
     seen = chain['seen']
     shown = seen[:MAX_APPEARANCES]
@@ -1139,10 +1224,11 @@ def chain_block(chain):
             f'<h4><a href="#{esc(chain["anchor"])}">{esc(chain["name"])}</a></h4>'
             f'<p class="seen">Shown as {esc(", ".join(dict.fromkeys(p["label"] or chain["name"] for p in shown)))}'
             f' on {esc(", ".join(dict.fromkeys(p["page"] for p in shown)))}.</p>'
-            f'<div class="steps">{steps}</div></li>')
+            + chain_shots(chain, shots, prefix)
+            + f'<div class="steps">{steps}</div></li>')
 
 
-def chains_card(chains, pages):
+def chains_card(chains, pages, shots=None, prefix=''):
     """The follow-one-number section, before the page-by-page catalogue."""
     if not pages:
         return ''
@@ -1151,7 +1237,8 @@ def chains_card(chains, pages):
                 'there is no number to follow from the screen back to a table. That is a gap in the capture, '
                 'not a statement about the report.</p>')
     else:
-        body = '<ol class="chains">' + ''.join(chain_block(chain) for chain in chains) + '</ol>'
+        body = ('<ol class="chains">'
+                + ''.join(chain_block(chain, shots, prefix) for chain in chains) + '</ol>')
     return ('<section class="card" id="follow"><div class="head"><div><h2>Follow one number</h2>'
             f'<div class="page">{len(chains)} number(s) a card shows or a table totals, traced from the '
             'screen back to the warehouse</div></div></div>'
@@ -1247,7 +1334,7 @@ def interactions_block(page, titles):
     return body or '<p class="none">No interaction setting on this page changes the default behaviour.</p>'
 
 
-def page_card(page, measures_by_key, component_by_page):
+def page_card(page, measures_by_key, component_by_page, shots=None, prefix=''):
     titles = {v['id']: visual_label(v) + f' ({v["type"]})' for v in page['visuals']}
     reviewed = component_by_page.get(str(page['name']).strip().lower())
     header = f'<div class="page">{len(page["visuals"])} visual(s) captured'
@@ -1266,7 +1353,8 @@ def page_card(page, measures_by_key, component_by_page):
     return (f'<section class="card" id="{esc(page["anchor"])}" data-kind="page" data-find="{esc(words)}">'
             f'<div class="head"><div><h2>{esc(page["name"])}</h2>{header}</div>'
             '<div class="up"><a href="#top">Back to top</a></div></div>'
-            '<h3>What is on the page</h3><div class="vis">'
+            + page_shots(page, shots, prefix)
+            + '<h3>What is on the page</h3><div class="vis">'
             + ''.join(visual_block(v, measures_by_key, page['name']) for v in page['visuals'])
             + '</div><details class="pagedetail"><summary>Page filters and how the visuals affect each '
               'other</summary>' + detail + '</details></section>')
@@ -1493,13 +1581,15 @@ def manifest_state(case_dir):
     return digest(path), True
 
 
-def render(case_dir, out, title=None):
+def render(case_dir, out, title=None, model_dir=None):
     """Write the how-it-works page beside the case and return the summary counts."""
     case_dir, out = Path(case_dir).resolve(), Path(out).resolve()
     if out.is_relative_to(case_dir):
         raise ValueError('Use an output outside the case; the case holds evidence, not derived pages')
     case = read_json(case_dir / 'case.json') or {}
-    model = load_model(case_dir)
+    model = load_model(case_dir, model_dir)
+    if model_dir and model.get('captured'):
+        model['external_source'] = str(Path(model_dir).resolve())
     pages = pages_from_evidence(case_dir)
     measures = measures_used(pages, model)
     tables = tables_for_measures(measures, model)
@@ -1509,13 +1599,15 @@ def render(case_dir, out, title=None):
                          for c in case.get('components') or [] if isinstance(c, dict)}
     gaps = collect_gaps(case_dir, case, pages, measures, model)
     inventory = read_json(case_dir / 'evidence/inventory.json') or {}
+    shots = analyst_view.evidence_screenshots(case_dir)
+    prefix = os.path.relpath(case_dir, out.parent).replace('\\', '/')
     version = plugin_version()
     generator = f'analytics-qa lineage_report {version}'
     sha, sealed = manifest_state(case_dir)
     used = [m for m in measures if m['used']]
     visuals = sum(len(page['visuals']) for page in pages)
     heading = str(title or case.get('target') or case.get('id') or 'How this report works')
-    body = ''.join(page_card(page, measures_by_key, component_by_page) for page in pages) \
+    body = ''.join(page_card(page, measures_by_key, component_by_page, shots, prefix) for page in pages) \
         or '<section class="card"><p class="none">No page could be read from this case\'s evidence.</p></section>'
     document = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="generator" content="{esc(generator)}"><meta name="analytics-qa-case" content="{esc(case.get('id', ''))}">
@@ -1527,7 +1619,7 @@ def render(case_dir, out, title=None):
 where those tables come from. Everything here is read from the evidence this case captured - nothing was queried
 to write it, and nothing is inferred beyond what the definitions say.</p>
 <p class="notice">This describes the captured snapshot of the report and its model, taken {{{{ captured }}}}. It is a
-description, not a verdict: it says how the report is built, not whether its numbers are right.</p>
+description, not a verdict: it says how the report is built, not whether its numbers are right.{{{{ external }}}}</p>
 <div class="summary"><span class="pill"><b>{len(pages)}</b> pages</span><span class="pill"><b>{visuals}</b> visuals</span>
 <span class="pill"><b>{len(used)}</b> measures used</span><span class="pill"><b>{len(chains)}</b> numbers traced</span>
 <span class="pill"><b>{len(tables)}</b> tables</span>
@@ -1543,12 +1635,15 @@ description, not a verdict: it says how the report is built, not whether its num
 <p class="manifest">Generated by {esc(generator)} from case {esc(case.get('id', ''))}; evidence manifest {{{{ manifest }}}}.</p>
 <a class="totop" href="#top">Back to top</a>
 {{{{ script }}}}
-</main></html>'''
+</main>{LIGHTBOX}{LIGHTBOX_SCRIPT}</html>'''
     rendered = Template(document, autoescape=True).render(
         title=heading, captured=str(inventory.get('captured_at') or 'at an unrecorded time'),
+        external=(' The model definitions on this page were read from a capture outside the case, at '
+                  f'{model["external_source"]}, because this case was sealed without one; that part is '
+                  'not sealed evidence.' if model.get('external_source') else ''),
         seal='sealed evidence' if sealed else 'unsealed case', manifest=sha,
         toc=Markup(table_of_contents(pages, bool(case.get('trace')), bool(tables), bool(pages))),
-        chains=Markup(chains_card(chains, pages)),
+        chains=Markup(chains_card(chains, pages, shots, prefix)),
         report_filters=Markup(report_filters_card(pages)),
         pages=Markup(body), measures=Markup(measures_card(measures)),
         tables=Markup(tables_card(tables, model)), trace=Markup(trace_card(case)),
@@ -1556,6 +1651,7 @@ description, not a verdict: it says how the report is built, not whether its num
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(rendered, encoding='utf-8')
     return {'report': str(out), 'case': case.get('id'), 'pages': len(pages), 'visuals': visuals,
+            'screenshots': len(shots),
             'measures_used': len(used), 'measures_defined': len(measures), 'tables': len(tables),
             'traced': len(chains), 'model_captured': model['captured'], 'manifest_sha256': sha,
             'sealed': sealed, 'gaps': len(gaps), 'generator': generator}
@@ -1566,8 +1662,10 @@ def main():
     parser.add_argument('--case', required=True)
     parser.add_argument('--out', required=True)
     parser.add_argument('--title', help='heading for the page; the case target is used when omitted')
+    parser.add_argument('--model', help='a model capture outside the case (pbi.py model output), for a case '
+                                        'sealed without one; the page says where it came from')
     args = parser.parse_args()
-    print(json.dumps(render(args.case, args.out, args.title), default=str))
+    print(json.dumps(render(args.case, args.out, args.title, args.model), default=str))
 
 
 if __name__ == '__main__':

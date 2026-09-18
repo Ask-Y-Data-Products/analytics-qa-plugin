@@ -24,6 +24,8 @@ missing (no `plan.consistency`, no claim `question`, no component
   component_status(claims)                    -> "Looks right" / "Needs your decision" / "Problem found"
   plain_summary(statuses, claims)             -> the one line a stakeholder reads first
   regression_headline(claims, names)          -> "One thing broke since the last approved version: ..."
+  claim_screenshots(claim, case_dir)          -> the captures one claim's evidence cites
+  evidence_screenshots(case_dir)              -> every capture the case holds, described
   phrase_action(step)                         -> "Google Ads unchecked in Channel"
   format_number(value)                        -> "1,978"
   is_technical(text)                          -> the first engineer-only token, or None
@@ -1247,6 +1249,123 @@ def regression_headline(claims, component_names=None):
     shown = join_phrases(details[:2])
     more = f', and {spell(len(details) - 2)} more' if len(details) > 2 else ''
     return f'{capitalise(spell(len(details)))} things broke since the last approved version: {shown}{more}.'
+
+
+# --- the captured screenshots, for every page that discusses evidence -------
+#
+# A screenshot lives beside the observation that explains it: `<label>/screen.png`
+# next to `<label>/state.json`. These functions find the picture behind whatever a
+# page is talking about - a claim, a component, a report page, a figure - and
+# describe it in the words the capture itself recorded. They return relative POSIX
+# paths inside the case; each renderer prefixes its own path to the case folder and
+# owns the HTML.
+
+SHOT_NAME = 'screen.png'
+
+
+def shot_beside(case_dir, state_reference):
+    """The screenshot recorded with one `state.json`, described from that state.
+
+    Returns None when the reference is not a state, when the state cannot be read
+    or when no screenshot was kept beside it - a page that shows evidence must
+    never break on a capture that has none.
+    """
+    reference = str(state_reference or '').replace('\\', '/')
+    if not reference.endswith('state.json'):
+        return None
+    folder = Path(reference).parent
+    shot = Path(case_dir) / folder / SHOT_NAME
+    if not shot.is_file():
+        return None
+    state = read_json(Path(case_dir) / reference)
+    if not isinstance(state, dict):
+        state = {}
+    label = str(state.get('label') or folder.name)
+    observation = {'dates': pretty_date_range(state.get('date_start'), state.get('date_end')),
+                   'slicers': dict(state.get('slicers') or {})}
+    description = first_sentence(str(state.get('description') or '').strip())
+    situation = description if description and not is_technical(description) else label
+    if len(situation) > 90:
+        situation = situation[:90].rsplit(' ', 1)[0].rstrip(' ,;:') + '...'
+    filters = filter_phrase(observation)
+    return {'screenshot': (folder / SHOT_NAME).as_posix(), 'state': reference, 'label': label,
+            'situation': situation, 'active_page': state.get('active_page'), 'filters': filters,
+            'dates': observation['dates'],
+            'figure_names': [str(name) for name in (state.get('cards') or {})]
+                            + [str(name) for name in (state.get('tables') or {})],
+            'caption': ' — '.join(part for part in (situation, filters) if part) or label}
+
+
+def claim_screenshots(claim, case_dir, limit=3):
+    """The screenshots behind one claim: the captures its own evidence cites."""
+    shots, seen = [], set()
+    for reference in (claim or {}).get('evidence') or []:
+        shot = shot_beside(case_dir, reference)
+        if shot and shot['screenshot'] not in seen:
+            seen.add(shot['screenshot'])
+            shots.append(shot)
+    if limit is None or len(shots) <= limit:
+        return shots
+    # Keep the ends of the story: where it started and where it finished.
+    return shots[:limit - 1] + shots[-1:]
+
+
+def component_screenshots(component, case_dir, limit=2):
+    """The component's own captures, first and last, for a claim that cites no state."""
+    shots, seen = [], set()
+    for scenario in (component or {}).get('scenarios') or []:
+        for reference in scenario.get('evidence') or []:
+            shot = shot_beside(case_dir, reference)
+            if shot and shot['screenshot'] not in seen:
+                seen.add(shot['screenshot'])
+                shots.append(shot)
+    if limit is None or len(shots) <= limit:
+        return shots
+    return [shots[0], shots[-1]]
+
+
+def evidence_screenshots(case_dir):
+    """Every capture the case holds, in path order: screenshot plus what its state says.
+
+    This walks the sealed evidence rather than `case.json`, so a whole-report
+    capture (`evidence/initial_capture.png/screen.png`) that no component claims is
+    found too.
+    """
+    root = Path(case_dir) / 'evidence'
+    if not root.is_dir():
+        return []
+    shots = []
+    for state in sorted(root.rglob('state.json')):
+        try:
+            reference = state.relative_to(Path(case_dir)).as_posix()
+        except ValueError:
+            continue
+        shot = shot_beside(case_dir, reference)
+        if shot:
+            shots.append(shot)
+    return shots
+
+
+def page_screenshots(shots, page_name):
+    """The captures a state recorded as taken on this report page."""
+    wanted = str(page_name or '').strip().lower()
+    if not wanted:
+        return []
+    return [shot for shot in shots or [] if str(shot.get('active_page') or '').strip().lower() == wanted]
+
+
+def whole_report_screenshots(shots):
+    """Captures of the report that name no page - the fallback when a page has none of its own."""
+    return [shot for shot in shots or [] if not str(shot.get('active_page') or '').strip()]
+
+
+def screenshots_showing(shots, names):
+    """The captures whose state recorded a figure by one of these names."""
+    wanted = {str(name).strip().lower() for name in names or [] if str(name or '').strip()}
+    if not wanted:
+        return []
+    return [shot for shot in shots or []
+            if any(str(figure).strip().lower() in wanted for figure in shot.get('figure_names') or [])]
 
 
 def what_it_shows(component):

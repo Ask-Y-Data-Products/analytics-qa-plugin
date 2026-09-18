@@ -1,0 +1,68 @@
+{
+  "kind": "state_check",
+  "at": "2026-09-18T18:40:14.101252+00:00",
+  "observation": "state.json",
+  "observation_sha256": "3af45db3e2e1512f860cdf5599e4865ab25842049d7e18774b178126e01642c8",
+  "expected": {
+    "/verified_report_title": "sample-dashboard",
+    "/active_page": "Marketing Overview",
+    "/popup_open": false,
+    "/calendar_open": false,
+    "/edit_overlay_open": false,
+    "/cards/Total Leads": 4360,
+    "/date_start": "7/1/2026",
+    "/date_end": "7/13/2026"
+  },
+  "checks": [
+    {
+      "pointer": "/verified_report_title",
+      "expected": "sample-dashboard",
+      "actual": "sample-dashboard",
+      "status": "passed"
+    },
+    {
+      "pointer": "/active_page",
+      "expected": "Marketing Overview",
+      "actual": "Marketing Overview",
+      "status": "passed"
+    },
+    {
+      "pointer": "/popup_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/calendar_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/edit_overlay_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/cards/Total Leads",
+      "expected": 4360,
+      "actual": 4360,
+      "status": "passed"
+    },
+    {
+      "pointer": "/date_start",
+      "expected": "7/1/2026",
+      "actual": "7/1/2026",
+      "status": "passed"
+    },
+    {
+      "pointer": "/date_end",
+      "expected": "7/13/2026",
+      "actual": "7/13/2026",
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "limit": "Checks recorded fields only. Actual capture provenance, full filter context and business correctness need investigation."
+}

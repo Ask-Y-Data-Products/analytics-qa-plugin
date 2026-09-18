@@ -4,7 +4,29 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fafbfc;color:#202427;font:15px/1.5 system-ui,sans-serif}header{padding:22px 32px;background:#153d35;color:white}h1{font-size:24px;margin:6px 0}h2{font-size:19px;border-bottom:1px solid #d7dddf;padding-bottom:8px}main{max-width:1180px;margin:auto;padding:24px}nav{display:flex;gap:20px;flex-wrap:wrap}a{color:#087568}header a{color:white}section{margin:0 0 32px}table{width:100%;border-collapse:collapse}td,th{padding:10px;border-bottom:1px solid #d7dddf;text-align:left;vertical-align:top}th{background:#eef2f3}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f3;padding:12px}details{padding:12px 0;border-bottom:1px solid #d7dddf}summary{cursor:pointer;font-weight:600}.failed,.error{color:#af2828}.passed{color:#077449}.inconclusive{color:#875611}img{display:block;max-width:100%;height:auto;border:1px solid #ccd4d5;margin:12px 0}.status{font-weight:650}small{color:#5c686d}.pill{font-size:12px;margin-left:10px}select{padding:6px;font:inherit}p{overflow-wrap:anywhere}@media(max-width:700px){main{padding:12px}header{padding:16px}table{font-size:13px}td,th{padding:6px}}
 </style>
-<style>td,th{overflow-wrap:anywhere}.evidence-links{font-size:13px}.evidence-links a{display:block;margin:4px 0}figure{margin:12px 0}</style>
+<style>
+/* Tables carry long generated ids and evidence paths. Fixed columns and word-boundary
+   wrapping keep a heading like "Claim" on one line; the wrapper scrolls sideways on a
+   narrow screen instead of squeezing every column to one character per line. */
+.scroll{overflow-x:auto;border:1px solid #d7dddf;border-radius:6px}
+.scroll table{min-width:900px;margin:0}
+table.fixed{table-layout:fixed}
+table.fixed td,table.fixed th{overflow-wrap:break-word;word-break:normal;hyphens:auto}
+table.fixed th{white-space:nowrap}
+.claims col.c-id{width:12%}.claims col.c-expected{width:34%}.claims col.c-result{width:34%}.claims col.c-evidence{width:20%}
+.facts col.c-what{width:34%}.facts col.c-value{width:16%}.facts col.c-source{width:20%}.facts col.c-evidence{width:30%}
+.evidence-links{font-size:13px}
+a.ref{display:block;margin:3px 0;font:12.5px ui-monospace,SFMono-Regular,Consolas,monospace;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+/* One picture per captured situation, shown with the component it belongs to. */
+.shots{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 16px}
+.shot{margin:0;flex:1 1 260px;min-width:200px;max-width:360px}
+.shot img{margin:0;width:100%}
+.shot figcaption{font-size:12.5px;color:#5c686d;margin:5px 0 0;line-height:1.35}
+.shot figcaption b{color:#202427}
+figure{margin:12px 0}
+@media print{.scroll{overflow:visible}.scroll table{min-width:0}.shots{display:flex}.shot,figure{break-inside:avoid}}
+</style>
 <header><small style="color:#c9e2db">ANALYTICS QA / {{ case.id }}</small><h1>{{ case.target }}</h1>
 <nav>{% if case.components %}<a href="#components">Components</a>{% endif %}<a href="#claims">Claims</a><a href="#trace">Trace</a><a href="#findings">Findings</a><a href="#experiments">Experiments</a><a href="#screens">Screens</a><a href="#review">Review</a></nav></header>
 <main><section><h2>Review summary</h2>
@@ -16,13 +38,15 @@
 <details><summary>Scope and comparison conditions</summary><pre>{{ case.scope|tojson(indent=2) }}</pre></details></section>
 {% if case.components %}<section id="components"><h2>Component review</h2><nav>{% for c in case.components %}<a href="#component-{{ c.id }}">{{ c.name }}</a>{% endfor %}</nav></section>
 {% for c in case.components %}<section id="component-{{ c.id }}"><h2>{{ c.id }}: {{ c.name }}</h2><p><b>Page:</b> {{ c.page }}</p><p>{{ c.definition }}</p>
+{% set pictures = [] %}{% for s in c.scenarios %}{% for e in s.evidence %}{% if e.endswith('.png') %}{% set _ = pictures.append((s, e)) %}{% endif %}{% endfor %}{% endfor %}
+{% if pictures %}<div class="shots">{% for s, e in pictures %}<figure class="shot"><a href="{{ e }}"><img src="{{ e }}" alt="{{ c.name }}: {{ s.description }}" loading="lazy"></a><figcaption><b>{{ s.id }}</b><br>{{ s.description }}</figcaption></figure>{% endfor %}</div>{% endif %}
 <p><b>Expectations for review:</b> {% for cid in c.claim_ids %}<a href="#{{ cid }}">{{ cid }}</a> {% endfor %}</p>
-{% for s in c.scenarios %}<details><summary>{{ s.id }}: {{ s.description }}</summary><div class="evidence-links">{% for e in s.evidence %}<a href="{{ e }}">{{ e }}</a>{% if e.endswith('.png') %}<img src="{{ e }}" alt="{{ c.name }}: {{ s.description }}" loading="lazy">{% endif %}{% endfor %}</div></details>{% endfor %}</section>{% endfor %}{% endif %}
-{% if case.facts %}<section><h2>Evidence-linked measurements</h2><table><thead><tr><th>Measurement</th><th>Value</th><th>Evidence</th></tr></thead><tbody>{% for f in case.facts %}<tr><td>{{ f.label }}</td><td>{{ f.value }} {{ f.unit }}</td><td><a href="{{ f.evidence }}">{{ f.id }}</a> <small>{{ f.pointer }}</small></td></tr>{% endfor %}</tbody></table></section>{% endif %}
-<section id="claims"><h2>Claims</h2><table><thead><tr><th>Claim</th><th>Expected behavior and source</th><th>Result</th><th>Evidence</th></tr></thead><tbody>
-{% for c in case.claims %}<tr id="{{ c.id }}"><td>{{ c.id }}</td><td>{{ c.expected }}<br><small>{{ c.source }}</small></td><td class="status {{ c.status }}">{{ c.status }}<p>{{ c.observed }}</p></td><td>{% for e in c.evidence %}<p><a href="{{ e }}">{{ e }}</a></p>{% endfor %}</td></tr>{% endfor %}</tbody></table></section>
+{% for s in c.scenarios %}<details><summary>{{ s.id }}: {{ s.description }}</summary><div class="evidence-links">{% for e in s.evidence %}<a class="ref" href="{{ e }}" title="{{ e }}">{{ e.split('/')[-2:]|join('/') }}</a>{% endfor %}</div></details>{% endfor %}</section>{% endfor %}{% endif %}
+{% if case.facts %}<section><h2>Evidence-linked measurements</h2><div class="scroll"><table class="fixed facts"><colgroup><col class="c-what"><col class="c-value"><col class="c-source"><col class="c-evidence"></colgroup><thead><tr><th>Measurement</th><th>Value</th><th>Fact</th><th>Evidence</th></tr></thead><tbody>{% for f in case.facts %}<tr><td>{{ f.label }}</td><td>{{ f.value }} {{ f.unit }}</td><td>{{ f.id }} <small>{{ f.pointer }}</small></td><td class="evidence-links"><a class="ref" href="{{ f.evidence }}" title="{{ f.evidence }}">{{ f.evidence.split('/')[-2:]|join('/') }}</a></td></tr>{% endfor %}</tbody></table></div></section>{% endif %}
+<section id="claims"><h2>Claims</h2><div class="scroll"><table class="fixed claims"><colgroup><col class="c-id"><col class="c-expected"><col class="c-result"><col class="c-evidence"></colgroup><thead><tr><th>Claim</th><th>Expected behavior and source</th><th>Result</th><th>Evidence</th></tr></thead><tbody>
+{% for c in case.claims %}<tr id="{{ c.id }}"><td>{{ c.id }}</td><td>{{ c.expected }}<br><small>{{ c.source }}</small></td><td class="status {{ c.status }}">{{ c.status }}<p>{{ c.observed }}</p></td><td class="evidence-links">{% for e in c.evidence %}<a class="ref" href="{{ e }}" title="{{ e }}">{{ e.split('/')[-2:]|join('/') }}</a>{% endfor %}</td></tr>{% endfor %}</tbody></table></div></section>
 <section id="trace"><h2>Source-to-screen trace</h2>{% for item in case.trace %}<details open><summary>{{ item.from }} &rarr; {{ item.to }}</summary><p>{{ item.explanation }}</p><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}</section>
-<section id="findings"><h2>Findings and business impact</h2>{% for f in case.findings %}<details id="{{ f.id }}" open><summary>{{ f.id }}: {{ f.title }}</summary><p>{{ f.explanation }}</p><p><b>Impact:</b> {{ f.impact }}</p><p>{% for cid in f.claim_ids %}<a href="#{{ cid }}">{{ cid }}</a> {% endfor %}</p><div class="evidence-links">{% for e in f.evidence %}<a href="{{ e }}">{{ e }}</a>{% endfor %}</div></details>{% else %}<p>No findings recorded. Read coverage limitations before drawing a conclusion.</p>{% endfor %}</section>
+<section id="findings"><h2>Findings and business impact</h2>{% for f in case.findings %}<details id="{{ f.id }}" open><summary>{{ f.id }}: {{ f.title }}</summary><p>{{ f.explanation }}</p><p><b>Impact:</b> {{ f.impact }}</p><p>{% for cid in f.claim_ids %}<a href="#{{ cid }}">{{ cid }}</a> {% endfor %}</p><div class="evidence-links">{% for e in f.evidence %}<a class="ref" href="{{ e }}" title="{{ e }}">{{ e.split('/')[-2:]|join('/') }}</a>{% endfor %}</div></details>{% else %}<p>No findings recorded. Read coverage limitations before drawing a conclusion.</p>{% endfor %}</section>
 <section id="experiments"><h2>Experiments</h2>{% for e in case.experiments %}<details><summary>{{ e.id }}: {{ e.question }}</summary><pre>{{ e|tojson(indent=2) }}</pre></details>{% endfor %}</section>
 <section id="screens"><h2>Captured surfaces</h2>{% for s in screenshots %}<details><summary>{{ s.path }}</summary><p><b>Observation:</b> {{ s.status }}</p><p>{{ s.note }}</p><a href="{{ s.path }}"><img src="{{ s.path }}" alt="{{ s.path }}" loading="lazy"></a></details>{% else %}<p class="inconclusive">No rendered evidence. Visual correctness is unverified.</p>{% endfor %}</section>
 <section id="review"><h2>Review decisions</h2>{% for r in case.review %}<pre>{{ r|tojson(indent=2) }}</pre>{% else %}<p>Awaiting human review. No acceptance has been recorded.</p>{% endfor %}</section>

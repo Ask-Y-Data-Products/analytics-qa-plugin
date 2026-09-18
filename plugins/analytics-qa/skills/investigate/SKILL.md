@@ -66,8 +66,16 @@ case's `limitations` or in the relevant finding.
    recorded - and it never queries anything. It lays out every page and visual,
    the measure behind each label on screen, the tables those measures read and
    where those tables come from, the filters and the interaction settings, and an
-   explicit list of what the evidence does not cover. Report its absolute path.
+   explicit list of what the evidence does not cover. Where the case holds a
+   capture of a page, the page card opens with that screenshot, and a traced
+   number shows a situation where it was on the screen; a page nobody captured
+   shows no picture rather than a borrowed one. Report its absolute path.
 
+   Capture the model INTO the case before you seal it
+   (`pbi.py model --port <port> --database <catalog> --out <case>/evidence/model`).
+   Without it every chain reads "unknown": the page will not guess a definition it
+   cannot see. If a sealed case turns out to lack one, `--model <capture>` reads it
+   from outside and the page says on its face that that part is not sealed evidence.
    The page now leads with "Follow one number": one visual chain per measure,
    screen -> measure -> what it does in one plain sentence -> the tables it reads
    -> where each table comes from, with chips marking the steps that matter for

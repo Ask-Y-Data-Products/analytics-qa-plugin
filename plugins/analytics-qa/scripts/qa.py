@@ -67,11 +67,22 @@ def init_case(directory, target):
          "claims": [], "facts": [], "experiments": [], "findings": [], "limitations": [], "review": []})
 
 
-def inspect_project(project, directory):
+def inspect_project(project, directory, config_name="pilot.json"):
+    """Copy the project's declared sources into the case as evidence.
+
+    `config_name` names the project file to read. One folder often holds more than
+    one report - a baseline and a changed copy, or a small demo beside the real
+    thing - and each needs its own configuration; inspecting with the wrong one
+    fills the case with another report's inventory and nothing later notices.
+    """
     project = Path(project).resolve()
     directory = Path(directory).resolve()
     ensure_evidence_writable(directory)
-    config = read(project / "pilot.json")
+    configuration = project / config_name
+    if not configuration.is_file():
+        raise ValueError(f"Project configuration not found: {configuration}. Pass --config <name> when the "
+                         "project holds more than one report.")
+    config = read(configuration)
     sources = []
     candidates = [project / config["definition_file"]] if config.get("definition_file") else []
     if config.get("dbt_project"):
@@ -556,6 +567,15 @@ def attach_component(directory, run, spec_file):
         raise ValueError("Component id already present")
     source = run / "evidence"
     states = {s["label"] for s in journal["states"]}
+    # A component is a story the analyst reads: what it showed, what changed, where it landed.
+    # One capture with no action is a screenshot, and the sign-off page has nothing to compare.
+    if len(journal["states"]) < 2 and not spec.get("single_state_reason"):
+        raise ValueError(
+            f"Run {run.name} captured only {len(journal['states'])} state and performed "
+            f"{len(journal.get('actions') or [])} action(s). A component needs a baseline, a discriminating "
+            "change and the reset that restores it, so the page can show what moved. Extend the plan with "
+            "an action and two more captures and rerun into a fresh directory, or set "
+            '"single_state_reason" in the spec to say why this component can only be observed once.')
     from state_checks import verify_receipt
     for state in journal["states"]:
         label = state["label"]
@@ -896,7 +916,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init"); init.add_argument("--case", required=True); init.add_argument("--target", required=True); init.add_argument("--project")
+    init.add_argument("--config", default="pilot.json", help="project file to read when --project is given")
     ins = sub.add_parser("inspect"); ins.add_argument("--project", required=True); ins.add_argument("--case", required=True)
+    ins.add_argument("--config", default="pilot.json", help="project file to read (default pilot.json)")
     sql = sub.add_parser("sql"); sql.add_argument("--config", required=True); sql.add_argument("--file", required=True); sql.add_argument("--out", required=True); sql.add_argument("--limit", type=int, default=5000)
     for name in ["seal", "verify", "render", "validate"]:
         parser = sub.add_parser(name); parser.add_argument("--case", required=True)
@@ -921,9 +943,9 @@ def main():
     if a.command == "init":
         init_case(a.case, a.target); result = {"case": a.case}
         if a.project:
-            result.update(inventory_summary(inspect_project(a.project, a.case), a.case))
+            result.update(inventory_summary(inspect_project(a.project, a.case, a.config), a.case))
     elif a.command == "inspect":
-        result = inspect_project(a.project, Path(a.case))
+        result = inspect_project(a.project, Path(a.case), a.config)
         result = inventory_summary(result, a.case)
     elif a.command == "sql":
         ensure_evidence_writable(a.out)

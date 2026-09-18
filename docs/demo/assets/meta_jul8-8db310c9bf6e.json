@@ -1,0 +1,33 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T18:41:35.616403+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE ROW(\"Platform\", CALCULATE([Meta Direct Leads], dim_date[date_key] = DATE(2026,7,8)), \"CRM\", CALCULATE([Meta CL Leads], dim_date[date_key] = DATE(2026,7,8)))",
+  "columns": [
+    "[Platform]",
+    "[CRM]"
+  ],
+  "rows": [
+    {
+      "[Platform]": 70,
+      "[CRM]": 59
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Platform]",
+        "[CRM]"
+      ],
+      "rows": [
+        {
+          "[Platform]": 70,
+          "[CRM]": 59
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

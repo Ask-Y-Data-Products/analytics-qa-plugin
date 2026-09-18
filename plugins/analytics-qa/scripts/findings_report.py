@@ -8,18 +8,22 @@ inconclusive claim, every `findings[]` record, and the detector claims with thei
 severity, hit counts and objects.
 
 Nothing is recomputed and nothing is graded: a claim's own status decides where
-it lands, the analyst-facing `question` is the heading (falling back to the
-neutral phrasing `analyst_view.questions` already uses when the agent wrote for
-engineers), and the evidence paths stay in a collapsed block. Given
+it lands, the analyst-facing `question` is the item's closing line (falling back
+to the neutral phrasing `analyst_view.questions` already uses when the agent wrote
+for engineers), and the evidence paths stay in a collapsed block. Given
 `--signoff <page>`, every item links to that component's card there, so reading
 this page and signing stay one click apart.
 
 It reads as a memo: one plain sentence of the overall picture, then the defects as
-cards - the question as the heading, what we saw, why it matters, where - then the
+cards - a short heading, the screenshots of the situations that demonstrate it,
+what we saw, why it matters, where, and the question as the closing line - then the
 open questions, the model lint collapsed under its own summary, and last the list
-of what was checked and held.
+of what was checked and held. The screenshots are found from the claim's own
+evidence (`.../<label>/state.json` has `screen.png` beside it) and, for a claim
+that cites no state, from the first and last situation of its component; an item
+with no capture behind it simply shows none.
 
-  collect(case)                    -> the records, ordered, each with its group
+  collect(case, case_dir)          -> the records, ordered, each with its group
   severity_rank(record)            -> 0 for critical, 5 for unrated
   overall_sentence(counts, ...)    -> "Four things look wrong and eleven need a decision, ..."
   what_we_saw(record)              -> the observation in plain words, with its number
@@ -28,6 +32,7 @@ of what was checked and held.
 import argparse
 import html
 import json
+import os
 import re
 from pathlib import Path
 
@@ -67,6 +72,20 @@ h3:first-of-type{margin-top:6px}
 .item.open h4,.item.lint h4{font-size:14.5px;font-weight:600}
 .item h4 a{color:inherit;text-decoration:none}.item h4 a:hover{text-decoration:underline}
 .item p{margin:4px 0;font-size:14px}.item .why{color:#333b40}
+.shots{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 10px}
+.shot{margin:0;flex:1 1 220px;min-width:180px;max-width:340px}
+.shot a{display:block;border:1px solid #d9dfe2;border-radius:6px;overflow:hidden;background:#fff}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{font-size:12.5px;color:#586066;margin:4px 0 0;line-height:1.35}
+.shot figcaption b{color:#1f2528;font-weight:600}
+.item .q{margin:10px 0 0;padding:9px 12px;border-left:3px solid #9aa4a9;background:#fff;border-radius:0 6px 6px 0;
+ font-size:15px;font-weight:600;color:#1f2528;max-width:72ch}
+.item.defect .q{border-left-color:#b42318}.item.open .q,.item.lint .q{border-left-color:#c27c11}
+dialog.lightbox{border:0;border-radius:10px;padding:0;background:#fff;max-width:96vw;max-height:96vh;overflow:auto}
+dialog.lightbox::backdrop{background:rgba(15,22,26,.72)}dialog.lightbox figure{margin:0}
+dialog.lightbox img{display:block;max-width:95vw;max-height:85vh;width:auto;height:auto}
+dialog.lightbox figcaption{padding:10px 14px;font-size:14px;color:#1f2528}
+dialog.lightbox .close{display:block;color:#586066;font-size:12.5px;margin:0;padding:0 14px 12px}
 .item .saw b,.item .where b{color:#586066;font-weight:600}
 .item .impact{color:#1f2528}.item .impact b{font-weight:600}
 .item .where{font-size:13.5px;color:#586066}
@@ -95,7 +114,9 @@ table tr:last-child td{border-bottom:0}table tr:hover{background:#f2f7fa}
 @media(max-width:760px){main{padding:12px}}
 @media print{body{background:#fff}main{max-width:none;padding:0}
 .toc{display:none!important}
-.card,.item{break-inside:avoid;box-shadow:none}
+dialog.lightbox{display:none!important}
+.shots{display:flex!important}.shot img{max-width:100%}
+.card,.item,.shot{break-inside:avoid;box-shadow:none}
 details{display:block}details summary{font-weight:600;color:#1f2528;list-style:none}
 details>*{display:revert!important}
 details::details-content{content-visibility:visible!important;block-size:auto!important;display:block!important}}'''
@@ -254,22 +275,78 @@ def plain_question(claim, catalog=None):
         str(claim.get('expected') or '') or None
 
 
-def collect(case):
+CLAUSE = re.compile(r';|\s[—–-]\s|(?<=[.!?])\s+')
+
+
+def first_clause(text, limit=110):
+    """The first clause of a question, so a heading stays a heading and a jump link still works."""
+    words = ' '.join(str(text or '').split())
+    if not words:
+        return ''
+    body = words.removeprefix('Defect: ')
+    clause = CLAUSE.split(body, maxsplit=1)[0].strip() or body
+    if len(clause) <= limit:
+        return clause
+    return clause[:limit].rsplit(' ', 1)[0].rstrip(' ,;:') + '...'
+
+
+def situation_names(component, case_dir):
+    """Capture label -> the number and plain title the sign-off page gives that situation.
+
+    The same picture should be called the same thing on both pages, so the naming
+    comes from the same derivation ("2 · Google Ads unchecked in Channel"). A
+    component whose run is gone keeps whatever the state itself recorded.
+    """
+    names = {}
+    for position, observation in enumerate(analyst_view.component_observations(component or {}, case_dir)):
+        names[observation['label']] = f'{position + 1} · {observation["situation"]}'
+    return names
+
+
+def named(shot, names):
+    """The shot with the situation title the sign-off page uses, when there is one."""
+    title = (names or {}).get(shot.get('label'))
+    if not title:
+        return shot
+    caption = ' — '.join(part for part in (title, shot.get('filters')) if part)
+    return dict(shot, situation=title, caption=caption)
+
+
+def screenshots_for(claim, component, case_dir, names=None):
+    """The captures behind one item: the states its claim cites, else its component's own.
+
+    A claim usually names the observations it was judged on (`.../<label>/state.json`),
+    and the screenshot sits beside each of them. A claim that cites no state - a model
+    lint flag, a probe over the warehouse - still belongs to a component, so the first
+    and last situation of that component show what the reader is being asked about.
+    """
+    if not case_dir:
+        return []
+    shots = analyst_view.claim_screenshots(claim, case_dir) \
+        or analyst_view.component_screenshots(component, case_dir)
+    return [named(shot, names) for shot in shots]
+
+
+def collect(case, case_dir=None):
     """Every recorded problem and every passed check, ordered worst first.
 
     One record per claim, plus a record for any `findings[]` entry that no failed
     claim already carries (a finding about a failed claim is merged into it, so
     its title and business impact appear once, on the item they describe).
-    `group` is one of defect, open, lint or passed.
+    `group` is one of defect, open, lint or passed. Given the case directory, each
+    record also carries the screenshots of the situations behind it, so the page can
+    show the evidence before it states the question.
     """
     case = case or {}
     catalog = analyst_view.load_catalog()
     index = detector_index(catalog)
     components = [c for c in case.get('components') or [] if isinstance(c, dict)]
-    owner = {}
+    owner, situations = {}, {}
     for component in components:
         for claim_id in component.get('claim_ids') or []:
             owner.setdefault(claim_id, component)
+        if case_dir:
+            situations[str(component.get('id'))] = situation_names(component, case_dir)
     findings_by_claim = {}
     for finding in case.get('findings') or []:
         if not isinstance(finding, dict):
@@ -298,8 +375,12 @@ def collect(case):
         if related and status == 'failed':
             severity = related[0].get('severity') or severity
             merged.update(id(f) for f in related)
+        titles = [f.get('title') for f in related if f.get('title')]
         record = {
             'kind': 'claim', 'group': group, 'id': str(claim.get('id') or ''), 'title': question,
+            'heading': titles[0] if titles else first_clause(question), 'question': question,
+            'shots': screenshots_for(claim, component, case_dir,
+                                     situations.get(str(component.get('id')))),
             'observed': strip_method_prefix(claim.get('observed'), claim.get('detector')),
             'expected': str(claim.get('expected') or ''),
             'technical_note': note, 'status': status,
@@ -317,9 +398,11 @@ def collect(case):
     for finding in case.get('findings') or []:
         if not isinstance(finding, dict) or id(finding) in merged:
             continue
+        title = str(finding.get('title') or finding.get('id') or 'Finding')
         records.append({
             'kind': 'finding', 'group': 'defect', 'id': str(finding.get('id') or ''),
-            'title': str(finding.get('title') or finding.get('id') or 'Finding'),
+            'title': title, 'heading': title, 'question': None,
+            'shots': (analyst_view.claim_screenshots(finding, case_dir) if case_dir else []),
             'observed': str(finding.get('explanation') or ''), 'expected': '', 'technical_note': None,
             'status': 'failed', 'impact': finding.get('impact'), 'finding_titles': [], 'finding_ids': [],
             'component': None, 'component_id': None, 'page': None, 'detector': None,
@@ -404,19 +487,78 @@ def objects_block(record):
     return f'<ul class="objects">{items}{more}</ul>'
 
 
+def normalise(text):
+    return ''.join(ch for ch in str(text or '').lower().removeprefix('defect: ') if ch.isalnum())
+
+
+def already_said(question, heading):
+    """True when the heading already carries the whole question, so repeating it says nothing.
+
+    Only that direction: a heading that is the question's first clause must not
+    swallow the rest of the question, which is the line the reader answers.
+    """
+    asked, said = normalise(question), normalise(heading)
+    return bool(asked) and bool(said) and asked in said
+
+
 def same_sentence(left, right):
     """Two headings that say the same thing, up to the 'Defect:' prefix and punctuation."""
-    def normalise(text):
-        return ''.join(ch for ch in str(text or '').lower().removeprefix('defect: ') if ch.isalnum())
     first, second = normalise(left), normalise(right)
     return bool(first) and bool(second) and (first in second or second in first)
 
 
-def item_block(record, signoff, klass):
-    """One card: the question, what we saw, why it matters, where, and the detail folded away."""
+MAX_SHOTS = 3
+LIGHTBOX = ('<dialog class="lightbox" id="lightbox" aria-label="Screenshot"><figure>'
+            '<img id="lightbox-img" alt=""><figcaption id="lightbox-cap"></figcaption>'
+            '<span class="close">Click anywhere or press Escape to close.</span></figure></dialog>')
+LIGHTBOX_SCRIPT = '''<script>
+(function () {
+  var box = document.getElementById('lightbox');
+  var image = document.getElementById('lightbox-img');
+  var caption = document.getElementById('lightbox-cap');
+  if (!box || typeof box.showModal !== 'function') { return; }
+  Array.prototype.forEach.call(document.querySelectorAll('a.shot-link'), function (link) {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      image.src = link.getAttribute('href');
+      image.alt = link.dataset.caption || '';
+      caption.textContent = link.dataset.caption || '';
+      box.showModal();
+    });
+  });
+  box.addEventListener('click', function () { box.close(); });
+  box.addEventListener('close', function () { image.removeAttribute('src'); });
+})();
+</script>'''
+
+
+def shots_block(record, prefix):
+    """The screenshots behind this item, above the words, each saying which situation it is."""
+    shots = (record.get('shots') or [])[:MAX_SHOTS]
+    if not shots or not prefix:
+        return ''
+    tiles = []
+    for shot in shots:
+        source = prefix + '/' + shot['screenshot']
+        title = shot.get('situation') or shot.get('label') or 'Captured situation'
+        caption = shot.get('caption') or title
+        detail = ' · '.join(part for part in (shot.get('filters'), shot.get('active_page')) if part)
+        tiles.append(f'<figure class="shot"><a class="shot-link" href="{esc(source)}" target="_blank" '
+                     f'rel="noopener" data-caption="{esc(caption)}" title="Open the screenshot of {esc(title)}">'
+                     f'<img src="{esc(source)}" alt="{esc(title)}" loading="lazy"></a>'
+                     f'<figcaption><b>{esc(title)}</b>'
+                     + (f'<br>{esc(detail)}' if detail else '') + '</figcaption></figure>')
+    return f'<div class="shots">{"".join(tiles)}</div>'
+
+
+def item_block(record, signoff, klass, prefix=''):
+    """One card: the evidence, what we saw, why it matters, where, then the question that closes it."""
     anchor = record.get('anchor') or ('item-' + analyst_view.anchor_slug(record['id']))
-    body = f'<h4><a href="#{esc(anchor)}">{esc(record["title"])}</a></h4>'
-    titles = [t for t in record.get('finding_titles') or [] if not same_sentence(t, record['title'])]
+    heading = record.get('heading') or record['title']
+    body = f'<h4><a href="#{esc(anchor)}">{esc(heading)}</a></h4>'
+    body += shots_block(record, prefix)
+    titles = [t for t in record.get('finding_titles') or []
+              if not same_sentence(t, record['title']) and not same_sentence(t, heading)]
     if titles:
         body += f'<p class="why"><b>{esc(titles[0])}</b></p>'
     seen = what_we_saw(record)
@@ -426,22 +568,25 @@ def item_block(record, signoff, klass):
         body += f'<p class="impact"><b>Why it matters:</b> {esc(record["impact"])}</p>'
     body += objects_block(record)
     body += where_row(record, signoff)
+    question = record.get('question')
+    if question and not already_said(question, heading):
+        body += f'<p class="q">{esc(question)}</p>'
     body += meta_row(record, signoff)
     body += evidence_block(record)
     return f'<div class="item {klass}" id="{esc(anchor)}">{body}</div>'
 
 
-def defects_card(records, signoff):
+def defects_card(records, signoff, prefix=''):
     items = [r for r in records if r['group'] == 'defect']
     if not items:
         body = '<p class="none">No claim failed and no finding was recorded.</p>'
     else:
-        body = ''.join(item_block(r, signoff, 'defect') for r in items)
+        body = ''.join(item_block(r, signoff, 'defect', prefix) for r in items)
     return ('<section class="card" id="defects"><div class="head"><div><h2>Defects</h2>'
             f'<div class="page">{len(items)} recorded, most severe first</div></div></div>' + body + '</section>')
 
 
-def open_card(records, signoff):
+def open_card(records, signoff, prefix=''):
     items = [r for r in records if r['group'] == 'open']
     if not items:
         body = '<p class="none">Nothing was left unsettled.</p>'
@@ -452,13 +597,13 @@ def open_card(records, signoff):
             groups.setdefault(record['component'] or 'Not tied to one component', []).append(record)
         for name, group in groups.items():
             body += f'<p class="group">{esc(name)}</p>'
-            body += ''.join(item_block(r, signoff, 'open') for r in group)
+            body += ''.join(item_block(r, signoff, 'open', prefix) for r in group)
     return ('<section class="card" id="open"><div class="head"><div><h2>Open questions</h2>'
             f'<div class="page">{len(items)} check(s) nobody could settle automatically</div></div></div>'
             + body + '</section>')
 
 
-def lint_card(records, signoff):
+def lint_card(records, signoff, prefix=''):
     items = [r for r in records if r['group'] == 'lint']
     if not items:
         return ''
@@ -470,7 +615,7 @@ def lint_card(records, signoff):
         hits = sum(int(r['hits'] or 0) for r in group) or sum(len(r['objects']) for r in group)
         flagged += hits
         body += f'<p class="group">{esc(title)} - {hits} object(s) flagged</p>'
-        body += ''.join(item_block(r, signoff, 'lint') for r in group)
+        body += ''.join(item_block(r, signoff, 'lint', prefix) for r in group)
     summary = (f'{len(groups)} check(s) flagged {flagged} object(s) in the model definition - '
                'patterns that often cause wrong numbers. Open to read them.')
     return ('<section class="card" id="lint"><div class="head"><div><h2>Model lint</h2>'
@@ -537,7 +682,8 @@ def render(case_dir, out, signoff=None, title=None):
     if out.is_relative_to(case_dir):
         raise ValueError('Use an output outside the case; the case holds evidence, not derived pages')
     case = read_json(case_dir / 'case.json') or {}
-    records = collect(case)
+    prefix = os.path.relpath(case_dir, out.parent).replace('\\', '/')
+    records = collect(case, case_dir)
     counts = {'defects': sum(1 for r in records if r['group'] == 'defect'),
               'open': sum(1 for r in records if r['group'] == 'open'),
               'lint': sum(1 for r in records if r['group'] == 'lint'),
@@ -577,18 +723,22 @@ open question is one nobody could settle automatically. Neither is a business de
 {{{{ lint }}}}
 {{{{ passed }}}}
 <p class="manifest">Generated by {esc(generator)} from case {esc(case.get('id', ''))}; evidence manifest {{{{ manifest }}}}.</p>
-</main></html>'''
+</main>{LIGHTBOX}{LIGHTBOX_SCRIPT}</html>'''
     rendered = Template(document, autoescape=True).render(
         title=heading, seal='sealed evidence' if sealed else 'unsealed case', manifest=sha,
         headline=overall_sentence(counts['defects'], counts['open'], components,
                                   counts['lint'], counts['passed']),
         banner=Markup(banner), signoff_note=Markup(signoff_note), toc=Markup(table_of_contents(counts)),
         legend=Markup(legend_block()),
-        defects=Markup(defects_card(records, signoff)), open=Markup(open_card(records, signoff)),
-        lint=Markup(lint_card(records, signoff)), passed=Markup(passed_card(records, signoff)))
+        defects=Markup(defects_card(records, signoff, prefix)),
+        open=Markup(open_card(records, signoff, prefix)),
+        lint=Markup(lint_card(records, signoff, prefix)),
+        passed=Markup(passed_card(records, signoff)))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(rendered, encoding='utf-8')
-    return {'report': str(out), 'case': case.get('id'), 'defects': counts['defects'],
+    return {'report': str(out), 'case': case.get('id'), 'screenshots': sum(
+                min(len(record.get('shots') or []), MAX_SHOTS) for record in records
+                if record['group'] != 'passed'), 'defects': counts['defects'],
             'open_questions': counts['open'], 'lint_flags': counts['lint'], 'passed': counts['passed'],
             'components': components, 'signoff': signoff, 'manifest_sha256': sha, 'sealed': sealed,
             'anchors': {record['id']: record['anchor'] for record in records if record['id']},

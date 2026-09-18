@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T18:40:44.845516+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE ROW(\"Leads\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026,8,1) && dim_date[date_key] <= DATE(2026,8,31)))",
+  "columns": [
+    "[Leads]"
+  ],
+  "rows": [
+    {
+      "[Leads]": 6386
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Leads]"
+      ],
+      "rows": [
+        {
+          "[Leads]": 6386
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

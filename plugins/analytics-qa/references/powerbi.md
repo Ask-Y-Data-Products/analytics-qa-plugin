@@ -13,7 +13,14 @@ watermark and CSV hash. Compare the actually loaded model to that snapshot and
 the current warehouse independently. A fresh CSV does not mean Desktop refreshed.
 
 `python <plugin>/scripts/pbi.py status` discovers local Power BI Analysis Services
-instances and any configured browser debug endpoint. Use `dax --port <port>
+instances and any configured browser debug endpoint. Several Desktop windows share one debug
+endpoint and each runs its own engine, so tie BOTH ends of the connection to the
+window you mean: the WebView target by its title line, and the engine by that
+window's own workspace (its process, or the workspace folder created when it
+opened). When two copies of a report share one semantic model - a baseline and a
+fixed copy, a demo beside the original - every DAX answer is identical on all of
+them, so a query can never tell you which instance you reached. Record how you
+established both in `identity_evidence`. Use `dax --port <port>
 --database <catalog> --file <query.dax> --out <case/evidence/file.json>` to execute actual engine DAX.
 Choose the returned model deliberately; ambiguous instances require inspection.
 If the project supplies engine_context, read it and verify the model/source hashes.

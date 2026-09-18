@@ -1,0 +1,52 @@
+{
+  "kind": "probe",
+  "id": "campaign-name-churn",
+  "method": "dax.assert",
+  "question": "The bar chart lists campaigns from a dimension table while the table lists them from the spend fact table. Do these two sources agree on how many campaigns exist?",
+  "params": {
+    "column": "[Diff]",
+    "operator": "==",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"Diff\", COUNTROWS(VALUES(dim_campaign[campaign_name])) - COUNTROWS(VALUES(fact_ad_spend_allocated_daily[campaign_name])))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-18T18:44:14.590430+00:00",
+    "port": 64741,
+    "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "query": "EVALUATE ROW(\"Diff\", COUNTROWS(VALUES(dim_campaign[campaign_name])) - COUNTROWS(VALUES(fact_ad_spend_allocated_daily[campaign_name])))",
+    "columns": [
+      "[Diff]"
+    ],
+    "rows": [
+      {
+        "[Diff]": 1004
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[Diff]"
+        ],
+        "rows": [
+          {
+            "[Diff]": 1004
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "flagged",
+    "actual": 1004,
+    "operator": "==",
+    "expected": 0,
+    "tolerance": null
+  },
+  "status": "failed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

@@ -1,0 +1,52 @@
+{
+  "kind": "probe",
+  "id": "campaign-window-alignment",
+  "method": "dax.assert",
+  "question": "Are there spend records outside the expected reporting window that could be included in the totals?",
+  "params": {
+    "column": "[Outside]",
+    "operator": "==",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"Outside\", COUNTROWS(FILTER(fact_ad_spend_allocated_daily, NOT(RELATED(dim_date[date_key]) >= DATE(2026,1,1)))))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-18T18:44:15.541904+00:00",
+    "port": 64741,
+    "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "query": "EVALUATE ROW(\"Outside\", COUNTROWS(FILTER(fact_ad_spend_allocated_daily, NOT(RELATED(dim_date[date_key]) >= DATE(2026,1,1)))))",
+    "columns": [
+      "[Outside]"
+    ],
+    "rows": [
+      {
+        "[Outside]": null
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[Outside]"
+        ],
+        "rows": [
+          {
+            "[Outside]": null
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 0,
+    "operator": "==",
+    "expected": 0,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

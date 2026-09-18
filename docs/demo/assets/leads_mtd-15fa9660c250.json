@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T18:40:42.949926+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE ROW(\"MTD\", CALCULATE([Leads], FILTER(ALL('dim_date'), 'dim_date'[month_num] = MONTH(TODAY()) && 'dim_date'[year] = YEAR(TODAY()))))",
+  "columns": [
+    "[MTD]"
+  ],
+  "rows": [
+    {
+      "[MTD]": 535
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[MTD]"
+      ],
+      "rows": [
+        {
+          "[MTD]": 535
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

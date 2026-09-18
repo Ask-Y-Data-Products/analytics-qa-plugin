@@ -1,0 +1,205 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-18T18:42:42.521790+00:00",
+  "verified_report_title": "sample-dashboard",
+  "label": "google_ads_only",
+  "active_page": "Marketing Overview",
+  "slicers": {
+    "Channel": "Google Ads"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 795,
+        "y": 167,
+        "width": 347,
+        "height": 74
+      }
+    },
+    {
+      "index": 1,
+      "title": "Channel",
+      "text": "Channel\nGoogle Ads",
+      "rect": {
+        "x": 1156,
+        "y": 167,
+        "width": 348,
+        "height": 74
+      }
+    },
+    {
+      "index": 2,
+      "title": "Marketing Overview",
+      "text": "Marketing Overview",
+      "rect": {
+        "x": 50,
+        "y": 169,
+        "width": 487,
+        "height": 51
+      }
+    },
+    {
+      "index": 3,
+      "title": "Total Leads",
+      "text": "Total Leads\n\n907",
+      "rect": {
+        "x": 50,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 4,
+      "title": "Leads (selected period)",
+      "text": "Leads (selected period)\n\n907",
+      "rect": {
+        "x": 342,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 5,
+      "title": "Leads this month",
+      "text": "Leads this month\n\n54",
+      "rect": {
+        "x": 635,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 6,
+      "title": "Total Spend",
+      "text": "Total Spend\n\n$142K",
+      "rect": {
+        "x": 936,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 7,
+      "title": "Cost per Lead",
+      "text": "Cost per Lead\n\n187.38",
+      "rect": {
+        "x": 1228,
+        "y": 248,
+        "width": 288,
+        "height": 121
+      }
+    },
+    {
+      "index": 8,
+      "title": "month to date",
+      "text": "month to date",
+      "rect": {
+        "x": 635,
+        "y": 371,
+        "width": 278,
+        "height": 30
+      }
+    },
+    {
+      "index": 9,
+      "title": "Meta leads: platform vs CRM by day",
+      "text": "Meta leads: platform vs CRM by day\nPlatform reported and CRM att\u2026",
+      "rect": {
+        "x": 50,
+        "y": 403,
+        "width": 719,
+        "height": 258
+      }
+    },
+    {
+      "index": 10,
+      "title": "Meta lead match rate by day",
+      "text": "Meta lead match rate by day\nDate",
+      "rect": {
+        "x": 783,
+        "y": 403,
+        "width": 733,
+        "height": 258
+      }
+    },
+    {
+      "index": 11,
+      "title": "Leads by channel",
+      "text": "Leads by channel\nChannel",
+      "rect": {
+        "x": 50,
+        "y": 665,
+        "width": 336,
+        "height": 320
+      }
+    },
+    {
+      "index": 12,
+      "title": "Leads by channel",
+      "text": "Leads by channel\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nChannel\nLeads\nSelect Row\nGoogle Ads\n907\nTotal\n907",
+      "rect": {
+        "x": 396,
+        "y": 665,
+        "width": 324,
+        "height": 320
+      }
+    },
+    {
+      "index": 13,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\n0K\n10K\nSpend\nCampaign\nEastermo\u2026\nEastermo\u2026",
+      "rect": {
+        "x": 730,
+        "y": 665,
+        "width": 359,
+        "height": 320
+      }
+    },
+    {
+      "index": 14,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nCampaign\nSpend\nSelect Row\nBC - Google_Ads - Campaign 0985\n2,138.35\nSelect Row\nBC - Google_Ads - Campaign 0997\n1,008.66\nSelect Row\nBC - Google_Ads - Campaign 0998\n993.15\nSelect Row\nBC - Google_Ads - Campaign 0999\n835.83\nSelect Row\nBC - Google_Ads - Campaign 1000\n1,291.17\nSelect Row\nBC - Google_Ads - Campaign 1001\n837.15\nSelect Row\nBC - Google_Ads - Campaign 1002\n3,114.47\nSelect Row\nBC - Google_Ads - Campaign 1003\n3,732.24\nSelect Row\nBC - Google_Ads - Campaign 1004\n1,286.40\nSelect Row\nBC - Google_Ads - Campaign 1038\n610.03\nSelect Row\nBC - Google_Ads - Campaign 1045\n1,873.17\nSelect Row\nEastermoor - Google_Ads - Campaign 0986\n9,014.56\nSelect Row\nEastermoor - Google_Ads - Campaign 1011\n1,440.93\nSelect Row\nEastermoor - Google_Ads - Campaign 1012\n7,320.19\nSelect Row\nEastermoor - Google_Ads - Campaign 1013\n1,656.53\nSelect Row\nEastermoor - Google_Ads - Campaign 1014\n2,049.76\nSelect Row\nEastermoor - Google_Ads - Campaign 1015\n12,361.35\nSelect Row\nEastermoor - Google_Ads - Campaign 1016\n725.14\nSelect Row\nEastermoor - Google_Ads - Campaign 1017\n953.41\nSelect Row\nEastermoor - Google_Ads - Campaign 1018\n993.84\nTotal\n141,662.55",
+      "rect": {
+        "x": 1098,
+        "y": 665,
+        "width": 418,
+        "height": 320
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {},
+  "cards": {
+    "Total Leads": 907,
+    "Leads (selected period)": 907,
+    "Total Spend": null,
+    "Cost per Lead": 187.38
+  },
+  "cards_text": {
+    "Total Leads": "907",
+    "Leads (selected period)": "907",
+    "Total Spend": "$142K",
+    "Cost per Lead": "187.38"
+  },
+  "tables": {
+    "spend": 141662.55
+  },
+  "description": "Channel slicer set to Google Ads only. The spend table should now show only campaigns from the Google Ads channel. The bar chart already filters to specific campaigns, some of which are Google Ads campaigns (Eastermoor - Google_Ads - Campaign 0986, Eastermoor - Google_Ads - Campaign 1029).",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

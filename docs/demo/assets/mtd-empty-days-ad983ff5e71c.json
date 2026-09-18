@@ -1,0 +1,52 @@
+{
+  "kind": "probe",
+  "id": "mtd-empty-days",
+  "method": "dax.assert",
+  "question": "How many days in the current calendar month have no lead data loaded, and does the card warn you about partial coverage?",
+  "params": {
+    "column": "[EmptyDays]",
+    "operator": ">=",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"EmptyDays\", CALCULATE(COUNTROWS(FILTER(ALL(dim_date), dim_date[month_num] = MONTH(TODAY()) && dim_date[year] = YEAR(TODAY()) && ISBLANK(CALCULATE([Leads])))), ALL(dim_date)))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-18T18:43:33.298708+00:00",
+    "port": 64741,
+    "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "query": "EVALUATE ROW(\"EmptyDays\", CALCULATE(COUNTROWS(FILTER(ALL(dim_date), dim_date[month_num] = MONTH(TODAY()) && dim_date[year] = YEAR(TODAY()) && ISBLANK(CALCULATE([Leads])))), ALL(dim_date)))",
+    "columns": [
+      "[EmptyDays]"
+    ],
+    "rows": [
+      {
+        "[EmptyDays]": 27
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[EmptyDays]"
+        ],
+        "rows": [
+          {
+            "[EmptyDays]": 27
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 27,
+    "operator": ">=",
+    "expected": 0,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

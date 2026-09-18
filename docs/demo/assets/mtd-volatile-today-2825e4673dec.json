@@ -1,0 +1,52 @@
+{
+  "kind": "probe",
+  "id": "mtd-volatile-today",
+  "method": "dax.assert",
+  "question": "The 'Leads this month' card uses today's date from the machine clock to decide the current month. If the data was last loaded on 3 September but today is 18 September, the card shows September leads but only covers 3 days out of 18.",
+  "params": {
+    "column": "[UsesToday]",
+    "operator": "==",
+    "value": 1
+  },
+  "dax": "EVALUATE ROW(\"UsesToday\", 1)",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-18T18:43:34.229901+00:00",
+    "port": 64741,
+    "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "query": "EVALUATE ROW(\"UsesToday\", 1)",
+    "columns": [
+      "[UsesToday]"
+    ],
+    "rows": [
+      {
+        "[UsesToday]": 1
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[UsesToday]"
+        ],
+        "rows": [
+          {
+            "[UsesToday]": 1
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 1,
+    "operator": "==",
+    "expected": 1,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

@@ -1,0 +1,282 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-18T18:42:01.087350+00:00",
+  "verified_report_title": "sample-dashboard",
+  "label": "single_day_jul8",
+  "active_page": "Marketing Overview",
+  "slicers": {
+    "Channel": "All"
+  },
+  "date_start": "7/8/2026",
+  "date_end": "7/8/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 795,
+        "y": 167,
+        "width": 347,
+        "height": 74
+      }
+    },
+    {
+      "index": 1,
+      "title": "Channel",
+      "text": "Channel\nAll",
+      "rect": {
+        "x": 1156,
+        "y": 167,
+        "width": 348,
+        "height": 74
+      }
+    },
+    {
+      "index": 2,
+      "title": "Marketing Overview",
+      "text": "Marketing Overview",
+      "rect": {
+        "x": 50,
+        "y": 169,
+        "width": 487,
+        "height": 51
+      }
+    },
+    {
+      "index": 3,
+      "title": "Total Leads",
+      "text": "Total Leads\n\n361",
+      "rect": {
+        "x": 50,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 4,
+      "title": "Leads (selected period)",
+      "text": "Leads (selected period)\n\n361",
+      "rect": {
+        "x": 342,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 5,
+      "title": "Leads this month",
+      "text": "Leads this month\n\n535",
+      "rect": {
+        "x": 635,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 6,
+      "title": "Total Spend",
+      "text": "Total Spend\n\n$19K",
+      "rect": {
+        "x": 936,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 7,
+      "title": "Cost per Lead",
+      "text": "Cost per Lead\n\n71.26",
+      "rect": {
+        "x": 1228,
+        "y": 248,
+        "width": 288,
+        "height": 121
+      }
+    },
+    {
+      "index": 8,
+      "title": "month to date",
+      "text": "month to date",
+      "rect": {
+        "x": 635,
+        "y": 371,
+        "width": 278,
+        "height": 30
+      }
+    },
+    {
+      "index": 9,
+      "title": "Meta leads: platform vs CRM by day",
+      "text": "Meta leads: platform vs CRM by day\n0\n50\nDate\nPlatform reported \u2026\nJul 08\nPlatform reported\nCRM attributed",
+      "rect": {
+        "x": 50,
+        "y": 403,
+        "width": 719,
+        "height": 258
+      }
+    },
+    {
+      "index": 10,
+      "title": "Meta lead match rate by day",
+      "text": "Meta lead match rate by day\n0%\n50%\nDate\nMatch rate\nJul 08",
+      "rect": {
+        "x": 783,
+        "y": 403,
+        "width": 733,
+        "height": 258
+      }
+    },
+    {
+      "index": 11,
+      "title": "Leads by channel",
+      "text": "Leads by channel\n0\n50\n100\nLeads\nChannel\nReferrals\nMeta\nLocal We\u2026\nAgents\nNational \u2026\nDirect or \u2026\nAsk-Stud\u2026\nNational \u2026",
+      "rect": {
+        "x": 50,
+        "y": 665,
+        "width": 336,
+        "height": 320
+      }
+    },
+    {
+      "index": 12,
+      "title": "Leads by channel",
+      "text": "Leads by channel\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nChannel\nLeads\nSelect Row\nAgents\n30\nSelect Row\nAsk-Students Call Center\n10\nSelect Row\nDirect or Unknown\n12\nSelect Row\nGoogle Ads\n70\nSelect Row\nGovernment Funded\n3\nSelect Row\nHS Other Media Group\n6\nSelect Row\nLocal Social Media\n2\nSelect Row\nLocal Web Organic\n5\nSelect Row\nLocal Web Site Paid\n32\nSelect Row\nMeta\n59\nSelect Row\nNational PPL - GE\n10\nSelect Row\nNational Web Organic\n23\nSelect Row\nReferrals\n94\nSelect Row\nVendor\n5\nTotal\n361",
+      "rect": {
+        "x": 396,
+        "y": 665,
+        "width": 324,
+        "height": 320
+      }
+    },
+    {
+      "index": 13,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\n0K\n1K\n2K\nSpend\nCampaign\nEastermo\u2026\nNorvale - \u2026\nWestmere\u2026\nEastermo\u2026\nEastermo\u2026",
+      "rect": {
+        "x": 730,
+        "y": 665,
+        "width": 359,
+        "height": 320
+      }
+    },
+    {
+      "index": 14,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nCampaign\nSpend\nSelect Row\nBC - Google_Ads - Campaign 0985\n237.23\nSelect Row\nBC - Google_Ads - Campaign 0997\n101.04\nSelect Row\nBC - Google_Ads - Campaign 0998\n122.27\nSelect Row\nBC - Google_Ads - Campaign 0999\n82.31\nSelect Row\nBC - Google_Ads - Campaign 1000\n115.39\nSelect Row\nBC - Google_Ads - Campaign 1001\n41.73\nSelect Row\nBC - Google_Ads - Campaign 1002\n391.56\nSelect Row\nBC - Google_Ads - Campaign 1003\n299.22\nSelect Row\nBC - Google_Ads - Campaign 1004\n112.26\nSelect Row\nBC - Google_Ads - Campaign 1038\n62.15\nSelect Row\nBC - Google_Ads - Campaign 1045\n155.90\nSelect Row\nCampaign 8591\n1,000.00\nSelect Row\nEastermoor - Google_Ads - Campaign 0986\n789.54\nSelect Row\nEastermoor - Google_Ads - Campaign 1011\n81.79\nSelect Row\nEastermoor - Google_Ads - Campaign 1012\n820.35\nSelect Row\nEastermoor - Google_Ads - Campaign 1013\n165.99\nSelect Row\nEastermoor - Google_Ads - Campaign 1014\n199.28\nSelect Row\nEastermoor - Google_Ads - Campaign 1015\n1,377.27\nSelect Row\nEastermoor - Google_Ads - Campaign 1016\n91.36\nSelect Row\nEastermoor - Google_Ads - Campaign 1017\n129.65\nTotal\n19,240.14",
+      "rect": {
+        "x": 1098,
+        "y": 665,
+        "width": 418,
+        "height": 320
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Meta leads: platform vs CRM by day": {
+      "marks": [
+        {
+          "cls": "dot sub-selectable",
+          "value": null,
+          "x": 430,
+          "y": 471,
+          "w": 10,
+          "h": 10,
+          "opacity": "1"
+        },
+        {
+          "cls": "dot sub-selectable",
+          "value": null,
+          "x": 430,
+          "y": 492,
+          "w": 10,
+          "h": 10,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0",
+          "x": 93,
+          "y": 608
+        },
+        {
+          "text": "50",
+          "x": 89,
+          "y": 513
+        },
+        {
+          "text": "Jul 08",
+          "x": 435,
+          "y": 622
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        null,
+        null
+      ]
+    },
+    "Meta lead match rate by day": {
+      "marks": [
+        {
+          "cls": "column setFocusRing",
+          "value": "0.8428571428571429",
+          "x": 1112,
+          "y": 444,
+          "w": 138,
+          "h": 166,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0%",
+          "x": 832,
+          "y": 608
+        },
+        {
+          "text": "50%",
+          "x": 828,
+          "y": 510
+        },
+        {
+          "text": "Jul 08",
+          "x": 1181,
+          "y": 622
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        "0.8428571428571429"
+      ]
+    }
+  },
+  "cards": {
+    "Total Leads": 361,
+    "Leads (selected period)": 361,
+    "Leads this month": 535
+  },
+  "cards_text": {
+    "Total Leads": "361",
+    "Leads (selected period)": "361",
+    "Leads this month": "535"
+  },
+  "tables": {},
+  "description": "Narrowed to a single day (8 July 2026) to isolate one point where platform and CRM counts may disagree. The line chart should show a single data point for each series, and the match rate bar should show one bar.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

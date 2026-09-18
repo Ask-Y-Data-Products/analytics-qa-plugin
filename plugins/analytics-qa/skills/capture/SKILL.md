@@ -100,11 +100,18 @@ may not cross), and the runner evaluates them in every situation while the page
 shows any mismatch as a highlighted question.
 
 The page also lays the captures out for the eye, and you do not restate any of
-it. Per component it renders a **Situations** grid: one tile per capture, headed
+it. Each component card reads in one fixed order - the status chip and what this
+shows, **Situations**, **What we observed**, **Checks**, **Questions for you**,
+then Sign off / Reject and the collapsed per-claim table - because the reader
+must meet the evidence before the question about it. Never ask a question above
+the thing it is about. The **Situations** grid is one tile per capture, headed
 by its number and situation title, with the dates and changed filters, the key
 figures, and the screenshot itself - clicking any screenshot, the camera button
 on an observed row, or a "view" link beside a check opens the same full-size
-lightbox, and hovering an observed row highlights its tile. A page-level
+lightbox, and hovering an observed row highlights its tile. A question that
+concerns particular situations repeats them as a small thumbnail strip directly
+above the question text, so the evidence is on screen where the decision is
+made. A page-level
 **Across components** card compares figures that carry the same name on more
 than one component: identical dates and identical slicer captions make the two
 values comparable and the page says whether they agree; anything else is listed
@@ -156,9 +163,10 @@ actually reads:
 python ${CLAUDE_PLUGIN_ROOT}/scripts/review_form.py --case <sealed-case> --out <case-parent>/<case-name>-signoff.html
 ```
 
-It shows, per component, what the figure is in one plain sentence, the captured
-Power BI screenshots in story order, a table of what the screen showed in every
-situation, the computed checks, the questions the analyst must answer, and Sign
+It shows, per component, what the figure is in one plain sentence, then the
+captured Power BI screenshots in story order, a table of what the screen showed
+in every situation, the computed checks, and only then the questions the analyst
+must answer (each with a thumbnail strip of the situations it concerns) and Sign
 off / Reject buttons with a comment. The page links the screenshots relative to the
 case folder; when the analyst will open it elsewhere (mail, a snapshot preview, a
 shared drive without the case), also produce a self-contained copy with
@@ -183,6 +191,14 @@ describe the same sealed case and carry its manifest digest; both refuse to writ
 inside the case and neither adds evidence. If one of them was never produced, say
 so rather than implying the deliverable is complete.
 
+All four show the captures they are discussing, and all four put the picture
+before the words: the findings page heads each defect and open question with the
+screenshots of the situations behind it, the how-it-works page opens each report
+page with that page's own capture and shows a traced number on the screen where
+it was visible, and `qa.py render` shows a component's captures before the
+expectations it asks about. Nothing is invented for this: a page with no capture
+in the case simply shows none.
+
 After the sign-off page exists, run the retrospective skill; it is part of
 finishing a review, not an extra. It reviews the sessions and the case, writes an
 anonymised know-how article for the plugin community, and publishes nothing
@@ -201,9 +217,11 @@ The page is read by a stakeholder before it is read by an analyst, so it opens
 with one plain sentence ("Six parts of this report were checked. Two look wrong,
 four need your decision.") and then the counts. Every component leads with a chip
 in three words a non-technical reader knows - **Looks right**, **Needs your
-decision**, **Problem found** - derived from that component's own expectations,
-and each question stands in its own bordered block with a one-line reason and,
-where a claim can answer it, two buttons. The checks that passed collapse behind
+decision**, **Problem found** - derived from that component's own expectations.
+The card then shows the captures, the observed table and the checks, and closes
+with the questions: each stands in its own bordered block with the situations it
+concerns pictured above it, a one-line reason and, where a claim can answer it,
+two buttons. The checks that passed collapse behind
 "8 checks passed"; failures stay open. The manifest digest and the generator
 identity sit in a collapsed block at the bottom, and a `@media print` block opens
 every collapsed section, drops the buttons and keeps the screenshots, so a

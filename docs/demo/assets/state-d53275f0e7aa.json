@@ -1,0 +1,205 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-18T18:41:08.203682+00:00",
+  "verified_report_title": "sample-dashboard",
+  "label": "moved_to_august",
+  "active_page": "Marketing Overview",
+  "slicers": {
+    "Channel": "All"
+  },
+  "date_start": "8/1/2026",
+  "date_end": "8/31/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 795,
+        "y": 167,
+        "width": 347,
+        "height": 74
+      }
+    },
+    {
+      "index": 1,
+      "title": "Channel",
+      "text": "Channel\nAll",
+      "rect": {
+        "x": 1156,
+        "y": 167,
+        "width": 348,
+        "height": 74
+      }
+    },
+    {
+      "index": 2,
+      "title": "Marketing Overview",
+      "text": "Marketing Overview",
+      "rect": {
+        "x": 50,
+        "y": 169,
+        "width": 487,
+        "height": 51
+      }
+    },
+    {
+      "index": 3,
+      "title": "Total Leads",
+      "text": "Total Leads\n\n6,386",
+      "rect": {
+        "x": 50,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 4,
+      "title": "Leads (selected period)",
+      "text": "Leads (selected period)\n\n6,386",
+      "rect": {
+        "x": 342,
+        "y": 248,
+        "width": 279,
+        "height": 121
+      }
+    },
+    {
+      "index": 5,
+      "title": "Leads this month",
+      "text": "Leads this month\n\n535",
+      "rect": {
+        "x": 635,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 6,
+      "title": "Total Spend",
+      "text": "Total Spend\n\n$381K",
+      "rect": {
+        "x": 936,
+        "y": 248,
+        "width": 278,
+        "height": 121
+      }
+    },
+    {
+      "index": 7,
+      "title": "Cost per Lead",
+      "text": "Cost per Lead\n\n77.93",
+      "rect": {
+        "x": 1228,
+        "y": 248,
+        "width": 288,
+        "height": 121
+      }
+    },
+    {
+      "index": 8,
+      "title": "month to date",
+      "text": "month to date",
+      "rect": {
+        "x": 635,
+        "y": 371,
+        "width": 278,
+        "height": 30
+      }
+    },
+    {
+      "index": 9,
+      "title": "Meta leads: platform vs CRM by day",
+      "text": "Meta leads: platform vs CRM by day\n0\n200\n400\nDate\nPlatform reported \u2026\nAug 02\nAug 09\nAug 16\nAug 23\nAug 30\nPlatform reported\nCRM attributed",
+      "rect": {
+        "x": 50,
+        "y": 403,
+        "width": 719,
+        "height": 258
+      }
+    },
+    {
+      "index": 10,
+      "title": "Meta lead match rate by day",
+      "text": "Meta lead match rate by day\n0%\n200%\nDate\nMatch rate\nAug 02\nAug 09\nAug 16\nAug 23\nAug 30",
+      "rect": {
+        "x": 783,
+        "y": 403,
+        "width": 733,
+        "height": 258
+      }
+    },
+    {
+      "index": 11,
+      "title": "Leads by channel",
+      "text": "Leads by channel\n0K\n1K\n2K\nLeads\nChannel\nLocal We\u2026\nMeta\nReferrals\nNational \u2026\nNational \u2026\nAsk-Stud\u2026\nAgents\nVendor",
+      "rect": {
+        "x": 50,
+        "y": 665,
+        "width": 336,
+        "height": 320
+      }
+    },
+    {
+      "index": 12,
+      "title": "Leads by channel",
+      "text": "Leads by channel\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nChannel\nLeads\nSelect Row\nAgents\n140\nSelect Row\nAsk-Students Call Center\n171\nSelect Row\nBillboards & Signage\n3\nSelect Row\nDirect or Unknown\n17\nSelect Row\nGoogle Ads\n1,158\nSelect Row\nGovernment Funded\n51\nSelect Row\nHS Other Media Group\n50\nSelect Row\nLocal Social Media\n50\nSelect Row\nLocal Web Organic\n93\nSelect Row\nLocal Web Site Paid\n1,643\nSelect Row\nMeta\n1,621\nSelect Row\nNational PPL - GE\n183\nSelect Row\nNational Web Organic\n357\nSelect Row\nPhone Inquiry\n31\nSelect Row\nPortal Life\n3\nSelect Row\nReferrals\n712\nSelect Row\nVendor\n103\nTotal\n6,386",
+      "rect": {
+        "x": 396,
+        "y": 665,
+        "width": 324,
+        "height": 320
+      }
+    },
+    {
+      "index": 13,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\n0K\n50K\nSpend\nCampaign\nEastermo\u2026\nEastermo\u2026\nWestmere\u2026\nNorvale - \u2026\nEastermo\u2026",
+      "rect": {
+        "x": 730,
+        "y": 665,
+        "width": 359,
+        "height": 320
+      }
+    },
+    {
+      "index": 14,
+      "title": "Spend by campaign",
+      "text": "Spend by campaign\nScroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nCampaign\nSpend\nSelect Row\nBC - Google_Ads - Campaign 0985\n11,496.92\nSelect Row\nBC - Google_Ads - Campaign 0997\n2,527.41\nSelect Row\nBC - Google_Ads - Campaign 0998\n2,777.96\nSelect Row\nBC - Google_Ads - Campaign 0999\n3,266.22\nSelect Row\nBC - Google_Ads - Campaign 1000\n118.60\nSelect Row\nBC - Google_Ads - Campaign 1001\n4,867.99\nSelect Row\nBC - Google_Ads - Campaign 1002\n15,028.99\nSelect Row\nBC - Google_Ads - Campaign 1003\n297.24\nSelect Row\nBC - Google_Ads - Campaign 1004\n99.11\nSelect Row\nBC - Google_Ads - Campaign 1038\n1,832.40\nSelect Row\nBC - Google_Ads - Campaign 1045\n2,293.32\nSelect Row\nCampaign 8591\n18,300.00\nSelect Row\nEastermoor - Google_Ads - Campaign 0986\n31,710.30\nSelect Row\nEastermoor - Google_Ads - Campaign 1011\n2,795.33\nSelect Row\nEastermoor - Google_Ads - Campaign 1012\n1,182.96\nSelect Row\nEastermoor - Google_Ads - Campaign 1013\n428.04\nSelect Row\nEastermoor - Google_Ads - Campaign 1014\n518.90\nSelect Row\nEastermoor - Google_Ads - Campaign 1015\n844.03\nSelect Row\nEastermoor - Google_Ads - Campaign 1016\n7,948.02\nSelect Row\nEastermoor - Google_Ads - Campaign 1017\n3,276.87\nTotal\n381,094.02",
+      "rect": {
+        "x": 1098,
+        "y": 665,
+        "width": 418,
+        "height": 320
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {},
+  "cards": {
+    "Total Leads": 6386,
+    "Leads (selected period)": 6386,
+    "Leads this month": 535,
+    "Total Spend": null,
+    "Cost per Lead": 77.93
+  },
+  "cards_text": {
+    "Total Leads": "6,386",
+    "Leads (selected period)": "6,386",
+    "Leads this month": "535",
+    "Total Spend": "$381K",
+    "Cost per Lead": "77.93"
+  },
+  "tables": {},
+  "description": "Date slicer moved to August 2026. The 'Leads this month' card should remain unchanged because it always reads the current month from the machine clock, not the slicer. The Total Leads and Leads (selected period) cards should change to reflect August inquiries.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}
