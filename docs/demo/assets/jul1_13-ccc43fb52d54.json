@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-17T21:00:38.870458+00:00",
+  "port": 54030,
+  "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+  "query": "EVALUATE ROW(\"Leads\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026,7,1), dim_date[date_key] <= DATE(2026,7,13), dim_channel[channel_name] IN {\"Ask-Students Call Center\", \"Google Ads\", \"Portal Life\", \"Meta\", \"National PPL - GE\", \"National Web Organic\"}))",
+  "columns": [
+    "[Leads]"
+  ],
+  "rows": [
+    {
+      "[Leads]": 1993
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Leads]"
+      ],
+      "rows": [
+        {
+          "[Leads]": 1993
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

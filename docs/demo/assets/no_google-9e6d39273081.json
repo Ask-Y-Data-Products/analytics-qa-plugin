@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-17T20:42:54.453984+00:00",
+  "port": 54030,
+  "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+  "query": "EVALUATE ROW(\"Leads\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026,7,1), dim_date[date_key] <= DATE(2026,7,13), NOT dim_channel[channel_name] = \"Google Ads\"))",
+  "columns": [
+    "[Leads]"
+  ],
+  "rows": [
+    {
+      "[Leads]": 3453
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Leads]"
+      ],
+      "rows": [
+        {
+          "[Leads]": 3453
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

@@ -1,0 +1,161 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T21:02:39.043754+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state2_stable",
+  "active_page": "Daily Leads",
+  "slicers": {},
+  "date_start": null,
+  "date_end": null,
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "Date: 27",
+      "text": "Date: 27\n1\n2\n3\n4\n27",
+      "rect": {
+        "x": 41,
+        "y": 160,
+        "width": 1761,
+        "height": 84
+      }
+    },
+    {
+      "index": 1,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 445,
+        "y": 243,
+        "width": 339,
+        "height": 125
+      }
+    },
+    {
+      "index": 2,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 784,
+        "y": 243,
+        "width": 340,
+        "height": 125
+      }
+    },
+    {
+      "index": 3,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 1124,
+        "y": 243,
+        "width": 339,
+        "height": 125
+      }
+    },
+    {
+      "index": 4,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nDate\n\u00a0\nLeads\nStarts\nTuesday, September 01, 2026\n64\n1\nWednesday, September 02, 2026\n69\n1\nThursday, September 03, 2026\n63\n1\nTotal\n196\n3",
+      "rect": {
+        "x": 41,
+        "y": 245,
+        "width": 404,
+        "height": 820
+      }
+    },
+    {
+      "index": 5,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 1463,
+        "y": 245,
+        "width": 339,
+        "height": 125
+      }
+    },
+    {
+      "index": 6,
+      "title": "Leads by Day",
+      "text": "Leads by Day\nDay\n65\n70\nLeads\n1\n2\n3\n65\n64\n63\n69\nLeads",
+      "rect": {
+        "x": 445,
+        "y": 368,
+        "width": 1357,
+        "height": 305
+      }
+    },
+    {
+      "index": 7,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 445,
+        "y": 673,
+        "width": 719,
+        "height": 392
+      }
+    },
+    {
+      "index": 8,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 1164,
+        "y": 673,
+        "width": 638,
+        "height": 392
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Leads by Day": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "65",
+          "x": 486,
+          "y": 523
+        },
+        {
+          "text": "70",
+          "x": 486,
+          "y": 410
+        },
+        {
+          "text": "1",
+          "x": 520,
+          "y": 605
+        },
+        {
+          "text": "2",
+          "x": 1119,
+          "y": 605
+        },
+        {
+          "text": "3",
+          "x": 1719,
+          "y": 605
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    }
+  },
+  "cards": {},
+  "cards_text": {},
+  "tables": {
+    "daily": 196
+  },
+  "description": "Second capture confirming stable observation.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

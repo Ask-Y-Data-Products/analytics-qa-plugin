@@ -1,0 +1,160 @@
+{
+  "kind": "probe",
+  "id": "contract-missing-days",
+  "method": "dax.assert",
+  "question": "Is the share of contracts without days_to_contract below 15% per month?",
+  "params": {
+    "column": "[Pct]",
+    "operator": "<=",
+    "value": 0.15
+  },
+  "dax": "EVALUATE ADDCOLUMNS(SUMMARIZE(FILTER(ALL(dim_date), dim_date[date_key] >= DATE(2026,1,1) && dim_date[date_key] <= DATE(2026,9,3)), dim_date[year_month]), \"Missing\", CALCULATE(COUNTROWS(FILTER(fact_contract, ISBLANK(fact_contract[days_to_contract]))), ALL(dim_channel)), \"Total\", CALCULATE(COUNTROWS(fact_contract), ALL(dim_channel)), \"Pct\", DIVIDE(CALCULATE(COUNTROWS(FILTER(fact_contract, ISBLANK(fact_contract[days_to_contract]))), ALL(dim_channel)), CALCULATE(COUNTROWS(fact_contract), ALL(dim_channel)))) ORDER BY dim_date[year_month]",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-17T21:07:34.403693+00:00",
+    "port": 54030,
+    "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+    "query": "EVALUATE ADDCOLUMNS(SUMMARIZE(FILTER(ALL(dim_date), dim_date[date_key] >= DATE(2026,1,1) && dim_date[date_key] <= DATE(2026,9,3)), dim_date[year_month]), \"Missing\", CALCULATE(COUNTROWS(FILTER(fact_contract, ISBLANK(fact_contract[days_to_contract]))), ALL(dim_channel)), \"Total\", CALCULATE(COUNTROWS(fact_contract), ALL(dim_channel)), \"Pct\", DIVIDE(CALCULATE(COUNTROWS(FILTER(fact_contract, ISBLANK(fact_contract[days_to_contract]))), ALL(dim_channel)), CALCULATE(COUNTROWS(fact_contract), ALL(dim_channel)))) ORDER BY dim_date[year_month]",
+    "columns": [
+      "dim_date[year_month]",
+      "[Missing]",
+      "[Total]",
+      "[Pct]"
+    ],
+    "rows": [
+      {
+        "dim_date[year_month]": "2026-01",
+        "[Missing]": 32,
+        "[Total]": 1878,
+        "[Pct]": 0.01703940362087327
+      },
+      {
+        "dim_date[year_month]": "2026-02",
+        "[Missing]": 58,
+        "[Total]": 2074,
+        "[Pct]": 0.027965284474445518
+      },
+      {
+        "dim_date[year_month]": "2026-03",
+        "[Missing]": 70,
+        "[Total]": 3498,
+        "[Pct]": 0.020011435105774727
+      },
+      {
+        "dim_date[year_month]": "2026-04",
+        "[Missing]": 66,
+        "[Total]": 3260,
+        "[Pct]": 0.020245398773006136
+      },
+      {
+        "dim_date[year_month]": "2026-05",
+        "[Missing]": 100,
+        "[Total]": 2925,
+        "[Pct]": 0.03418803418803419
+      },
+      {
+        "dim_date[year_month]": "2026-06",
+        "[Missing]": 95,
+        "[Total]": 4090,
+        "[Pct]": 0.023227383863080684
+      },
+      {
+        "dim_date[year_month]": "2026-07",
+        "[Missing]": 845,
+        "[Total]": 5811,
+        "[Pct]": 0.14541387024608501
+      },
+      {
+        "dim_date[year_month]": "2026-08",
+        "[Missing]": 40,
+        "[Total]": 383,
+        "[Pct]": 0.10443864229765012
+      },
+      {
+        "dim_date[year_month]": "2026-09",
+        "[Missing]": 1,
+        "[Total]": 85,
+        "[Pct]": 0.011764705882352941
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "dim_date[year_month]",
+          "[Missing]",
+          "[Total]",
+          "[Pct]"
+        ],
+        "rows": [
+          {
+            "dim_date[year_month]": "2026-01",
+            "[Missing]": 32,
+            "[Total]": 1878,
+            "[Pct]": 0.01703940362087327
+          },
+          {
+            "dim_date[year_month]": "2026-02",
+            "[Missing]": 58,
+            "[Total]": 2074,
+            "[Pct]": 0.027965284474445518
+          },
+          {
+            "dim_date[year_month]": "2026-03",
+            "[Missing]": 70,
+            "[Total]": 3498,
+            "[Pct]": 0.020011435105774727
+          },
+          {
+            "dim_date[year_month]": "2026-04",
+            "[Missing]": 66,
+            "[Total]": 3260,
+            "[Pct]": 0.020245398773006136
+          },
+          {
+            "dim_date[year_month]": "2026-05",
+            "[Missing]": 100,
+            "[Total]": 2925,
+            "[Pct]": 0.03418803418803419
+          },
+          {
+            "dim_date[year_month]": "2026-06",
+            "[Missing]": 95,
+            "[Total]": 4090,
+            "[Pct]": 0.023227383863080684
+          },
+          {
+            "dim_date[year_month]": "2026-07",
+            "[Missing]": 845,
+            "[Total]": 5811,
+            "[Pct]": 0.14541387024608501
+          },
+          {
+            "dim_date[year_month]": "2026-08",
+            "[Missing]": 40,
+            "[Total]": 383,
+            "[Pct]": 0.10443864229765012
+          },
+          {
+            "dim_date[year_month]": "2026-09",
+            "[Missing]": 1,
+            "[Total]": 85,
+            "[Pct]": 0.011764705882352941
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 0.01703940362087327,
+    "operator": "<=",
+    "expected": 0.15,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

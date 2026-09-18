@@ -1,0 +1,862 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T20:52:51.372326+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state4_short_range",
+  "active_page": "Inquiries and Reinquiries",
+  "slicers": {
+    "Franchise": "All",
+    "Channel": "All",
+    "Province": "All",
+    "Campus": "All"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/7/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 910,
+        "y": 173,
+        "width": 413,
+        "height": 87
+      }
+    },
+    {
+      "index": 2,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 3,
+      "title": "Leads",
+      "text": "Leads",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 4,
+      "title": "Last Refresh - \ufeff07/07/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/07/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 5,
+      "title": "Franchise",
+      "text": "Franchise\nAll",
+      "rect": {
+        "x": 61,
+        "y": 266,
+        "width": 403,
+        "height": 98
+      }
+    },
+    {
+      "index": 6,
+      "title": "Channel",
+      "text": "Channel\nAll",
+      "rect": {
+        "x": 464,
+        "y": 266,
+        "width": 417,
+        "height": 98
+      }
+    },
+    {
+      "index": 7,
+      "title": "Province",
+      "text": "Province\nAll",
+      "rect": {
+        "x": 880,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 8,
+      "title": "Campus",
+      "text": "Campus\nAll",
+      "rect": {
+        "x": 1279,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 9,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nChannel\nLeads\n\u00a0\nInquiries\nReinquiries\nReuniquries %\nGoogle Ads\n494\n417\n77\n15.6%\nReferrals\n475\n475\n\u00a0\n\u00a0\nMeta\n386\n300\n86\n22.3%\nLocal Web Site Paid\n332\n262\n70\n21.1%\nAgents\n178\n178\n\u00a0\n\u00a0\nNational Web Organic\n108\n84\n24\n22.2%\nNational PPL - GE\n66\n53\n13\n19.7%\nAsk-Students Call Center\n58\n52\n6\n10.3%\nHS Other Media Group\n49\n47\n2\n4.1%\nLocal Web Organic\n24\n19\n5\n20.8%\nLocal Social Media\n22\n20\n2\n9.1%\nVendor\n20\n15\n5\n25.0%\nGovernment Funded\n13\n13\n\u00a0\n\u00a0\nDirect or Unknown\n10\n8\n2\n20.0%\nPhone Inquiry\n10\n10\n\u00a0\n\u00a0\nPortal Life\n5\n4\n1\n20.0%\nBillboards & Signage\n2\n2\n\u00a0\n\u00a0\nTotal\n2,252\n1,959\n293\n13.0%",
+      "rect": {
+        "x": 61,
+        "y": 376,
+        "width": 598,
+        "height": 751
+      }
+    },
+    {
+      "index": 10,
+      "title": "Reinquiries and New Inquiries by Channel",
+      "text": "Reinquiries and New Inquiries by Channel\n0\n500\nChannel\nReferrals\nGoogle Ads\nMeta\nLocal Web Sit\u2026\nAgents\nNational Web\u2026\nNational PPL \u2026\nAsk-Students \u2026\nReinquiries\nNew Inquiries",
+      "rect": {
+        "x": 659,
+        "y": 376,
+        "width": 519,
+        "height": 376
+      }
+    },
+    {
+      "index": 11,
+      "title": "Reinquiries and New Inquiries by franchise",
+      "text": "Reinquiries and New Inquiries by franchise\n0\n500\nfranchise\nOwens\nBaker\nStone\nEvans\nLowe\nReyes\nAdams\nClarke\nReinquiries\nNew Inquiries",
+      "rect": {
+        "x": 1178,
+        "y": 376,
+        "width": 519,
+        "height": 376
+      }
+    },
+    {
+      "index": 12,
+      "title": "Reinquiries, Inquiries and Reuniquries % by Month",
+      "text": "Reinquiries, Inquiries and Reuniquries % by Month\n0K\n5K\n10K\n0%\n5%\n10%\n15%\nMonth\nLeads\nReuniquries %\n2026-01\n2026-02\n2026-03\n2026-04\n2026-05\n2026-06\n2026-07\n2026-08\nReinquiries\nInquiries\nReuniquries %",
+      "rect": {
+        "x": 659,
+        "y": 752,
+        "width": 1038,
+        "height": 375
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Reinquiries and New Inquiries by Channel": {
+      "marks": [
+        {
+          "cls": "bar setFocusRing",
+          "value": "null",
+          "x": 842,
+          "y": 471,
+          "w": 0,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "77",
+          "x": 842,
+          "y": 501,
+          "w": 39,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "86",
+          "x": 842,
+          "y": 530,
+          "w": 44,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "70",
+          "x": 842,
+          "y": 559,
+          "w": 35,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "null",
+          "x": 842,
+          "y": 588,
+          "w": 0,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "24",
+          "x": 842,
+          "y": 617,
+          "w": 12,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "13",
+          "x": 842,
+          "y": 647,
+          "w": 7,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "6",
+          "x": 842,
+          "y": 676,
+          "w": 3,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "475",
+          "x": 842,
+          "y": 471,
+          "w": 241,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "417",
+          "x": 881,
+          "y": 501,
+          "w": 211,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "300",
+          "x": 885,
+          "y": 530,
+          "w": 152,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "262",
+          "x": 877,
+          "y": 559,
+          "w": 133,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "178",
+          "x": 842,
+          "y": 588,
+          "w": 90,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "84",
+          "x": 854,
+          "y": 617,
+          "w": 43,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "53",
+          "x": 848,
+          "y": 647,
+          "w": 27,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "52",
+          "x": 845,
+          "y": 676,
+          "w": 26,
+          "h": 21,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0",
+          "x": 842,
+          "y": 724
+        },
+        {
+          "text": "500",
+          "x": 1096,
+          "y": 724
+        },
+        {
+          "text": "Referrals",
+          "x": 799,
+          "y": 482
+        },
+        {
+          "text": "Google Ads",
+          "x": 788,
+          "y": 511
+        },
+        {
+          "text": "Meta",
+          "x": 811,
+          "y": 540
+        },
+        {
+          "text": "Local Web Site Paid",
+          "x": 776,
+          "y": 569
+        },
+        {
+          "text": "Agents",
+          "x": 805,
+          "y": 599
+        },
+        {
+          "text": "National Web Organic",
+          "x": 775,
+          "y": 628
+        },
+        {
+          "text": "National PPL - GE",
+          "x": 776,
+          "y": 657
+        },
+        {
+          "text": "Ask-Students Call Center",
+          "x": 775,
+          "y": 686
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        "null",
+        "77",
+        "86",
+        "70",
+        "null",
+        "24",
+        "13",
+        "6",
+        "475",
+        "417",
+        "300",
+        "262",
+        "178",
+        "84",
+        "53",
+        "52"
+      ]
+    },
+    "Reinquiries and New Inquiries by franchise": {
+      "marks": [
+        {
+          "cls": "bar setFocusRing",
+          "value": "138",
+          "x": 1346,
+          "y": 471,
+          "w": 55,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "22",
+          "x": 1346,
+          "y": 501,
+          "w": 9,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "9",
+          "x": 1346,
+          "y": 530,
+          "w": 4,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "8",
+          "x": 1346,
+          "y": 559,
+          "w": 3,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "17",
+          "x": 1346,
+          "y": 588,
+          "w": 7,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "3",
+          "x": 1346,
+          "y": 617,
+          "w": 1,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "9",
+          "x": 1346,
+          "y": 647,
+          "w": 4,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "13",
+          "x": 1346,
+          "y": 676,
+          "w": 5,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "525",
+          "x": 1401,
+          "y": 471,
+          "w": 209,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "277",
+          "x": 1355,
+          "y": 501,
+          "w": 110,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "195",
+          "x": 1349,
+          "y": 530,
+          "w": 78,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "194",
+          "x": 1349,
+          "y": 559,
+          "w": 77,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "155",
+          "x": 1353,
+          "y": 588,
+          "w": 62,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "101",
+          "x": 1347,
+          "y": 617,
+          "w": 40,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "93",
+          "x": 1349,
+          "y": 647,
+          "w": 37,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "bar setFocusRing",
+          "value": "90",
+          "x": 1351,
+          "y": 676,
+          "w": 36,
+          "h": 21,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0",
+          "x": 1347,
+          "y": 724
+        },
+        {
+          "text": "500",
+          "x": 1546,
+          "y": 724
+        },
+        {
+          "text": "Owens",
+          "x": 1310,
+          "y": 482
+        },
+        {
+          "text": "Baker",
+          "x": 1314,
+          "y": 511
+        },
+        {
+          "text": "Stone",
+          "x": 1314,
+          "y": 540
+        },
+        {
+          "text": "Evans",
+          "x": 1314,
+          "y": 569
+        },
+        {
+          "text": "Lowe",
+          "x": 1315,
+          "y": 599
+        },
+        {
+          "text": "Reyes",
+          "x": 1313,
+          "y": 628
+        },
+        {
+          "text": "Adams",
+          "x": 1309,
+          "y": 657
+        },
+        {
+          "text": "Clarke",
+          "x": 1312,
+          "y": 686
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        "138",
+        "22",
+        "9",
+        "8",
+        "17",
+        "3",
+        "9",
+        "13",
+        "525",
+        "277",
+        "195",
+        "194",
+        "155",
+        "101",
+        "93",
+        "90"
+      ]
+    },
+    "Reinquiries, Inquiries and Reuniquries % by Month": {
+      "marks": [
+        {
+          "cls": "column setFocusRing",
+          "value": "325",
+          "x": 783,
+          "y": 1054,
+          "w": 79,
+          "h": 6,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "233",
+          "x": 883,
+          "y": 1056,
+          "w": 79,
+          "h": 4,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "395",
+          "x": 984,
+          "y": 1053,
+          "w": 79,
+          "h": 7,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "923",
+          "x": 1085,
+          "y": 1043,
+          "w": 79,
+          "h": 17,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "944",
+          "x": 1186,
+          "y": 1043,
+          "w": 79,
+          "h": 17,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "1110",
+          "x": 1287,
+          "y": 1040,
+          "w": 79,
+          "h": 20,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "1154",
+          "x": 1388,
+          "y": 1039,
+          "w": 79,
+          "h": 21,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "1053",
+          "x": 1488,
+          "y": 1041,
+          "w": 79,
+          "h": 19,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "6107",
+          "x": 783,
+          "y": 944,
+          "w": 79,
+          "h": 111,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "6053",
+          "x": 883,
+          "y": 946,
+          "w": 79,
+          "h": 110,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "9250",
+          "x": 984,
+          "y": 885,
+          "w": 79,
+          "h": 168,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "8311",
+          "x": 1085,
+          "y": 893,
+          "w": 79,
+          "h": 151,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "7838",
+          "x": 1186,
+          "y": 901,
+          "w": 79,
+          "h": 142,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "9155",
+          "x": 1287,
+          "y": 874,
+          "w": 79,
+          "h": 166,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "10570",
+          "x": 1388,
+          "y": 848,
+          "w": 79,
+          "h": 192,
+          "opacity": "1"
+        },
+        {
+          "cls": "column setFocusRing",
+          "value": "5333",
+          "x": 1488,
+          "y": 944,
+          "w": 79,
+          "h": 97,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0K",
+          "x": 720,
+          "y": 1059
+        },
+        {
+          "text": "5K",
+          "x": 720,
+          "y": 969
+        },
+        {
+          "text": "10K",
+          "x": 716,
+          "y": 878
+        },
+        {
+          "text": "0%",
+          "x": 1634,
+          "y": 1059
+        },
+        {
+          "text": "5%",
+          "x": 1634,
+          "y": 995
+        },
+        {
+          "text": "10%",
+          "x": 1638,
+          "y": 931
+        },
+        {
+          "text": "15%",
+          "x": 1638,
+          "y": 866
+        },
+        {
+          "text": "2026-01",
+          "x": 823,
+          "y": 1075
+        },
+        {
+          "text": "2026-02",
+          "x": 924,
+          "y": 1075
+        },
+        {
+          "text": "2026-03",
+          "x": 1025,
+          "y": 1075
+        },
+        {
+          "text": "2026-04",
+          "x": 1125,
+          "y": 1075
+        },
+        {
+          "text": "2026-05",
+          "x": 1226,
+          "y": 1075
+        },
+        {
+          "text": "2026-06",
+          "x": 1327,
+          "y": 1075
+        },
+        {
+          "text": "2026-07",
+          "x": 1428,
+          "y": 1075
+        },
+        {
+          "text": "2026-08",
+          "x": 1529,
+          "y": 1075
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        "325",
+        "233",
+        "395",
+        "923",
+        "944",
+        "1110",
+        "1154",
+        "1053",
+        "6107",
+        "6053",
+        "9250",
+        "8311",
+        "7838",
+        "9155",
+        "10570",
+        "5333"
+      ]
+    }
+  },
+  "cards": {},
+  "cards_text": {},
+  "tables": {
+    "inquiries": 2252
+  },
+  "description": "End date moved to July 7.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

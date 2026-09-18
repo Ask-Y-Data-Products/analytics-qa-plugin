@@ -1,0 +1,61 @@
+{
+  "kind": "state_check",
+  "at": "2026-09-17T20:52:52.544388+00:00",
+  "observation": "state.json",
+  "observation_sha256": "c0033d949843b58606f10feb2447c76f7d3770525923a36761c738e6830903fe",
+  "expected": {
+    "/verified_report_title": "launchlife-fake",
+    "/active_page": "Inquiries and Reinquiries",
+    "/popup_open": false,
+    "/calendar_open": false,
+    "/edit_overlay_open": false,
+    "/date_end": "7/7/2026",
+    "/tables/inquiries": 2252
+  },
+  "checks": [
+    {
+      "pointer": "/verified_report_title",
+      "expected": "launchlife-fake",
+      "actual": "launchlife-fake",
+      "status": "passed"
+    },
+    {
+      "pointer": "/active_page",
+      "expected": "Inquiries and Reinquiries",
+      "actual": "Inquiries and Reinquiries",
+      "status": "passed"
+    },
+    {
+      "pointer": "/popup_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/calendar_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/edit_overlay_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/date_end",
+      "expected": "7/7/2026",
+      "actual": "7/7/2026",
+      "status": "passed"
+    },
+    {
+      "pointer": "/tables/inquiries",
+      "expected": 2252,
+      "actual": 2252,
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "limit": "Checks recorded fields only. Actual capture provenance, full filter context and business correctness need investigation."
+}

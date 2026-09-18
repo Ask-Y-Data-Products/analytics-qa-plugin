@@ -1,0 +1,294 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T21:00:52.153251+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state1_baseline",
+  "active_page": "Executive Summary - P&L",
+  "slicers": {
+    "Franchise": "All",
+    "Channel": "Multiple selections",
+    "Province": "All",
+    "Campus": "All",
+    "Paid Ads?": "All"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 2,
+      "title": "Executive Summary",
+      "text": "Executive Summary",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 3,
+      "title": "Last Refresh - \ufeff07/13/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/13/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 4,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 890,
+        "y": 172,
+        "width": 378,
+        "height": 84
+      }
+    },
+    {
+      "index": 5,
+      "title": "Conversion",
+      "text": "Conversion\n\n3.4%",
+      "rect": {
+        "x": 425,
+        "y": 266,
+        "width": 193,
+        "height": 144
+      }
+    },
+    {
+      "index": 6,
+      "title": "Contract Value",
+      "text": "Contract Value\n\n$840K",
+      "rect": {
+        "x": 618,
+        "y": 266,
+        "width": 257,
+        "height": 145
+      }
+    },
+    {
+      "index": 7,
+      "title": "Leads",
+      "text": "Leads\n\n1,993",
+      "rect": {
+        "x": 61,
+        "y": 268,
+        "width": 202,
+        "height": 144
+      }
+    },
+    {
+      "index": 8,
+      "title": "Starts",
+      "text": "Starts\n\n68",
+      "rect": {
+        "x": 263,
+        "y": 267,
+        "width": 180,
+        "height": 144
+      }
+    },
+    {
+      "index": 9,
+      "title": "CAC",
+      "text": "CAC\n\n$3.5K",
+      "rect": {
+        "x": 1323,
+        "y": 267,
+        "width": 233,
+        "height": 144
+      }
+    },
+    {
+      "index": 10,
+      "title": "Est. EBITDA",
+      "text": "Est. EBITDA\n\n$134K",
+      "rect": {
+        "x": 1556,
+        "y": 267,
+        "width": 224,
+        "height": 144
+      }
+    },
+    {
+      "index": 11,
+      "title": "Spend",
+      "text": "Spend\n\n$240K",
+      "rect": {
+        "x": 875,
+        "y": 269,
+        "width": 216,
+        "height": 140
+      }
+    },
+    {
+      "index": 12,
+      "title": "ROAS",
+      "text": "ROAS\n\n258.4%",
+      "rect": {
+        "x": 1091,
+        "y": 269,
+        "width": 243,
+        "height": 143
+      }
+    },
+    {
+      "index": 13,
+      "title": "Province",
+      "text": "Province\nAll",
+      "rect": {
+        "x": 639,
+        "y": 410,
+        "width": 282,
+        "height": 84
+      }
+    },
+    {
+      "index": 14,
+      "title": "Campus",
+      "text": "Campus\nAll",
+      "rect": {
+        "x": 921,
+        "y": 410,
+        "width": 277,
+        "height": 84
+      }
+    },
+    {
+      "index": 15,
+      "title": "Franchise",
+      "text": "Franchise\nAll",
+      "rect": {
+        "x": 61,
+        "y": 413,
+        "width": 291,
+        "height": 82
+      }
+    },
+    {
+      "index": 16,
+      "title": "Channel",
+      "text": "Channel\nMultiple selections",
+      "rect": {
+        "x": 352,
+        "y": 413,
+        "width": 287,
+        "height": 82
+      }
+    },
+    {
+      "index": 17,
+      "title": "Paid Ads?",
+      "text": "Paid Ads?\nAll",
+      "rect": {
+        "x": 1198,
+        "y": 413,
+        "width": 272,
+        "height": 84
+      }
+    },
+    {
+      "index": 18,
+      "title": "All",
+      "text": "All\nExpenses\nPaid Ads\nSpend",
+      "rect": {
+        "x": 1470,
+        "y": 413,
+        "width": 273,
+        "height": 84
+      }
+    },
+    {
+      "index": 19,
+      "title": "Contract Value and Spend by Month",
+      "text": "Contract Value and Spend by Month\n$0M\n$1M\n$2M\n$3M\nMonth\nContract Value and Spend\n2026-01\n2026-02\n2026-03\n2026-04\n2026-05\n2026-06\n2026-07\n2026-08\nContract Value\nSpend",
+      "rect": {
+        "x": 61,
+        "y": 496,
+        "width": 1132,
+        "height": 346
+      }
+    },
+    {
+      "index": 20,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nChannel_Ctgy\nLeads\nStarts\n\u00a0\nContract Value\nReferral\n996\n999\n$14,194,985\nAgents\n453\n247\n$2,636,963\nLocal Funds\n918\n80\n$2,108,694\nNational Funds\n1,993\n68\n$839,582\nTotal\n4,360\n1,394\n$19,780,224",
+      "rect": {
+        "x": 1193,
+        "y": 496,
+        "width": 575,
+        "height": 631
+      }
+    },
+    {
+      "index": 21,
+      "title": "Revenue by Franchise Name",
+      "text": "Revenue by Franchise Name\n$0K\n$50K\n$100K\n$150K\n$200K\nRevenue\nFranchise Name\nStone\nBaker\nEvans\nLowe\nOwens",
+      "rect": {
+        "x": 61,
+        "y": 842,
+        "width": 1132,
+        "height": 285
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {},
+  "cards": {
+    "Spend": null,
+    "Leads": 1993,
+    "Starts": 68,
+    "Conversion": 3.4,
+    "Contract Value": null,
+    "CAC": null,
+    "Est. EBITDA": null,
+    "ROAS": 258.4
+  },
+  "cards_text": {
+    "Spend": "$240K",
+    "Leads": "1,993",
+    "Starts": "68",
+    "Conversion": "3.4%",
+    "Contract Value": "$840K",
+    "CAC": "$3.5K",
+    "Est. EBITDA": "$134K",
+    "ROAS": "258.4%"
+  },
+  "tables": {
+    "pnl": 4360
+  },
+  "description": "Baseline: Executive Summary P&L, July 1-13 2026. Channel slicer has a saved 6-channel selection. Card amounts like Spend show abbreviated text ($240K) which cannot be parsed as plain numbers.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

@@ -1,0 +1,282 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T20:43:34.856139+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state3_google_restored",
+  "active_page": "Leads",
+  "slicers": {
+    "Franchise": "All",
+    "Channel": "All",
+    "Province": "All",
+    "Campus": "All"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 910,
+        "y": 173,
+        "width": 413,
+        "height": 87
+      }
+    },
+    {
+      "index": 2,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 3,
+      "title": "Leads",
+      "text": "Leads",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 4,
+      "title": "Last Refresh - \ufeff07/13/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/13/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 5,
+      "title": "Franchise",
+      "text": "Franchise\nAll",
+      "rect": {
+        "x": 61,
+        "y": 266,
+        "width": 403,
+        "height": 98
+      }
+    },
+    {
+      "index": 6,
+      "title": "Channel",
+      "text": "Channel\nAll",
+      "rect": {
+        "x": 464,
+        "y": 266,
+        "width": 417,
+        "height": 98
+      }
+    },
+    {
+      "index": 7,
+      "title": "Province",
+      "text": "Province\nAll",
+      "rect": {
+        "x": 880,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 8,
+      "title": "Campus",
+      "text": "Campus\nAll",
+      "rect": {
+        "x": 1279,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 9,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nChannel\nLeads\n\u00a0\nAggregated Spend\nImpressions\nClicks\nPaid Cost per Lead\nReferrals\n996\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nGoogle Ads\n907\n$141,663\n647,665\n51,226\n$156.19\nMeta\n680\n$65,034\n4,046,466\n31,095\n$95.64\nLocal Web Site Paid\n591\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nAgents\n453\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nNational Web Organic\n208\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nNational PPL - GE\n99\n$9,900\n\u00a0\n\u00a0\n$100.00\nAsk-Students Call Center\n94\n$23,871\n\u00a0\n\u00a0\n$253.95\nHS Other Media Group\n90\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nDirect or Unknown\n78\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nLocal Web Organic\n47\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nVendor\n39\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nLocal Social Media\n32\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nGovernment Funded\n25\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nPhone Inquiry\n12\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nPortal Life\n5\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nBillboards & Signage\n4\n\u00a0\n\u00a0\n\u00a0\n\u00a0\nTotal\n4,360\n$240,468\n4,694,131\n82,321\n$135.09",
+      "rect": {
+        "x": 61,
+        "y": 364,
+        "width": 808,
+        "height": 763
+      }
+    },
+    {
+      "index": 10,
+      "title": "Leads by day",
+      "text": "Leads by day\n200\n300\n400\n500\nday\nLeads\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13",
+      "rect": {
+        "x": 869,
+        "y": 364,
+        "width": 808,
+        "height": 375
+      }
+    },
+    {
+      "index": 11,
+      "title": "Leads by day and Channel",
+      "text": "Leads by day and Channel\n50\n100\nday\nLeads\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13\nChannel\nGoogle Ads\nMeta",
+      "rect": {
+        "x": 869,
+        "y": 739,
+        "width": 808,
+        "height": 388
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Leads by day": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "200",
+          "x": 926,
+          "y": 634
+        },
+        {
+          "text": "300",
+          "x": 926,
+          "y": 559
+        },
+        {
+          "text": "400",
+          "x": 925,
+          "y": 484
+        },
+        {
+          "text": "500",
+          "x": 926,
+          "y": 409
+        },
+        {
+          "text": "Jul 01",
+          "x": 966,
+          "y": 688
+        },
+        {
+          "text": "Jul 03",
+          "x": 1080,
+          "y": 688
+        },
+        {
+          "text": "Jul 05",
+          "x": 1193,
+          "y": 688
+        },
+        {
+          "text": "Jul 07",
+          "x": 1307,
+          "y": 688
+        },
+        {
+          "text": "Jul 09",
+          "x": 1421,
+          "y": 688
+        },
+        {
+          "text": "Jul 11",
+          "x": 1535,
+          "y": 688
+        },
+        {
+          "text": "Jul 13",
+          "x": 1648,
+          "y": 688
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    },
+    "Leads by day and Channel": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "50",
+          "x": 930,
+          "y": 1000
+        },
+        {
+          "text": "100",
+          "x": 926,
+          "y": 902
+        },
+        {
+          "text": "Jul 01",
+          "x": 966,
+          "y": 1075
+        },
+        {
+          "text": "Jul 03",
+          "x": 1080,
+          "y": 1075
+        },
+        {
+          "text": "Jul 05",
+          "x": 1193,
+          "y": 1075
+        },
+        {
+          "text": "Jul 07",
+          "x": 1307,
+          "y": 1075
+        },
+        {
+          "text": "Jul 09",
+          "x": 1421,
+          "y": 1075
+        },
+        {
+          "text": "Jul 11",
+          "x": 1535,
+          "y": 1075
+        },
+        {
+          "text": "Jul 13",
+          "x": 1648,
+          "y": 1075
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    }
+  },
+  "cards": {},
+  "cards_text": {},
+  "tables": {
+    "leads": 4360
+  },
+  "description": "Google Ads restored.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

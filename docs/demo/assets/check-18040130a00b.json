@@ -1,0 +1,61 @@
+{
+  "kind": "state_check",
+  "at": "2026-09-17T21:01:44.361899+00:00",
+  "observation": "state.json",
+  "observation_sha256": "d24a3f1655dc9c7951a06e3a8a6416fd3a0a1e3a5d14e8d95f127f0e52e63777",
+  "expected": {
+    "/verified_report_title": "launchlife-fake",
+    "/active_page": "Executive Summary - P&L",
+    "/popup_open": false,
+    "/calendar_open": false,
+    "/edit_overlay_open": false,
+    "/date_start": "7/1/2026",
+    "/cards/Leads": 1993
+  },
+  "checks": [
+    {
+      "pointer": "/verified_report_title",
+      "expected": "launchlife-fake",
+      "actual": "launchlife-fake",
+      "status": "passed"
+    },
+    {
+      "pointer": "/active_page",
+      "expected": "Executive Summary - P&L",
+      "actual": "Executive Summary - P&L",
+      "status": "passed"
+    },
+    {
+      "pointer": "/popup_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/calendar_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/edit_overlay_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/date_start",
+      "expected": "7/1/2026",
+      "actual": "7/1/2026",
+      "status": "passed"
+    },
+    {
+      "pointer": "/cards/Leads",
+      "expected": 1993,
+      "actual": 1993,
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "limit": "Checks recorded fields only. Actual capture provenance, full filter context and business correctness need investigation."
+}

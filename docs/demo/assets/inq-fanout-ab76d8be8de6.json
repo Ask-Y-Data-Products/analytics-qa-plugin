@@ -1,0 +1,61 @@
+{
+  "kind": "probe",
+  "id": "inq-fanout",
+  "method": "dax.fan_out",
+  "question": "Does the channel join produce duplicate inquiry rows?",
+  "params": {
+    "base": "[Rows]",
+    "joined": "[Joined]",
+    "distinct_keys": "[Keys]"
+  },
+  "dax": "EVALUATE ROW(\"Rows\", COUNTROWS(fact_program_inquiry), \"Joined\", CALCULATE(COUNTROWS(fact_program_inquiry), CROSSFILTER(fact_program_inquiry[channel_key], dim_channel[channel_key], Both)), \"Keys\", DISTINCTCOUNT(fact_program_inquiry[inquiry_id]))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-17T21:07:29.362957+00:00",
+    "port": 54030,
+    "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+    "query": "EVALUATE ROW(\"Rows\", COUNTROWS(fact_program_inquiry), \"Joined\", CALCULATE(COUNTROWS(fact_program_inquiry), CROSSFILTER(fact_program_inquiry[channel_key], dim_channel[channel_key], Both)), \"Keys\", DISTINCTCOUNT(fact_program_inquiry[inquiry_id]))",
+    "columns": [
+      "[Rows]",
+      "[Joined]",
+      "[Keys]"
+    ],
+    "rows": [
+      {
+        "[Rows]": 69289,
+        "[Joined]": 69289,
+        "[Keys]": 69289
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[Rows]",
+          "[Joined]",
+          "[Keys]"
+        ],
+        "rows": [
+          {
+            "[Rows]": 69289,
+            "[Joined]": 69289,
+            "[Keys]": 69289
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "fan_out",
+    "base_rows": 69289,
+    "joined_rows": 69289,
+    "multiplier": 1.0,
+    "distinct_keys": 69289,
+    "duplicate_rows": 0,
+    "status": "clean"
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

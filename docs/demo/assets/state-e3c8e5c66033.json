@@ -1,0 +1,243 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T20:57:49.891612+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state4_restored",
+  "active_page": "Meta Daily",
+  "slicers": {},
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 2,
+      "title": "Meta Comparison",
+      "text": "Meta Comparison",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 3,
+      "title": "Last Refresh - \ufeff07/13/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/13/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 4,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 890,
+        "y": 172,
+        "width": 378,
+        "height": 84
+      }
+    },
+    {
+      "index": 5,
+      "title": "Sum of leads_onsite_grouped and Meta CL Leads by date_key",
+      "text": "Sum of leads_onsite_grouped and Meta CL Leads by date_key\n0\n50\n100\ndate_key\nSum of leads_onsite_groupe\u2026\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13\nSum of leads_onsite_grouped\nMeta CL Leads",
+      "rect": {
+        "x": 61,
+        "y": 338,
+        "width": 992,
+        "height": 441
+      }
+    },
+    {
+      "index": 6,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nRow Selection\ndate_key\nMeta Direct Leads\nMeta CL Leads\n% Meta vs CL Leads\nSelect Row\nWednesday, July 01, 2026\n64\n39\n60.9%\nSelect Row\nThursday, July 02, 2026\n56\n39\n69.6%\nSelect Row\nFriday, July 03, 2026\n56\n35\n62.5%\nSelect Row\nSaturday, July 04, 2026\n76\n53\n69.7%\nSelect Row\nSunday, July 05, 2026\n65\n42\n64.6%\nSelect Row\nMonday, July 06, 2026\n70\n45\n64.3%\nSelect Row\nTuesday, July 07, 2026\n60\n133\n221.7%\nSelect Row\nWednesday, July 08, 2026\n70\n59\n84.3%\nSelect Row\nThursday, July 09, 2026\n64\n51\n79.7%\nSelect Row\nFriday, July 10, 2026\n55\n39\n70.9%\nSelect Row\nSaturday, July 11, 2026\n57\n43\n75.4%\nSelect Row\nSunday, July 12, 2026\n65\n46\n70.8%\nSelect Row\nMonday, July 13, 2026\n76\n56\n73.7%\nTotal\n834\n680\n81.5%",
+      "rect": {
+        "x": 1053,
+        "y": 338,
+        "width": 728,
+        "height": 789
+      }
+    },
+    {
+      "index": 7,
+      "title": "% Meta vs CL Leads by date_key",
+      "text": "% Meta vs CL Leads by date_key\n0%\n50%\n100%\n150%\n200%\ndate_key\n% Meta vs CL Leads\nJul 01\nJul 03\nJul 05\nJul 07\nJul 09\nJul 11\nJul 13",
+      "rect": {
+        "x": 61,
+        "y": 779,
+        "width": 992,
+        "height": 348
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Sum of leads_onsite_grouped and Meta CL Leads by date_key": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "0",
+          "x": 126,
+          "y": 712
+        },
+        {
+          "text": "50",
+          "x": 122,
+          "y": 603
+        },
+        {
+          "text": "100",
+          "x": 118,
+          "y": 494
+        },
+        {
+          "text": "Jul 01",
+          "x": 158,
+          "y": 728
+        },
+        {
+          "text": "Jul 03",
+          "x": 302,
+          "y": 728
+        },
+        {
+          "text": "Jul 05",
+          "x": 446,
+          "y": 728
+        },
+        {
+          "text": "Jul 07",
+          "x": 591,
+          "y": 728
+        },
+        {
+          "text": "Jul 09",
+          "x": 735,
+          "y": 728
+        },
+        {
+          "text": "Jul 11",
+          "x": 879,
+          "y": 728
+        },
+        {
+          "text": "Jul 13",
+          "x": 1023,
+          "y": 728
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    },
+    "% Meta vs CL Leads by date_key": {
+      "marks": [],
+      "labels": [
+        {
+          "text": "0%",
+          "x": 126,
+          "y": 1066
+        },
+        {
+          "text": "50%",
+          "x": 122,
+          "y": 1012
+        },
+        {
+          "text": "100%",
+          "x": 118,
+          "y": 957
+        },
+        {
+          "text": "150%",
+          "x": 118,
+          "y": 902
+        },
+        {
+          "text": "200%",
+          "x": 118,
+          "y": 848
+        },
+        {
+          "text": "Jul 01",
+          "x": 165,
+          "y": 1082
+        },
+        {
+          "text": "Jul 03",
+          "x": 308,
+          "y": 1082
+        },
+        {
+          "text": "Jul 05",
+          "x": 451,
+          "y": 1082
+        },
+        {
+          "text": "Jul 07",
+          "x": 594,
+          "y": 1082
+        },
+        {
+          "text": "Jul 09",
+          "x": 737,
+          "y": 1082
+        },
+        {
+          "text": "Jul 11",
+          "x": 880,
+          "y": 1082
+        },
+        {
+          "text": "Jul 13",
+          "x": 1023,
+          "y": 1082
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": []
+    }
+  },
+  "cards": {},
+  "cards_text": {},
+  "tables": {
+    "meta": 834
+  },
+  "description": "Restored to July 1-13.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

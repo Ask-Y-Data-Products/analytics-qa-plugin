@@ -1,0 +1,40 @@
+{
+  "kind": "bigquery",
+  "started_at": "2026-09-16T18:02:42.994315+00:00",
+  "finished_at": "2026-09-16T18:02:44.325446+00:00",
+  "project": "student-course-y",
+  "location": "northamerica-northeast2",
+  "job_id": "6219d50b-739a-4a79-b04c-547993dab640",
+  "sql": "SELECT COUNTIF(DATE(submit_at) <> submit_date_key) AS utc_mismatch, COUNTIF(DATE(submit_at, 'America/Toronto') <> submit_date_key) AS toronto_mismatch, COUNT(*) AS rows_\nFROM `student-course-y.demo_marts.fact_program_inquiry` WHERE submit_at IS NOT NULL\n",
+  "schema": [
+    {
+      "name": "utc_mismatch",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "toronto_mismatch",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "rows_",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    }
+  ],
+  "rows": [
+    {
+      "utc_mismatch": 0,
+      "toronto_mismatch": 6074,
+      "rows_": 69289
+    }
+  ],
+  "complete": true,
+  "returned_rows": 1,
+  "dry_run_bytes": 1108624,
+  "bytes_processed": 1108624,
+  "bytes_billed": 10485760,
+  "maximum_bytes_billed": 1000000000,
+  "source_snapshot": "Current warehouse at query time, not the historical PBIX import snapshot"
+}

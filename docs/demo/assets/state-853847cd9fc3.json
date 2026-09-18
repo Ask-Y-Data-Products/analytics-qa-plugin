@@ -1,0 +1,217 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T20:57:13.937195+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state2_single_day",
+  "active_page": "Meta Daily",
+  "slicers": {},
+  "date_start": "7/7/2026",
+  "date_end": "7/7/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 2,
+      "title": "Meta Comparison",
+      "text": "Meta Comparison",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 3,
+      "title": "Last Refresh - \ufeff07/07/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/07/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 4,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 890,
+        "y": 172,
+        "width": 378,
+        "height": 84
+      }
+    },
+    {
+      "index": 5,
+      "title": "Sum of leads_onsite_grouped and Meta CL Leads by date_key",
+      "text": "Sum of leads_onsite_grouped and Meta CL Leads by date_key\n0\n50\n100\ndate_key\nSum of leads_onsite_groupe\u2026\nJul 07\nSum of leads_onsite_grouped\nMeta CL Leads",
+      "rect": {
+        "x": 61,
+        "y": 338,
+        "width": 992,
+        "height": 441
+      }
+    },
+    {
+      "index": 6,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nRow Selection\ndate_key\nMeta Direct Leads\nMeta CL Leads\n% Meta vs CL Leads\nSelect Row\nTuesday, July 07, 2026\n60\n133\n221.7%\nTotal\n60\n133\n221.7%",
+      "rect": {
+        "x": 1053,
+        "y": 338,
+        "width": 728,
+        "height": 789
+      }
+    },
+    {
+      "index": 7,
+      "title": "% Meta vs CL Leads by date_key",
+      "text": "% Meta vs CL Leads by date_key\n0%\n50%\n100%\n150%\n200%\ndate_key\n% Meta vs CL Leads\nJul 07",
+      "rect": {
+        "x": 61,
+        "y": 779,
+        "width": 992,
+        "height": 348
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {
+    "Sum of leads_onsite_grouped and Meta CL Leads by date_key": {
+      "marks": [
+        {
+          "cls": "dot sub-selectable",
+          "value": null,
+          "x": 588,
+          "y": 576,
+          "w": 12,
+          "h": 12,
+          "opacity": "1"
+        },
+        {
+          "cls": "dot sub-selectable",
+          "value": null,
+          "x": 588,
+          "y": 417,
+          "w": 12,
+          "h": 12,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0",
+          "x": 126,
+          "y": 712
+        },
+        {
+          "text": "50",
+          "x": 122,
+          "y": 603
+        },
+        {
+          "text": "100",
+          "x": 118,
+          "y": 494
+        },
+        {
+          "text": "Jul 07",
+          "x": 595,
+          "y": 728
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        null,
+        null
+      ]
+    },
+    "% Meta vs CL Leads by date_key": {
+      "marks": [
+        {
+          "cls": "dot sub-selectable",
+          "value": null,
+          "x": 592,
+          "y": 819,
+          "w": 12,
+          "h": 12,
+          "opacity": "1"
+        }
+      ],
+      "labels": [
+        {
+          "text": "0%",
+          "x": 126,
+          "y": 1066
+        },
+        {
+          "text": "50%",
+          "x": 122,
+          "y": 1012
+        },
+        {
+          "text": "100%",
+          "x": 118,
+          "y": 957
+        },
+        {
+          "text": "150%",
+          "x": 118,
+          "y": 902
+        },
+        {
+          "text": "200%",
+          "x": 118,
+          "y": 848
+        },
+        {
+          "text": "Jul 07",
+          "x": 598,
+          "y": 1082
+        }
+      ],
+      "highlight_active": false,
+      "selected_marks": 0,
+      "values": [
+        null
+      ]
+    }
+  },
+  "cards": {},
+  "cards_text": {},
+  "tables": {
+    "meta": 60
+  },
+  "description": "Single day July 7.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

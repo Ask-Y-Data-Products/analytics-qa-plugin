@@ -1,0 +1,19 @@
+{
+  "kind": "probe",
+  "id": "campaign-name-churn-inquiries",
+  "method": "dax.assert",
+  "question": "Does each campaign key have exactly one name in the inquiry fact?",
+  "params": {
+    "column": "[KeysWithSeveralNames]",
+    "operator": "==",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"KeysWithSeveralNames\", COUNTROWS(FILTER(ADDCOLUMNS(VALUES(fact_program_inquiry[campaign_key]), \"n\", CALCULATE(DISTINCTCOUNT(fact_program_inquiry[campaign_name]))), [n] > 1)))",
+  "status": "inconclusive",
+  "error": "Unknown column 'fact_program_inquiry'[campaign_name]; fact_program_inquiry has: inquiry_id, inquiry_type, program_profile_id, reinquiry_event_id, submit_date_key, submit_at, contact_id, email_lower, ... (closest: campaign_key)",
+  "unknown_references": [
+    "Unknown column 'fact_program_inquiry'[campaign_name]; fact_program_inquiry has: inquiry_id, inquiry_type, program_profile_id, reinquiry_event_id, submit_date_key, submit_at, contact_id, email_lower, ... (closest: campaign_key)"
+  ],
+  "executed": false,
+  "note": "The DAX was not executed: it names objects the captured model does not have, or still holds a template placeholder. Correct the names and rerun into a fresh run directory; a probe left inconclusive by a naming error is not a finding."
+}

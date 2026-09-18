@@ -1,0 +1,56 @@
+{
+  "kind": "probe",
+  "id": "dax-assert-completed-months",
+  "method": "dax.assert",
+  "question": "Does every month flagged is_completed_month_this_year and every day flagged is_current_month have inquiry data?",
+  "params": {
+    "column": "[CompletedMonthsWithNoData]",
+    "operator": "==",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"CompletedMonthsWithNoData\", COUNTROWS(FILTER(SUMMARIZE(FILTER(ALL(dim_date), dim_date[is_completed_month_this_year] = TRUE()), dim_date[year_month]), [Leads] = 0)), \"CurrentMonthWithNoData\", COUNTROWS(FILTER(SUMMARIZE(FILTER(ALL(dim_date), dim_date[is_current_month] = TRUE()), dim_date[year_month]), [Leads] = 0)))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-17T21:07:53.871640+00:00",
+    "port": 54030,
+    "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+    "query": "EVALUATE ROW(\"CompletedMonthsWithNoData\", COUNTROWS(FILTER(SUMMARIZE(FILTER(ALL(dim_date), dim_date[is_completed_month_this_year] = TRUE()), dim_date[year_month]), [Leads] = 0)), \"CurrentMonthWithNoData\", COUNTROWS(FILTER(SUMMARIZE(FILTER(ALL(dim_date), dim_date[is_current_month] = TRUE()), dim_date[year_month]), [Leads] = 0)))",
+    "columns": [
+      "[CompletedMonthsWithNoData]",
+      "[CurrentMonthWithNoData]"
+    ],
+    "rows": [
+      {
+        "[CompletedMonthsWithNoData]": null,
+        "[CurrentMonthWithNoData]": null
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[CompletedMonthsWithNoData]",
+          "[CurrentMonthWithNoData]"
+        ],
+        "rows": [
+          {
+            "[CompletedMonthsWithNoData]": null,
+            "[CurrentMonthWithNoData]": null
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 0,
+    "operator": "==",
+    "expected": 0,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

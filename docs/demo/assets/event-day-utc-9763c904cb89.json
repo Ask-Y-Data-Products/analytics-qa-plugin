@@ -1,0 +1,56 @@
+{
+  "kind": "probe",
+  "id": "event-day-utc",
+  "method": "dax.assert",
+  "question": "Does the submit_date_key equal the UTC date of the submit_at timestamp (offset 0)?",
+  "params": {
+    "column": "[Mismatched]",
+    "operator": "==",
+    "value": 0
+  },
+  "dax": "EVALUATE ROW(\"Mismatched\", COUNTROWS(FILTER(fact_program_inquiry, NOT ISBLANK(fact_program_inquiry[submit_at]) && INT(fact_program_inquiry[submit_at]) <> INT(fact_program_inquiry[submit_date_key]))), \"Rows\", COUNTROWS(FILTER(fact_program_inquiry, NOT ISBLANK(fact_program_inquiry[submit_at]))))",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-17T21:07:51.688480+00:00",
+    "port": 54030,
+    "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+    "query": "EVALUATE ROW(\"Mismatched\", COUNTROWS(FILTER(fact_program_inquiry, NOT ISBLANK(fact_program_inquiry[submit_at]) && INT(fact_program_inquiry[submit_at]) <> INT(fact_program_inquiry[submit_date_key]))), \"Rows\", COUNTROWS(FILTER(fact_program_inquiry, NOT ISBLANK(fact_program_inquiry[submit_at]))))",
+    "columns": [
+      "[Mismatched]",
+      "[Rows]"
+    ],
+    "rows": [
+      {
+        "[Mismatched]": null,
+        "[Rows]": 69289
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "[Mismatched]",
+          "[Rows]"
+        ],
+        "rows": [
+          {
+            "[Mismatched]": null,
+            "[Rows]": 69289
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "dax.assert",
+    "status": "clean",
+    "actual": 0,
+    "operator": "==",
+    "expected": 0,
+    "tolerance": null
+  },
+  "status": "passed",
+  "interpretation_required": false,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

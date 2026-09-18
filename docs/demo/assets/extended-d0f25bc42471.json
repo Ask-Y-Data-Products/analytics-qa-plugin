@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-17T20:55:19.293015+00:00",
+  "port": 54030,
+  "database": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+  "query": "EVALUATE ROW(\"Starts\", CALCULATE([Starts], dim_date[date_key] >= DATE(2026,7,1), dim_date[date_key] <= DATE(2026,7,31), dim_channel[channel_name] IN {\"Google Ads\", \"Meta\", \"Ask-Students Call Center\"}))",
+  "columns": [
+    "[Starts]"
+  ],
+  "rows": [
+    {
+      "[Starts]": 183
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Starts]"
+      ],
+      "rows": [
+        {
+          "[Starts]": 183
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

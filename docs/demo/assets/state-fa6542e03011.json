@@ -1,0 +1,217 @@
+{
+  "kind": "render",
+  "timestamp": "2026-09-17T20:55:28.838699+00:00",
+  "verified_report_title": "launchlife-fake",
+  "label": "state1_baseline",
+  "active_page": "Contract Velocity",
+  "slicers": {
+    "Franchise": "All",
+    "Channel": "Multiple selections",
+    "Province": "All",
+    "Campus": "All"
+  },
+  "date_start": "7/1/2026",
+  "date_end": "7/13/2026",
+  "cell_selected_count": 0,
+  "calendar_open": false,
+  "popup_open": false,
+  "edit_overlay_open": false,
+  "visuals": [
+    {
+      "index": 0,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 61,
+        "y": 160,
+        "width": 1720,
+        "height": 107
+      }
+    },
+    {
+      "index": 1,
+      "title": "Date",
+      "text": "Date",
+      "rect": {
+        "x": 910,
+        "y": 173,
+        "width": 413,
+        "height": 87
+      }
+    },
+    {
+      "index": 2,
+      "title": "",
+      "text": "",
+      "rect": {
+        "x": 77,
+        "y": 173,
+        "width": 269,
+        "height": 81
+      }
+    },
+    {
+      "index": 3,
+      "title": "Contract Velocity",
+      "text": "Contract Velocity",
+      "rect": {
+        "x": 346,
+        "y": 173,
+        "width": 357,
+        "height": 63
+      }
+    },
+    {
+      "index": 4,
+      "title": "Last Refresh - \ufeff07/13/2026\ufeff",
+      "text": "\tLast Refresh - \ufeff07/13/2026\ufeff",
+      "rect": {
+        "x": 1424,
+        "y": 173,
+        "width": 357,
+        "height": 41
+      }
+    },
+    {
+      "index": 5,
+      "title": "Franchise",
+      "text": "Franchise\nAll",
+      "rect": {
+        "x": 61,
+        "y": 266,
+        "width": 403,
+        "height": 98
+      }
+    },
+    {
+      "index": 6,
+      "title": "Channel",
+      "text": "Channel\nMultiple selections",
+      "rect": {
+        "x": 464,
+        "y": 266,
+        "width": 404,
+        "height": 99
+      }
+    },
+    {
+      "index": 7,
+      "title": "Province",
+      "text": "Province\nAll",
+      "rect": {
+        "x": 866,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 8,
+      "title": "Campus",
+      "text": "Campus\nAll",
+      "rect": {
+        "x": 1265,
+        "y": 268,
+        "width": 399,
+        "height": 96
+      }
+    },
+    {
+      "index": 9,
+      "title": "P75 Days to Contract",
+      "text": "P75 Days to Contract\n\n26",
+      "rect": {
+        "x": 464,
+        "y": 363,
+        "width": 404,
+        "height": 202
+      }
+    },
+    {
+      "index": 10,
+      "title": "Starts",
+      "text": "Starts\n\n48",
+      "rect": {
+        "x": 868,
+        "y": 363,
+        "width": 403,
+        "height": 202
+      }
+    },
+    {
+      "index": 11,
+      "title": "Median Days to Contract",
+      "text": "Median Days to Contract\n\n12",
+      "rect": {
+        "x": 61,
+        "y": 364,
+        "width": 403,
+        "height": 201
+      }
+    },
+    {
+      "index": 12,
+      "title": "days_to_contract is capped at the 365-day inquiry window. A spike at 365 is the boundary, not a real mode. Contracts whose nearest inquiry is older than a year are shown as \"No inquiry,\" not as 365 days.",
+      "text": "days_to_contract is capped at the 365-day inquiry window. A spike at 365 is the boundary, not a real mode. Contracts whose nearest inquiry is older than a year are shown as \"No inquiry,\" not as 365 days.\n\n\n",
+      "rect": {
+        "x": 1268,
+        "y": 364,
+        "width": 513,
+        "height": 205
+      }
+    },
+    {
+      "index": 13,
+      "title": "Days to Contract by Channel",
+      "text": "Days to Contract by Channel\n0\n10\n20\n30\nP25 Days to Contract, Median Days to Contract and P75 Days to Contract\nchannel_name\nAsk-Students Call Center\nGoogle Ads\nMeta\nP25 Days to Contract\nMedian Days to Contract\nP75 Days to Contract",
+      "rect": {
+        "x": 61,
+        "y": 566,
+        "width": 861,
+        "height": 333
+      }
+    },
+    {
+      "index": 14,
+      "title": "Days to Contract by Channel",
+      "text": "Days to Contract by Channel\n0%\n50%\n100%\nStarts\nchannel_name\nAsk-Students Call Center\nGoogle Ads\nMeta\nDays Bucket\nSame day\n1\u20133d\n4\u20137d\n8\u201330d\n31\u201390d\n91d+\nNo inquiry",
+      "rect": {
+        "x": 922,
+        "y": 566,
+        "width": 859,
+        "height": 333
+      }
+    },
+    {
+      "index": 15,
+      "title": "Scroll up",
+      "text": "Scroll up\nScroll down\nScroll left\nScroll right\nRow Selection\nchannel_name\nStarts\nP25 Days to Contract\nMedian Days to Contract\nP75 Days to Contract\nAvg Days to Contract\nSelect Row\nAsk-Students Call Center\n6\n5.75\n12\ndata bar 100%\n34\n28.50\nSelect Row\nGoogle Ads\n31\n4.25\n12\ndata bar 100%\n26\n20.96\nSelect Row\nMeta\n11\n3.75\n7\ndata bar 54%\n13\n22.83\nTotal\n48\n4.00\n12\n26\n22.45",
+      "rect": {
+        "x": 61,
+        "y": 899,
+        "width": 1113,
+        "height": 229
+      }
+    }
+  ],
+  "screenshot": "screen.png",
+  "settled": true,
+  "note": "Observed WebView state. Text stability is not proof every visual finished; interpret values against the cited oracle.",
+  "charts": {},
+  "cards": {
+    "Starts": 48,
+    "Median Days to Contract": 12,
+    "P75 Days to Contract": 26
+  },
+  "cards_text": {
+    "Starts": "48",
+    "Median Days to Contract": "12",
+    "P75 Days to Contract": "26"
+  },
+  "tables": {
+    "velocity": 48
+  },
+  "description": "Baseline: Contract Velocity, July 1-13 2026. The Channel slicer has a saved selection of Google Ads, Meta, Ask-Students Call Center.",
+  "derived": "cards/tables parsed from this observation's own visual text after capture",
+  "consistency": []
+}

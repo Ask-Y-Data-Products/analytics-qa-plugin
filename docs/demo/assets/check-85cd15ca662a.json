@@ -1,0 +1,54 @@
+{
+  "kind": "state_check",
+  "at": "2026-09-17T20:43:37.067130+00:00",
+  "observation": "state.json",
+  "observation_sha256": "3aaadd1a0fe121513422447b853bfaae8732bdf49335907093cb76cf6f29238c",
+  "expected": {
+    "/verified_report_title": "launchlife-fake",
+    "/active_page": "Leads",
+    "/popup_open": false,
+    "/calendar_open": false,
+    "/edit_overlay_open": false,
+    "/tables/leads": 4360
+  },
+  "checks": [
+    {
+      "pointer": "/verified_report_title",
+      "expected": "launchlife-fake",
+      "actual": "launchlife-fake",
+      "status": "passed"
+    },
+    {
+      "pointer": "/active_page",
+      "expected": "Leads",
+      "actual": "Leads",
+      "status": "passed"
+    },
+    {
+      "pointer": "/popup_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/calendar_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/edit_overlay_open",
+      "expected": false,
+      "actual": false,
+      "status": "passed"
+    },
+    {
+      "pointer": "/tables/leads",
+      "expected": 4360,
+      "actual": 4360,
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "limit": "Checks recorded fields only. Actual capture provenance, full filter context and business correctness need investigation."
+}

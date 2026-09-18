@@ -1,0 +1,2427 @@
+{
+  "schema_version": 2,
+  "state_contract_version": 1,
+  "id": "fake-review-1",
+  "created_at": "2026-09-17T20:39:26.299723+00:00",
+  "target": "launchlife-fake report: six pages",
+  "intent": "initial validation",
+  "summary": "Full validation of six pages in the launchlife-fake Power BI report: Leads, Inquiries and Reinquiries, Contract Velocity, Meta Daily, Executive Summary P&L, and Daily Leads. Each page received a baseline/change/reset interaction cycle with DAX oracles. Model lint flagged 58 findings across 7 categories. Statistical and DAX probes identified three failed invariants: 534 contracts with non-positive contract_value, 33 spend rows outside campaign windows, and 6,074 inquiry date keys cut at UTC instead of Toronto time. The monthly combo on Inquiries does not react to the date slicer (confirmed NoFilter interaction override).",
+  "scope": {
+    "binding_review": {
+      "status": "reviewed",
+      "visual_ids": [
+        "00e28e082e618202df81",
+        "00f08903087d3cd0357c",
+        "01acef68381c6b4314ea",
+        "0397aed2a1e73d0bc08e",
+        "0fec30b61b38dd4d4e2e",
+        "19de58baafdecad5c04f",
+        "1b965d3ef84d66e7da2b",
+        "2665c1204d80a8a48349",
+        "3280bb5c5577b960aba9",
+        "351ef9b00e0139128b99",
+        "4a9af6f9b14a9a866ca8",
+        "5098a09ab8461a375065",
+        "52c79352c38c2e520767",
+        "57b55944b75ae6d2d2ba",
+        "59aad789143f8bec01f5",
+        "5f9c5483d613bc673b93",
+        "63ab21dfbb0917545197",
+        "6555437144dc40b59b85",
+        "662e4b284e343571d52e",
+        "69116b1ecf87dfaac4d1",
+        "70ce83fd4331dd7046d2",
+        "74409a0d6dab7891079a",
+        "77e054f1850b6bc8d6de",
+        "82c8d3a57e58057e8dc5",
+        "83d09aa691ce4830b968",
+        "9206c195b0061022842e",
+        "935479f2611aa7f322c2",
+        "945f347f5ce7b8aaefee",
+        "9af0abaeae1c3f97d3bb",
+        "9bbe6869118726e72224",
+        "a07546fd67a2c7b9b668",
+        "adc23aff4cf3bbb983f0",
+        "b176321a9fb61c731a0b",
+        "c14486bdccd6d381a65b",
+        "c15a7b02befe33b4bf24",
+        "c302f51d3875c72267eb",
+        "d03c93f7340cbcf6f208",
+        "d87a7ef45111931d42f2",
+        "da42e63ac74c6eef248a",
+        "e17c0f9c47712bd2f580",
+        "e4c1c5c2739b8051440c",
+        "ed88432580a071bda030",
+        "f349a20846817107fb3b",
+        "f45cc9c4b7f658af6d30"
+      ],
+      "evidence": [
+        "evidence/inventory.json"
+      ]
+    },
+    "period": "Baseline July 1-13 2026; extended ranges as noted per component.",
+    "timezone": "America/Toronto (reporting); submit_date_key is UTC-based (confirmed by BQ q7_tz: 6,074 Toronto mismatches).",
+    "import_watermark": "Inquiries through 2026-09-03; spend/Meta through 2026-09-04; contracts include scheduled future starts through 2026-09-28.",
+    "population": "All franchises, channels, provinces, campuses unless page has a saved selection (Contract Velocity: 3 channels; P&L and Daily Leads: 6 channels).",
+    "data_completeness": "BQ q1_ranges confirms fact_program_inquiry 69,289 rows (2026-01-01 to 2026-09-03), fact_meta_leads_daily 1,791 rows, fact_contract 24,004 rows, fact_ad_spend_allocated_daily 26,842 rows. dim_date covers all of 2026.",
+    "definition_provenance": "No approved business definitions; all definitions are implementation-derived from DAX measures and context.md.",
+    "comparison_mode": "Engine DAX oracle vs rendered WebView observation with state-check receipts.",
+    "powerbi_identity": {
+      "report": "working/launchlife-fake.pbix",
+      "engine_port": 54030,
+      "catalog": "6fa3d4a4-6aa7-495d-bc78-587b16f976ee",
+      "page_id": "837A9AE02D23BE3437C7BD3C6BC7BEA4",
+      "evidence": "connection.json identity_evidence field"
+    }
+  },
+  "trace": [
+    {
+      "from": "fact_program_inquiry",
+      "to": "[Leads] measure",
+      "explanation": "Leads = COUNTROWS(fact_program_inquiry)",
+      "evidence": [
+        "evidence/model/TMSCHEMA_MEASURES.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_program_inquiry.channel_key",
+      "to": "dim_channel.channel_key",
+      "explanation": "Active relationship for channel attribution",
+      "evidence": [
+        "evidence/model/TMSCHEMA_RELATIONSHIPS.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_program_inquiry.submit_date_key",
+      "to": "dim_date.date_key",
+      "explanation": "Date filter propagation for date slicer",
+      "evidence": [
+        "evidence/model/TMSCHEMA_RELATIONSHIPS.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_contract",
+      "to": "[Starts] measure",
+      "explanation": "Starts = COUNTROWS(fact_contract)",
+      "evidence": [
+        "evidence/model/TMSCHEMA_MEASURES.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_meta_leads_daily.leads_onsite_grouped",
+      "to": "[Meta Direct Leads]",
+      "explanation": "SUM(fact_meta_leads_daily[leads_onsite_grouped])",
+      "evidence": [
+        "evidence/model/TMSCHEMA_MEASURES.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_ad_spend_allocated_daily.spend",
+      "to": "[Spend] measure",
+      "explanation": "3-tier allocation: direct_campus + province_only + unattributed, each weighted by leads share",
+      "evidence": [
+        "evidence/model/TMSCHEMA_MEASURES.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "BQ student-course-y.demo_marts",
+      "to": "Import model tables",
+      "explanation": "BigQuery source verified via discovery/bq queries; row counts and watermarks confirmed.",
+      "evidence": [
+        "evidence/source/discovery/bq/q1_ranges.json"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "claims": [
+    {
+      "id": "C-LEADS-TABLE",
+      "expected": "Channel table total matches engine [Leads] = COUNTROWS(fact_program_inquiry) for July 1-13: 4,360.",
+      "observed": "Table total 4,360 matches the oracle across baseline, exclude-Google (3,453), short-range Jul 1-7 (2,252), and restored states.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/leads/state1_baseline/state.json",
+        "evidence/runs/leads/state2_no_google/state.json",
+        "evidence/runs/leads/state3_google_restored/state.json",
+        "evidence/runs/leads/state4_short_range/state.json",
+        "evidence/runs/leads/state5_restored/state.json",
+        "evidence/runs/leads/dax/baseline_leads.json",
+        "evidence/runs/leads/dax/no_google.json",
+        "evidence/runs/leads/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/leads/state1_baseline/check.json",
+        "evidence/runs/leads/state2_no_google/check.json",
+        "evidence/runs/leads/state3_google_restored/check.json",
+        "evidence/runs/leads/state4_short_range/check.json",
+        "evidence/runs/leads/state5_restored/check.json"
+      ],
+      "question": "Does the channel table total match the expected lead count for the date range?"
+    },
+    {
+      "id": "C-LEADS-EXCLUDE",
+      "expected": "Excluding Google Ads reduces leads to 3,453 (4,360 minus 907 Google Ads leads).",
+      "observed": "After unchecking Google Ads, the table total dropped to 3,453 matching the oracle. Restoring Google Ads returned the total to 4,360.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/leads/state1_baseline/state.json",
+        "evidence/runs/leads/state2_no_google/state.json",
+        "evidence/runs/leads/state3_google_restored/state.json",
+        "evidence/runs/leads/state4_short_range/state.json",
+        "evidence/runs/leads/state5_restored/state.json",
+        "evidence/runs/leads/dax/baseline_leads.json",
+        "evidence/runs/leads/dax/no_google.json",
+        "evidence/runs/leads/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/leads/state1_baseline/check.json",
+        "evidence/runs/leads/state2_no_google/check.json",
+        "evidence/runs/leads/state3_google_restored/check.json",
+        "evidence/runs/leads/state4_short_range/check.json",
+        "evidence/runs/leads/state5_restored/check.json"
+      ],
+      "question": "Does excluding a channel reduce the lead count by exactly that channel's contribution?"
+    },
+    {
+      "id": "C-LEADS-DATERANGE",
+      "expected": "Shortening the date range to Jul 1-7 reduces leads to 2,252; restoring to Jul 1-13 returns 4,360.",
+      "observed": "Date range Jul 1-7 produced 2,252 leads; restoring to Jul 1-13 returned 4,360. Both match the oracle.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/leads/state1_baseline/state.json",
+        "evidence/runs/leads/state2_no_google/state.json",
+        "evidence/runs/leads/state3_google_restored/state.json",
+        "evidence/runs/leads/state4_short_range/state.json",
+        "evidence/runs/leads/state5_restored/state.json",
+        "evidence/runs/leads/dax/baseline_leads.json",
+        "evidence/runs/leads/dax/no_google.json",
+        "evidence/runs/leads/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/leads/state1_baseline/check.json",
+        "evidence/runs/leads/state2_no_google/check.json",
+        "evidence/runs/leads/state3_google_restored/check.json",
+        "evidence/runs/leads/state4_short_range/check.json",
+        "evidence/runs/leads/state5_restored/check.json"
+      ],
+      "question": "Does the date slicer correctly control which days contribute to the lead count?"
+    },
+    {
+      "id": "C-INQ-TABLE",
+      "expected": "Channel table Leads total matches engine [Leads] for July 1-13: 4,360.",
+      "observed": "Table total 4,360 at baseline and after restore; 2,252 for Jul 1-7 short range. All match the oracle.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/inquiries/state1_baseline/state.json",
+        "evidence/runs/inquiries/state2_referrals_click/state.json",
+        "evidence/runs/inquiries/state3_cleared/state.json",
+        "evidence/runs/inquiries/state4_short_range/state.json",
+        "evidence/runs/inquiries/state5_restored/state.json",
+        "evidence/runs/inquiries/dax/baseline_inq.json",
+        "evidence/runs/inquiries/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/inquiries/state1_baseline/check.json",
+        "evidence/runs/inquiries/state2_referrals_click/check.json",
+        "evidence/runs/inquiries/state3_cleared/check.json",
+        "evidence/runs/inquiries/state4_short_range/check.json",
+        "evidence/runs/inquiries/state5_restored/check.json"
+      ],
+      "question": "Does the table total match the expected lead count?"
+    },
+    {
+      "id": "C-INQ-CROSSFILTER",
+      "expected": "Clicking the Referrals bar on the channel chart cross-highlights or cross-filters other visuals.",
+      "observed": "Clicking Referrals changed the table total from 4,360 to 996 (= Referrals-only leads). This is cross-FILTER behavior, not cross-highlight: the table population changed to show only the selected channel's rows. After clicking again, the total returned to 4,360.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/inquiries/state1_baseline/state.json",
+        "evidence/runs/inquiries/state2_referrals_click/state.json",
+        "evidence/runs/inquiries/state3_cleared/state.json",
+        "evidence/runs/inquiries/state4_short_range/state.json",
+        "evidence/runs/inquiries/state5_restored/state.json",
+        "evidence/runs/inquiries/dax/baseline_inq.json",
+        "evidence/runs/inquiries/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/inquiries/state1_baseline/check.json",
+        "evidence/runs/inquiries/state2_referrals_click/check.json",
+        "evidence/runs/inquiries/state3_cleared/check.json",
+        "evidence/runs/inquiries/state4_short_range/check.json",
+        "evidence/runs/inquiries/state5_restored/check.json"
+      ],
+      "question": "Does clicking a channel bar filter the table to only that channel?"
+    },
+    {
+      "id": "C-INQ-MONTHLY-NOFILTER",
+      "expected": "The monthly combo chart (Reinquiries, Inquiries and Reuniquries % by Month) reacts to the date slicer.",
+      "observed": "The monthly combo showed months 2026-01 through 2026-08 identically for both the Jul 1-13 baseline and the Jul 1-7 short range. The page definition confirms a NoFilter interaction from the date slicer (1b965d3ef84d66e7da2b) to the monthly combo (a07546fd67a2c7b9b668). The monthly combo does NOT react to the date slicer.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "failed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/inquiries/state1_baseline/state.json",
+        "evidence/runs/inquiries/state2_referrals_click/state.json",
+        "evidence/runs/inquiries/state3_cleared/state.json",
+        "evidence/runs/inquiries/state4_short_range/state.json",
+        "evidence/runs/inquiries/state5_restored/state.json",
+        "evidence/runs/inquiries/dax/baseline_inq.json",
+        "evidence/runs/inquiries/dax/short_range.json"
+      ],
+      "state_checks": [
+        "evidence/runs/inquiries/state1_baseline/check.json",
+        "evidence/runs/inquiries/state2_referrals_click/check.json",
+        "evidence/runs/inquiries/state3_cleared/check.json",
+        "evidence/runs/inquiries/state4_short_range/check.json",
+        "evidence/runs/inquiries/state5_restored/check.json"
+      ],
+      "question": "Does the monthly combo chart change when the date range changes?"
+    },
+    {
+      "id": "C-VEL-CARDS",
+      "expected": "Starts card shows 48 (= Google Ads 31 + Meta 11 + Call Center 6) for July 1-13 with the saved 3-channel selection.",
+      "observed": "Starts=48, Median=12, P75=26 at baseline. After unchecking Google Ads: Starts=17, Median=9, P75=22. Restored: Starts=48. Extended to Jul 1-31: Starts=183. All match the oracle.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/velocity/state1_baseline/state.json",
+        "evidence/runs/velocity/state2_no_google/state.json",
+        "evidence/runs/velocity/state3_restored_channel/state.json",
+        "evidence/runs/velocity/state4_extended/state.json",
+        "evidence/runs/velocity/state5_restored/state.json",
+        "evidence/runs/velocity/dax/baseline_saved.json",
+        "evidence/runs/velocity/dax/extended.json",
+        "evidence/runs/velocity/dax/no_google.json"
+      ],
+      "state_checks": [
+        "evidence/runs/velocity/state1_baseline/check.json",
+        "evidence/runs/velocity/state2_no_google/check.json",
+        "evidence/runs/velocity/state3_restored_channel/check.json",
+        "evidence/runs/velocity/state4_extended/check.json",
+        "evidence/runs/velocity/state5_restored/check.json"
+      ],
+      "question": "Do the contract velocity cards match the engine values for the saved channel selection?"
+    },
+    {
+      "id": "C-VEL-SAVED-SELECTION",
+      "expected": "The Channel slicer has a persistent saved selection of Google Ads, Meta and Ask-Students Call Center.",
+      "observed": "Channel slicer shows 'Multiple selections'. Starts=48 matches CALCULATE([Starts], channel IN {Google Ads, Meta, Ask-Students Call Center}). Unchecking Google Ads gave 17 (Meta 11 + Call Center 6). Restoring Google Ads returned 48.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/velocity/state1_baseline/state.json",
+        "evidence/runs/velocity/state2_no_google/state.json",
+        "evidence/runs/velocity/state3_restored_channel/state.json",
+        "evidence/runs/velocity/state4_extended/state.json",
+        "evidence/runs/velocity/state5_restored/state.json",
+        "evidence/runs/velocity/dax/baseline_saved.json",
+        "evidence/runs/velocity/dax/extended.json",
+        "evidence/runs/velocity/dax/no_google.json"
+      ],
+      "state_checks": [
+        "evidence/runs/velocity/state1_baseline/check.json",
+        "evidence/runs/velocity/state2_no_google/check.json",
+        "evidence/runs/velocity/state3_restored_channel/check.json",
+        "evidence/runs/velocity/state4_extended/check.json",
+        "evidence/runs/velocity/state5_restored/check.json"
+      ],
+      "question": "Is the saved channel selection correctly identified as three specific channels?"
+    },
+    {
+      "id": "C-META-TABLE",
+      "expected": "Meta Direct Leads table total matches engine SUM(fact_meta_leads_daily[leads_onsite_grouped]) for each date range.",
+      "observed": "Jul 1-13 total 834 (BQ sum: 64+56+56+76+65+70+60+70+64+55+57+65+76 = 834). Single day Jul 7: 60 (BQ: 60). Aug 1-13: 713. Restored Jul 1-13: 834. All match.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/meta_daily/state1_baseline/state.json",
+        "evidence/runs/meta_daily/state2_single_day/state.json",
+        "evidence/runs/meta_daily/state3_august/state.json",
+        "evidence/runs/meta_daily/state4_restored/state.json",
+        "evidence/runs/meta_daily/dax/aug1_13.json",
+        "evidence/runs/meta_daily/dax/jul1_13.json",
+        "evidence/runs/meta_daily/dax/jul7.json"
+      ],
+      "state_checks": [
+        "evidence/runs/meta_daily/state1_baseline/check.json",
+        "evidence/runs/meta_daily/state2_single_day/check.json",
+        "evidence/runs/meta_daily/state3_august/check.json",
+        "evidence/runs/meta_daily/state4_restored/check.json"
+      ],
+      "question": "Does the platform leads total match the source data for the selected dates?"
+    },
+    {
+      "id": "C-META-RATIO",
+      "expected": "% Meta vs CL Leads = CRM Meta leads / Platform Meta leads. Values should be <= 1.0 unless CRM attributes more leads than the platform reports.",
+      "observed": "BQ q4_meta_ratio shows CRM exceeds platform on several days (Jun 11: 41 CRM vs 37 platform; Jun 15: 57 vs 47; Jun 26: 109 vs 23; Jul 7: 133 vs 60; Aug 10: 126 vs 69; Aug 11: 404 vs 105). The ratio regularly exceeds 1.0, especially around batch-import spikes. This is a known data quality pattern tracked in detectors.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/meta_daily/state1_baseline/state.json",
+        "evidence/runs/meta_daily/state2_single_day/state.json",
+        "evidence/runs/meta_daily/state3_august/state.json",
+        "evidence/runs/meta_daily/state4_restored/state.json",
+        "evidence/runs/meta_daily/dax/aug1_13.json",
+        "evidence/runs/meta_daily/dax/jul1_13.json",
+        "evidence/runs/meta_daily/dax/jul7.json"
+      ],
+      "state_checks": [],
+      "question": "Is it expected that CRM leads sometimes exceed platform-reported leads?"
+    },
+    {
+      "id": "C-PNL-LEADS",
+      "expected": "Leads card shows 1,993 for July 1-13 with the saved 6-channel selection (Ask-Students Call Center, Google Ads, Portal Life, Meta, National PPL - GE, National Web Organic).",
+      "observed": "Leads=1,993 at baseline (Jul 1-13). March 1-31: 2,503. Restored to July: 1,993. All match the oracle.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/pnl/state1_baseline/state.json",
+        "evidence/runs/pnl/state2_march/state.json",
+        "evidence/runs/pnl/state3_july_back/state.json",
+        "evidence/runs/pnl/state4_all_expenses/state.json",
+        "evidence/runs/pnl/state5_restored/state.json",
+        "evidence/runs/pnl/dax/jul1_13.json",
+        "evidence/runs/pnl/dax/mar1_31.json"
+      ],
+      "state_checks": [
+        "evidence/runs/pnl/state1_baseline/check.json",
+        "evidence/runs/pnl/state2_march/check.json",
+        "evidence/runs/pnl/state3_july_back/check.json",
+        "evidence/runs/pnl/state4_all_expenses/check.json",
+        "evidence/runs/pnl/state5_restored/check.json"
+      ],
+      "question": "Does the Leads card match the engine count for the saved channel selection?"
+    },
+    {
+      "id": "C-PNL-TOGGLE",
+      "expected": "Switching the tile slicer from 'Paid Ads Spend' to 'All Expenses' should increase the Spend card by adding Other Expenses.",
+      "observed": "Spend card text stayed at '$240K' after toggling to 'All Expenses'. Either Other Expenses for July 1-13 is zero (or negligible at this display precision), or the toggle did not affect the Spend measure. The card uses abbreviated display ($240K) which may hide small differences. The CAC, EBITDA and ROAS cards also remained unchanged. This needs analyst confirmation.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "inconclusive",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/pnl/state1_baseline/state.json",
+        "evidence/runs/pnl/state2_march/state.json",
+        "evidence/runs/pnl/state3_july_back/state.json",
+        "evidence/runs/pnl/state4_all_expenses/state.json",
+        "evidence/runs/pnl/state5_restored/state.json",
+        "evidence/runs/pnl/dax/jul1_13.json",
+        "evidence/runs/pnl/dax/mar1_31.json"
+      ],
+      "state_checks": [
+        "evidence/runs/pnl/state1_baseline/check.json",
+        "evidence/runs/pnl/state2_march/check.json",
+        "evidence/runs/pnl/state3_july_back/check.json",
+        "evidence/runs/pnl/state4_all_expenses/check.json",
+        "evidence/runs/pnl/state5_restored/check.json"
+      ],
+      "question": "Does the spend card change when switching between paid-ads and all-expenses?"
+    },
+    {
+      "id": "C-PNL-TABLE-ALL",
+      "expected": "The P&L table (Channel_Ctgy hierarchy) shows data for all channels regardless of the Channel slicer selection.",
+      "observed": "The table total was 4,360 leads while the Leads card showed 1,993. The table uses the Channel_Ctgy hierarchy with cross-filter from the Channel slicer (interaction type DataFilter from the pivot to the channel slicer, but NoFilter from the channel slicer back to the monthly chart). This means the table shows all channels, not just the 6 selected ones.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "inconclusive",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/pnl/state1_baseline/state.json",
+        "evidence/runs/pnl/state2_march/state.json",
+        "evidence/runs/pnl/state3_july_back/state.json",
+        "evidence/runs/pnl/state4_all_expenses/state.json",
+        "evidence/runs/pnl/state5_restored/state.json",
+        "evidence/runs/pnl/dax/jul1_13.json",
+        "evidence/runs/pnl/dax/mar1_31.json"
+      ],
+      "state_checks": [],
+      "question": "Is it expected that the table shows all channels while the cards show only the selected channels?"
+    },
+    {
+      "id": "C-DAILY-TABLE",
+      "expected": "Table total matches engine [Leads] with is_current_mtd=TRUE and 6-channel filter. At the import watermark of Sep 3, current MTD covers Sep 1-3.",
+      "observed": "Table total 196. The oracle CALCULATE([Leads], is_current_mtd=TRUE, channel IN 6 channels) returned 196. The daily table shows Sep 1 (64), Sep 2 (69), Sep 3 (63) for a total matching 196.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "passed",
+      "layer": "interaction",
+      "coverage": {
+        "required": [
+          "engine",
+          "render",
+          "interaction"
+        ],
+        "observed": [
+          "engine",
+          "render",
+          "interaction"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/daily_leads/state1_default/state.json",
+        "evidence/runs/daily_leads/state2_stable/state.json",
+        "evidence/runs/daily_leads/dax/current_mtd.json"
+      ],
+      "state_checks": [
+        "evidence/runs/daily_leads/state1_default/check.json",
+        "evidence/runs/daily_leads/state2_stable/check.json"
+      ],
+      "question": "Does the table total match the expected current month-to-date lead count?"
+    },
+    {
+      "id": "C-DAILY-NO-DATE-SLICER",
+      "expected": "The page should allow switching between monthly date ranges (Jul 1-31, Aug 1-31) as requested in the review scope.",
+      "observed": "The page has no date range slicer. The date context comes from a page-level filter on dim_date.is_current_mtd = TRUE, which depends on the import watermark. The day_num slicer has NoFilter interactions with the table and line chart. A baseline/change/reset cycle for different months is not achievable without editing the report, which is prohibited.",
+      "source": "Observed implementation, verified controls and current DAX; business approval pending.",
+      "status": "inconclusive",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/daily_leads/state1_default/state.json",
+        "evidence/runs/daily_leads/state2_stable/state.json",
+        "evidence/runs/daily_leads/dax/current_mtd.json"
+      ],
+      "state_checks": [],
+      "question": "Is the lack of a date-range slicer an intentional design choice for this page?"
+    },
+    {
+      "id": "LINT-volatile-time-in-column",
+      "expected": "Date flags derived from the clock reflect the imported data's completeness, not the machine date.",
+      "observed": "2 object(s). A calculated column is evaluated when the model is processed or recalculated, not when a visual queries it; a TODAY()/NOW() column freezes the clock at refresh time and can also be re-evaluated on open, so flags such as \"completed month\" drift away from the imported data. Hits: dim_date[is_completed_month_this_year]: dim_date[year] = YEAR ( TODAY () )\n    && dim_date[date_key] < DATE ( YEAR ( TODAY () ), MONTH ( TODAY () ), 1 ); dim_date[is_current_month]: AND (\n    YEAR ( dim_date[date_key] ) = YEAR ( TODAY () ),\n    MONTH ( dim_date[date_key] ) = MONTH ( TODAY () )\n)",
+      "source": "Model lint lint.volatile_time_in_column (severity high); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.volatile_time_in_column",
+      "severity": "high",
+      "hits": 2,
+      "objects": [
+        "dim_date[is_completed_month_this_year]",
+        "dim_date[is_current_month]"
+      ]
+    },
+    {
+      "id": "LINT-freshness-label-on-business-date",
+      "expected": "Freshness labels report model refresh, not the latest selected business date.",
+      "observed": "1 object(s). The measure is named as a refresh/freshness indicator but computes from business data (for example MAX of a business date); it changes with slicers and does not report when the model was refreshed. Hits: _Measures[Last Refresh]: MAX ( fact_contact[contact_created_date_key] )",
+      "source": "Model lint lint.freshness_label_on_business_date (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.freshness_label_on_business_date",
+      "severity": "medium",
+      "hits": 1,
+      "objects": [
+        "_Measures[Last Refresh]"
+      ]
+    },
+    {
+      "id": "LINT-format-hides-precision",
+      "expected": "Displayed precision does not hide changes the analyst cares about.",
+      "observed": "3 object(s). The format string rounds a statistic (median, percentile, average, ratio) to an integer; the displayed value differs from the engine value and can hide small changes. Hits: _Measures[Avg Days to Realize]: format \"0\" on AVERAGEX(...; _Measures[Median Days to Contract]: format \"0\" on MEDIAN (...; _Measures[P75 Days to Contract]: format \"0\" on PERCENTILE.INC (...",
+      "source": "Model lint lint.format_hides_precision (severity low); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.format_hides_precision",
+      "severity": "low",
+      "hits": 3,
+      "objects": [
+        "_Measures[Avg Days to Realize]",
+        "_Measures[Median Days to Contract]",
+        "_Measures[P75 Days to Contract]"
+      ]
+    },
+    {
+      "id": "LINT-volatile-time-in-measure",
+      "expected": "Clock-dependent measures are documented as such and behave correctly on a stale import.",
+      "observed": "20 object(s). The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window. Hits: _Measures[Leads In-Flight]: CALCULATE(\n        [Contacts],\n        USERELATIONSHIP(fact_contact[first_touch_channel_key], dim_channel[channel_key]),; _Measures[IsCurrentMonth]: IF(\n    YEAR( MAX('dim_date'[date_key]) ) = YEAR( TODAY() )\n        && MONTH( MAX(dim_date[date_key]) ) = MONTH( TODAY(); _Measures[Data Drop Monitor Full HTML]: VAR _SelDate = [Selected Date]\nVAR _DateLabel = FORMAT ( _SelDate, \"dddd, mmm dd, yyyy\", \"en-US\" )\nVAR _Leads = [Leads S; _Measures[Selected Date]: VAR Sel = SELECTEDVALUE ( dim_date[date_key] )\nRETURN\n    IF ( ISFILTERED ( dim_date[date_key] ) && NOT ISBLANK ( Sel ),; _Measures[Leads YTD]: CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_da; _Measures[Elapsed Weeks YTD]: CALCULATE(\n    DISTINCTCOUNT('dim_date'[iso_week]),\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR; _Measures[Leads MTD]: CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        '; _Measures[Leads Target Monthly]: VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_dat; _Measures[Starts YTD]: CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_d; _Measures[Starts MTD]: CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        ; _Measures[Starts Target Monthly]: VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_dat; _Measures[Elapsed Days MTD]: DAY(TODAY()) ... and 8 more (see the lint file)",
+      "source": "Model lint lint.volatile_time_in_measure (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "hits": 20,
+      "objects": [
+        "_Measures[Leads In-Flight]",
+        "_Measures[IsCurrentMonth]",
+        "_Measures[Data Drop Monitor Full HTML]",
+        "_Measures[Selected Date]",
+        "_Measures[Leads YTD]",
+        "_Measures[Elapsed Weeks YTD]",
+        "_Measures[Leads MTD]",
+        "_Measures[Leads Target Monthly]",
+        "_Measures[Starts YTD]",
+        "_Measures[Starts MTD]",
+        "_Measures[Starts Target Monthly]",
+        "_Measures[Elapsed Days MTD]",
+        "_Measures[Days In Month]",
+        "_Measures[Forecast Province HTML]",
+        "_Measures[Current ISO Week]",
+        "_Measures[Leads Projected YE (4W)]",
+        "_Measures[Starts Projected YE (4W)]",
+        "_Measures[Forecast Province HTML V2]",
+        "_Measures[Forecast Province HTML V3]",
+        "_Measures[Forecast Province HTML V4]"
+      ]
+    },
+    {
+      "id": "LINT-raw-division",
+      "expected": "Ratios return BLANK, not infinity or an error, on empty denominators.",
+      "observed": "1 object(s). Division with / returns infinity or an error when the denominator is zero or BLANK; DIVIDE() with an explicit alternate result makes empty slices explicit. Hits: _Measures[Conversion]: [Starts]/[Leads]",
+      "source": "Model lint lint.raw_division (severity low); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.raw_division",
+      "severity": "low",
+      "hits": 1,
+      "objects": [
+        "_Measures[Conversion]"
+      ]
+    },
+    {
+      "id": "LINT-date-context-removed",
+      "expected": "Removing the date context is intended and a partial-period selection does not add whole-period amounts.",
+      "observed": "25 object(s). The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range. Hits: _Measures[Other Expenses Total]: ALLSELECTED('dim_date'); _Measures[Snapshot HTML]: ALLSELECTED( dim_date ); _Measures[Snapshot HTML V2]: ALLSELECTED( dim_date ); _Measures[Data Drop Monitor Full HTML]: REMOVEFILTERS ( dim_date ); _Measures[Day Type Avg This Month]: REMOVEFILTERS ( dim_date ); _Measures[Channel Month Avg Daily Leads]: REMOVEFILTERS ( dim_date ); _Measures[Province Month Avg Daily Leads]: REMOVEFILTERS ( dim_date ); _Measures[Card Avg Monthly Leads HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Avg Weekday HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Province Breakdown HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Vs Day Average HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Channel Breakdown HTML]: REMOVEFILTERS ( dim_date ) ... and 13 more (see the lint file)",
+      "source": "Model lint lint.date_context_removed (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.date_context_removed",
+      "severity": "medium",
+      "hits": 25,
+      "objects": [
+        "_Measures[Other Expenses Total]",
+        "_Measures[Snapshot HTML]",
+        "_Measures[Snapshot HTML V2]",
+        "_Measures[Data Drop Monitor Full HTML]",
+        "_Measures[Day Type Avg This Month]",
+        "_Measures[Channel Month Avg Daily Leads]",
+        "_Measures[Province Month Avg Daily Leads]",
+        "_Measures[Card Avg Monthly Leads HTML]",
+        "_Measures[Card Avg Weekday HTML]",
+        "_Measures[Card Province Breakdown HTML]",
+        "_Measures[Card Vs Day Average HTML]",
+        "_Measures[Card Channel Breakdown HTML]",
+        "_Measures[Leads YTD]",
+        "_Measures[Elapsed Weeks YTD]",
+        "_Measures[Leads MTD]",
+        "_Measures[Leads Target Monthly]",
+        "_Measures[Starts YTD]",
+        "_Measures[Starts MTD]",
+        "_Measures[Starts Target Monthly]",
+        "_Measures[Forecast Province HTML]",
+        "_Measures[Leads Projected YE (4W)]",
+        "_Measures[Starts Projected YE (4W)]",
+        "_Measures[Forecast Province HTML V2]",
+        "_Measures[Forecast Province HTML V3]",
+        "_Measures[Forecast Province HTML V4]"
+      ]
+    },
+    {
+      "id": "LINT-multiple-relationship-paths",
+      "expected": "Each visual's attribution lens (first / last touch) matches its label.",
+      "observed": "6 object(s). Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit. Hits: fact_contact -> dim_date: [{\"from\": \"contact_created_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"first_enrollment_date_key\", \"to\": \"da; fact_contact -> dim_channel: [{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"cha; fact_contact -> dim_campaign: [{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"; fact_contract -> dim_channel: [{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"cha; fact_contract -> dim_campaign: [{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"; fact_inquiry_realization -> dim_date: [{\"from\": \"inquiry_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"contract_start_date_key\", \"to\": \"date_key\", \"",
+      "source": "Model lint lint.multiple_relationship_paths (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "hits": 6,
+      "objects": [
+        "fact_contact -> dim_date",
+        "fact_contact -> dim_channel",
+        "fact_contact -> dim_campaign",
+        "fact_contract -> dim_channel",
+        "fact_contract -> dim_campaign",
+        "fact_inquiry_realization -> dim_date"
+      ]
+    },
+    {
+      "id": "PRB-leads-weekday",
+      "expected": "Are daily lead counts within the weekday-adjusted band across the full history?",
+      "observed": "stat.weekday_robust_band: 2 day(s) outside the weekday band over 246 days: 2026-07-23 (Thursday) 692 vs weekday median 293, z 4.34; 2026-07-24 (Friday) 632 vs weekday median 262, z 5.43. Each needs a cause (holiday, campaign, import gap, duplicate load) before sign-off.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_leads/probes/leads-weekday.json"
+      ],
+      "detector": "stat.weekday_robust_band",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-leads-changepoints",
+      "expected": "Are there level shifts in daily lead volume across the full history?",
+      "observed": "stat.changepoints: No level shift beyond the noise threshold in the series.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_leads/probes/leads-changepoints.json"
+      ],
+      "detector": "stat.changepoints",
+      "severity": "review",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-leads-additivity",
+      "expected": "Do all channel lead counts sum to the total?",
+      "observed": "dax.additivity: Parts sum 69,289.00 vs total 69,289.00; remainder 0.00 over 25 members (tolerance 0.5).",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_leads/probes/leads-additivity.json"
+      ],
+      "detector": "dax.additivity",
+      "severity": "review",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-inq-fanout",
+      "expected": "Does the channel join produce duplicate inquiry rows?",
+      "observed": "dax.fan_out: 69,289 rows; 69,289 after the relationship path (multiplier 1.0). 69,289 distinct business keys, 0 duplicate row(s).",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_inquiries/probes/inq-fanout.json"
+      ],
+      "detector": "dax.fan_out",
+      "severity": "review",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-inq-duplicate-keys",
+      "expected": "Are inquiry IDs unique (no duplicate rows in the fact table)?",
+      "observed": "dax.assert: Observed 0 == expected 0: holds.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_inquiries/probes/inq-duplicate-keys.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "high",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-campaign-name-churn-inquiries",
+      "expected": "Does each campaign key have exactly one name in the inquiry fact?",
+      "observed": "dax.assert: Unknown column 'fact_program_inquiry'[campaign_name]; fact_program_inquiry has: inquiry_id, inquiry_type, program_profile_id, reinquiry_event_id, submit_date_key, submit_at, contact_id, email_lower, ... (closest: campaign_key)",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_inquiries/probes/campaign-name-churn-inquiries.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "low",
+      "probe_status": "inconclusive"
+    },
+    {
+      "id": "PRB-contract-missing-days",
+      "expected": "Is the share of contracts without days_to_contract below 15% per month?",
+      "observed": "dax.assert: Observed 0.01703940362087327 <= expected 0.15: holds.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_velocity/probes/contract-missing-days.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-contract-nonpositive-value",
+      "expected": "Are there contracts with non-positive contract value?",
+      "observed": "dax.assert: Observed 534 == expected 0: does not hold.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_velocity/probes/contract-nonpositive-value.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "failed"
+    },
+    {
+      "id": "PRB-meta-weekday",
+      "expected": "Are daily platform Meta leads within the weekday-adjusted band?",
+      "observed": "stat.weekday_robust_band: 1 day(s) outside the weekday band over 247 days: 2026-08-11 (Tuesday) 105 vs weekday median 44, z 3.92. Each needs a cause (holiday, campaign, import gap, duplicate load) before sign-off.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_meta/probes/meta-weekday.json"
+      ],
+      "detector": "stat.weekday_robust_band",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-meta-changepoints",
+      "expected": "Are there level shifts in platform Meta leads?",
+      "observed": "stat.changepoints: Level shift(s) at 2/22/2026 12:00:00 AM: median 1 -> 17 (3.05 sigma); 3/23/2026 12:00:00 AM: median 31 -> 48 (3.15 sigma); 3/8/2026 12:00:00 AM: median 1 -> 46 (8.58 sigma); 4/13/2026 12:00:00 AM: median 66 -> 46 (-3.82 sigma). Each needs a known business or tracking event.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_meta/probes/meta-changepoints.json"
+      ],
+      "detector": "stat.changepoints",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-meta-ratio-stability",
+      "expected": "Is the ratio of CRM Meta leads to platform leads always within bounds (upper bound 1.0)?",
+      "observed": "stat.ratio_stability: 193 days with enough volume (denominator >= 10); 53 low-volume days not judged. Above the hard bound on 3/2/2026 12:00:00 AM: 33/16 = 2.06; 4/20/2026 12:00:00 AM: 88/39 = 2.26; 4/26/2026 12:00:00 AM: 46/42 = 1.10; 4/30/2026 12:00:00 AM: 57/53 = 1.08; 5/4/2026 12:00:00 AM: 43/39 = 1.10; 5/17/2026 12:00:00 AM: 41/39 = 1.05; 5/19/2026 12:00:00 AM: 51/50 = 1.02; 5/24/2026 12:00:00 AM: 45/44 = 1.02 and 13 more. Outside the historical band on 2/23/2026 12:00:00 AM: 0.45; 3/1/2026 12:00:00 AM: 0.35; 3/4/2026 12:00:00 AM: 0.33; 6/24/2026 12:00:00 AM: 0.33; 6/25/2026 12:00:00 AM: 0.02.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_meta/probes/meta-ratio-stability.json"
+      ],
+      "detector": "stat.ratio_stability",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-spend-changepoints",
+      "expected": "Are there level shifts in daily allocated spend?",
+      "observed": "stat.changepoints: Level shift(s) at 2/24/2026 12:00:00 AM: median 2,965 -> 14,590 (9.36 sigma); 5/11/2026 12:00:00 AM: median 12,799 -> 17,280 (3.61 sigma); 8/19/2026 12:00:00 AM: median 15,422 -> 4,847 (-8.52 sigma); 8/29/2026 12:00:00 AM: median 4,410 -> 7,424 (2.43 sigma). Each needs a known business or tracking event.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_pnl/probes/spend-changepoints.json"
+      ],
+      "detector": "stat.changepoints",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-campaign-window-spend",
+      "expected": "Are there spend rows outside the campaign's active window?",
+      "observed": "dax.assert: Observed 1674 == expected 0: does not hold.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_pnl/probes/campaign-window-spend.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "failed"
+    },
+    {
+      "id": "PRB-channel-mix-stability",
+      "expected": "Is the channel mix stable between June-July and August?",
+      "observed": "stat.population_stability: 'label_column'",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_pnl/probes/channel-mix-stability.json"
+      ],
+      "detector": "stat.population_stability",
+      "severity": "review",
+      "probe_status": "inconclusive"
+    },
+    {
+      "id": "PRB-event-day-utc",
+      "expected": "Does the submit_date_key equal the UTC date of the submit_at timestamp (offset 0)?",
+      "observed": "dax.assert: Observed 0 == expected 0: holds.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_daily/probes/event-day-utc.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "passed"
+    },
+    {
+      "id": "PRB-event-day-toronto",
+      "expected": "Does the submit_date_key equal the Toronto date (UTC-4) of the submit_at timestamp?",
+      "observed": "dax.assert: Observed 5942 == expected 0: does not hold.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_daily/probes/event-day-toronto.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "failed"
+    },
+    {
+      "id": "PRB-dax-assert-completed-months",
+      "expected": "Does every month flagged is_completed_month_this_year and every day flagged is_current_month have inquiry data?",
+      "observed": "dax.assert: Observed 0 == expected 0: holds.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "passed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/probes_daily/probes/dax-assert-completed-months.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "high",
+      "probe_status": "passed"
+    }
+  ],
+  "facts": [
+    {
+      "id": "leads-state1_baseline-table_leads",
+      "label": "state1_baseline: leads total",
+      "evidence": "evidence/runs/leads/state1_baseline/state.json",
+      "pointer": "/tables/leads",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "leads-state2_no_google-table_leads",
+      "label": "state2_no_google: leads total",
+      "evidence": "evidence/runs/leads/state2_no_google/state.json",
+      "pointer": "/tables/leads",
+      "value": 3453,
+      "unit": ""
+    },
+    {
+      "id": "leads-state3_google_restored-table_leads",
+      "label": "state3_google_restored: leads total",
+      "evidence": "evidence/runs/leads/state3_google_restored/state.json",
+      "pointer": "/tables/leads",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "leads-state4_short_range-table_leads",
+      "label": "state4_short_range: leads total",
+      "evidence": "evidence/runs/leads/state4_short_range/state.json",
+      "pointer": "/tables/leads",
+      "value": 2252,
+      "unit": ""
+    },
+    {
+      "id": "leads-state5_restored-table_leads",
+      "label": "state5_restored: leads total",
+      "evidence": "evidence/runs/leads/state5_restored/state.json",
+      "pointer": "/tables/leads",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "inquiries-state1_baseline-table_inquiries",
+      "label": "state1_baseline: inquiries total",
+      "evidence": "evidence/runs/inquiries/state1_baseline/state.json",
+      "pointer": "/tables/inquiries",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "inquiries-state2_referrals_click-table_inquiries",
+      "label": "state2_referrals_click: inquiries total",
+      "evidence": "evidence/runs/inquiries/state2_referrals_click/state.json",
+      "pointer": "/tables/inquiries",
+      "value": 996,
+      "unit": ""
+    },
+    {
+      "id": "inquiries-state3_cleared-table_inquiries",
+      "label": "state3_cleared: inquiries total",
+      "evidence": "evidence/runs/inquiries/state3_cleared/state.json",
+      "pointer": "/tables/inquiries",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "inquiries-state4_short_range-table_inquiries",
+      "label": "state4_short_range: inquiries total",
+      "evidence": "evidence/runs/inquiries/state4_short_range/state.json",
+      "pointer": "/tables/inquiries",
+      "value": 2252,
+      "unit": ""
+    },
+    {
+      "id": "inquiries-state5_restored-table_inquiries",
+      "label": "state5_restored: inquiries total",
+      "evidence": "evidence/runs/inquiries/state5_restored/state.json",
+      "pointer": "/tables/inquiries",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state1_baseline-Starts",
+      "label": "state1_baseline: Starts",
+      "evidence": "evidence/runs/velocity/state1_baseline/state.json",
+      "pointer": "/cards/Starts",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state1_baseline-Median_Days_to_Contract",
+      "label": "state1_baseline: Median Days to Contract",
+      "evidence": "evidence/runs/velocity/state1_baseline/state.json",
+      "pointer": "/cards/Median Days to Contract",
+      "value": 12,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state1_baseline-P75_Days_to_Contract",
+      "label": "state1_baseline: P75 Days to Contract",
+      "evidence": "evidence/runs/velocity/state1_baseline/state.json",
+      "pointer": "/cards/P75 Days to Contract",
+      "value": 26,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state1_baseline-table_velocity",
+      "label": "state1_baseline: velocity total",
+      "evidence": "evidence/runs/velocity/state1_baseline/state.json",
+      "pointer": "/tables/velocity",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state2_no_google-Starts",
+      "label": "state2_no_google: Starts",
+      "evidence": "evidence/runs/velocity/state2_no_google/state.json",
+      "pointer": "/cards/Starts",
+      "value": 17,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state2_no_google-Median_Days_to_Contract",
+      "label": "state2_no_google: Median Days to Contract",
+      "evidence": "evidence/runs/velocity/state2_no_google/state.json",
+      "pointer": "/cards/Median Days to Contract",
+      "value": 9,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state2_no_google-P75_Days_to_Contract",
+      "label": "state2_no_google: P75 Days to Contract",
+      "evidence": "evidence/runs/velocity/state2_no_google/state.json",
+      "pointer": "/cards/P75 Days to Contract",
+      "value": 22,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state2_no_google-table_velocity",
+      "label": "state2_no_google: velocity total",
+      "evidence": "evidence/runs/velocity/state2_no_google/state.json",
+      "pointer": "/tables/velocity",
+      "value": 17,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state3_restored_channel-Starts",
+      "label": "state3_restored_channel: Starts",
+      "evidence": "evidence/runs/velocity/state3_restored_channel/state.json",
+      "pointer": "/cards/Starts",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state3_restored_channel-Median_Days_to_Contract",
+      "label": "state3_restored_channel: Median Days to Contract",
+      "evidence": "evidence/runs/velocity/state3_restored_channel/state.json",
+      "pointer": "/cards/Median Days to Contract",
+      "value": 12,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state3_restored_channel-P75_Days_to_Contract",
+      "label": "state3_restored_channel: P75 Days to Contract",
+      "evidence": "evidence/runs/velocity/state3_restored_channel/state.json",
+      "pointer": "/cards/P75 Days to Contract",
+      "value": 26,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state3_restored_channel-table_velocity",
+      "label": "state3_restored_channel: velocity total",
+      "evidence": "evidence/runs/velocity/state3_restored_channel/state.json",
+      "pointer": "/tables/velocity",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state4_extended-Starts",
+      "label": "state4_extended: Starts",
+      "evidence": "evidence/runs/velocity/state4_extended/state.json",
+      "pointer": "/cards/Starts",
+      "value": 183,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state4_extended-Median_Days_to_Contract",
+      "label": "state4_extended: Median Days to Contract",
+      "evidence": "evidence/runs/velocity/state4_extended/state.json",
+      "pointer": "/cards/Median Days to Contract",
+      "value": 12,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state4_extended-P75_Days_to_Contract",
+      "label": "state4_extended: P75 Days to Contract",
+      "evidence": "evidence/runs/velocity/state4_extended/state.json",
+      "pointer": "/cards/P75 Days to Contract",
+      "value": 37,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state4_extended-table_velocity",
+      "label": "state4_extended: velocity total",
+      "evidence": "evidence/runs/velocity/state4_extended/state.json",
+      "pointer": "/tables/velocity",
+      "value": 183,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state5_restored-Starts",
+      "label": "state5_restored: Starts",
+      "evidence": "evidence/runs/velocity/state5_restored/state.json",
+      "pointer": "/cards/Starts",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state5_restored-Median_Days_to_Contract",
+      "label": "state5_restored: Median Days to Contract",
+      "evidence": "evidence/runs/velocity/state5_restored/state.json",
+      "pointer": "/cards/Median Days to Contract",
+      "value": 12,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state5_restored-P75_Days_to_Contract",
+      "label": "state5_restored: P75 Days to Contract",
+      "evidence": "evidence/runs/velocity/state5_restored/state.json",
+      "pointer": "/cards/P75 Days to Contract",
+      "value": 26,
+      "unit": ""
+    },
+    {
+      "id": "velocity-state5_restored-table_velocity",
+      "label": "state5_restored: velocity total",
+      "evidence": "evidence/runs/velocity/state5_restored/state.json",
+      "pointer": "/tables/velocity",
+      "value": 48,
+      "unit": ""
+    },
+    {
+      "id": "meta_daily-state1_baseline-table_meta",
+      "label": "state1_baseline: meta total",
+      "evidence": "evidence/runs/meta_daily/state1_baseline/state.json",
+      "pointer": "/tables/meta",
+      "value": 834,
+      "unit": ""
+    },
+    {
+      "id": "meta_daily-state2_single_day-table_meta",
+      "label": "state2_single_day: meta total",
+      "evidence": "evidence/runs/meta_daily/state2_single_day/state.json",
+      "pointer": "/tables/meta",
+      "value": 60,
+      "unit": ""
+    },
+    {
+      "id": "meta_daily-state3_august-table_meta",
+      "label": "state3_august: meta total",
+      "evidence": "evidence/runs/meta_daily/state3_august/state.json",
+      "pointer": "/tables/meta",
+      "value": 713,
+      "unit": ""
+    },
+    {
+      "id": "meta_daily-state4_restored-table_meta",
+      "label": "state4_restored: meta total",
+      "evidence": "evidence/runs/meta_daily/state4_restored/state.json",
+      "pointer": "/tables/meta",
+      "value": 834,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Spend",
+      "label": "state1_baseline: Spend",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Leads",
+      "label": "state1_baseline: Leads",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Leads",
+      "value": 1993,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Starts",
+      "label": "state1_baseline: Starts",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Starts",
+      "value": 68,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Conversion",
+      "label": "state1_baseline: Conversion",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Conversion",
+      "value": 3.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Contract_Value",
+      "label": "state1_baseline: Contract Value",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Contract Value",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-CAC",
+      "label": "state1_baseline: CAC",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/CAC",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-Est_EBITDA",
+      "label": "state1_baseline: Est. EBITDA",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/Est. EBITDA",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-ROAS",
+      "label": "state1_baseline: ROAS",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/cards/ROAS",
+      "value": 258.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state1_baseline-table_pnl",
+      "label": "state1_baseline: pnl total",
+      "evidence": "evidence/runs/pnl/state1_baseline/state.json",
+      "pointer": "/tables/pnl",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Spend",
+      "label": "state2_march: Spend",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Leads",
+      "label": "state2_march: Leads",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Leads",
+      "value": 2503,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Starts",
+      "label": "state2_march: Starts",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Starts",
+      "value": 119,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Conversion",
+      "label": "state2_march: Conversion",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Conversion",
+      "value": 4.8,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Contract_Value",
+      "label": "state2_march: Contract Value",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Contract Value",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-CAC",
+      "label": "state2_march: CAC",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/CAC",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-Est_EBITDA",
+      "label": "state2_march: Est. EBITDA",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/Est. EBITDA",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-ROAS",
+      "label": "state2_march: ROAS",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/cards/ROAS",
+      "value": 152.5,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state2_march-table_pnl",
+      "label": "state2_march: pnl total",
+      "evidence": "evidence/runs/pnl/state2_march/state.json",
+      "pointer": "/tables/pnl",
+      "value": 9645,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Spend",
+      "label": "state3_july_back: Spend",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Leads",
+      "label": "state3_july_back: Leads",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Leads",
+      "value": 1993,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Starts",
+      "label": "state3_july_back: Starts",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Starts",
+      "value": 68,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Conversion",
+      "label": "state3_july_back: Conversion",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Conversion",
+      "value": 3.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Contract_Value",
+      "label": "state3_july_back: Contract Value",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Contract Value",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-CAC",
+      "label": "state3_july_back: CAC",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/CAC",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-Est_EBITDA",
+      "label": "state3_july_back: Est. EBITDA",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/Est. EBITDA",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-ROAS",
+      "label": "state3_july_back: ROAS",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/cards/ROAS",
+      "value": 258.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state3_july_back-table_pnl",
+      "label": "state3_july_back: pnl total",
+      "evidence": "evidence/runs/pnl/state3_july_back/state.json",
+      "pointer": "/tables/pnl",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Spend",
+      "label": "state4_all_expenses: Spend",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Leads",
+      "label": "state4_all_expenses: Leads",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Leads",
+      "value": 1993,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Starts",
+      "label": "state4_all_expenses: Starts",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Starts",
+      "value": 68,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Conversion",
+      "label": "state4_all_expenses: Conversion",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Conversion",
+      "value": 3.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Contract_Value",
+      "label": "state4_all_expenses: Contract Value",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Contract Value",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-CAC",
+      "label": "state4_all_expenses: CAC",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/CAC",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-Est_EBITDA",
+      "label": "state4_all_expenses: Est. EBITDA",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/Est. EBITDA",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-ROAS",
+      "label": "state4_all_expenses: ROAS",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/cards/ROAS",
+      "value": 258.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state4_all_expenses-table_pnl",
+      "label": "state4_all_expenses: pnl total",
+      "evidence": "evidence/runs/pnl/state4_all_expenses/state.json",
+      "pointer": "/tables/pnl",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Spend",
+      "label": "state5_restored: Spend",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Leads",
+      "label": "state5_restored: Leads",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Leads",
+      "value": 1993,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Starts",
+      "label": "state5_restored: Starts",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Starts",
+      "value": 68,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Conversion",
+      "label": "state5_restored: Conversion",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Conversion",
+      "value": 3.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Contract_Value",
+      "label": "state5_restored: Contract Value",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Contract Value",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-CAC",
+      "label": "state5_restored: CAC",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/CAC",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-Est_EBITDA",
+      "label": "state5_restored: Est. EBITDA",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/Est. EBITDA",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-ROAS",
+      "label": "state5_restored: ROAS",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/cards/ROAS",
+      "value": 258.4,
+      "unit": ""
+    },
+    {
+      "id": "pnl-state5_restored-table_pnl",
+      "label": "state5_restored: pnl total",
+      "evidence": "evidence/runs/pnl/state5_restored/state.json",
+      "pointer": "/tables/pnl",
+      "value": 4360,
+      "unit": ""
+    },
+    {
+      "id": "daily_leads-state1_default-table_daily",
+      "label": "state1_default: daily total",
+      "evidence": "evidence/runs/daily_leads/state1_default/state.json",
+      "pointer": "/tables/daily",
+      "value": 196,
+      "unit": ""
+    },
+    {
+      "id": "daily_leads-state2_stable-table_daily",
+      "label": "state2_stable: daily total",
+      "evidence": "evidence/runs/daily_leads/state2_stable/state.json",
+      "pointer": "/tables/daily",
+      "value": 196,
+      "unit": ""
+    },
+    {
+      "id": "LINT-count-lint",
+      "label": "Model lint findings",
+      "evidence": "evidence/detectors/lint/lint.json",
+      "pointer": "/summary",
+      "value": {
+        "lint.volatile_time_in_column": 2,
+        "lint.freshness_label_on_business_date": 1,
+        "lint.format_hides_precision": 3,
+        "lint.volatile_time_in_measure": 20,
+        "lint.raw_division": 1,
+        "lint.date_context_removed": 25,
+        "lint.multiple_relationship_paths": 6
+      },
+      "unit": ""
+    },
+    {
+      "id": "PRB-leads-weekday-status",
+      "label": "leads-weekday outcome",
+      "evidence": "evidence/detectors/probes_leads/probes/leads-weekday.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-contract-nonpositive-value-status",
+      "label": "contract-nonpositive-value outcome",
+      "evidence": "evidence/detectors/probes_velocity/probes/contract-nonpositive-value.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-meta-weekday-status",
+      "label": "meta-weekday outcome",
+      "evidence": "evidence/detectors/probes_meta/probes/meta-weekday.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-meta-changepoints-status",
+      "label": "meta-changepoints outcome",
+      "evidence": "evidence/detectors/probes_meta/probes/meta-changepoints.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-meta-ratio-stability-status",
+      "label": "meta-ratio-stability outcome",
+      "evidence": "evidence/detectors/probes_meta/probes/meta-ratio-stability.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-spend-changepoints-status",
+      "label": "spend-changepoints outcome",
+      "evidence": "evidence/detectors/probes_pnl/probes/spend-changepoints.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-campaign-window-spend-status",
+      "label": "campaign-window-spend outcome",
+      "evidence": "evidence/detectors/probes_pnl/probes/campaign-window-spend.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-event-day-toronto-status",
+      "label": "event-day-toronto outcome",
+      "evidence": "evidence/detectors/probes_daily/probes/event-day-toronto.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "id": "FD-PRB-contract-nonpositive-value",
+      "title": "Are there contracts with non-positive contract value?",
+      "severity": "medium",
+      "claim_ids": [
+        "PRB-contract-nonpositive-value"
+      ],
+      "explanation": "Probe dax.assert failed: Observed 534 == expected 0: does not hold.",
+      "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
+      "evidence": [
+        "evidence/detectors/probes_velocity/probes/contract-nonpositive-value.json"
+      ]
+    },
+    {
+      "id": "FD-PRB-campaign-window-spend",
+      "title": "Are there spend rows outside the campaign's active window?",
+      "severity": "medium",
+      "claim_ids": [
+        "PRB-campaign-window-spend"
+      ],
+      "explanation": "Probe dax.assert failed: Observed 1674 == expected 0: does not hold.",
+      "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
+      "evidence": [
+        "evidence/detectors/probes_pnl/probes/campaign-window-spend.json"
+      ]
+    },
+    {
+      "id": "FD-PRB-event-day-toronto",
+      "title": "Does the submit_date_key equal the Toronto date (UTC-4) of the submit_at timestamp?",
+      "severity": "medium",
+      "claim_ids": [
+        "PRB-event-day-toronto"
+      ],
+      "explanation": "Probe dax.assert failed: Observed 5942 == expected 0: does not hold.",
+      "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
+      "evidence": [
+        "evidence/detectors/probes_daily/probes/event-day-toronto.json"
+      ]
+    },
+    {
+      "id": "FD-MONTHLY-NOFILTER",
+      "title": "Monthly combo chart ignores the date slicer",
+      "explanation": "The page definition declares a NoFilter interaction from the date slicer (1b965d3ef84d66e7da2b) to the monthly combo (a07546fd67a2c7b9b668). Visual text confirmed identical months for Jul 1-13 and Jul 1-7 ranges. Users selecting a date range may expect the monthly chart to update.",
+      "severity": "medium",
+      "claim_ids": [
+        "C-INQ-MONTHLY-NOFILTER"
+      ],
+      "impact": "The monthly combo always shows all-time data regardless of the date slicer, which may mislead users who expect it to respect their date selection.",
+      "evidence": [
+        "evidence/runs/inquiries/state1_baseline/state.json",
+        "evidence/runs/inquiries/state4_short_range/state.json"
+      ]
+    },
+    {
+      "id": "FD-TIMEZONE-UTC",
+      "title": "Inquiry date keys are UTC-based, not Toronto time",
+      "explanation": "BQ q7_tz shows 0 UTC mismatches but 6,074 Toronto mismatches (8.8% of 69,289 rows). submit_date_key = DATE(submit_at) in UTC, not DATE(submit_at, America/Toronto). The DAX probe event-day-utc passed (0 mismatches) while event-day-toronto failed. Context.md states reporting timezone is America/Toronto.",
+      "severity": "high",
+      "claim_ids": [
+        "PRB-event-day-utc",
+        "PRB-event-day-toronto"
+      ],
+      "impact": "Late-night inquiries in Eastern time are attributed to the wrong calendar day. Daily counts near midnight differ from what a Toronto-based analyst expects. This affects all daily charts and the is_current_mtd page filter.",
+      "evidence": [
+        "evidence/source/discovery/bq/q7_tz.json",
+        "evidence/detectors/probes_daily/probes/event-day-utc.json",
+        "evidence/detectors/probes_daily/probes/event-day-toronto.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "No approved business definitions; all definitions derived from DAX implementation.",
+    "Card values showing abbreviated amounts ($240K, $840K) could not be parsed as numbers; the P&L toggle test observed text only.",
+    "The Daily Leads page has no date range slicer; the requested Jul 1-31 / Aug 1-31 cycle was not achievable through the UI.",
+    "Contract Velocity and P&L pages have saved channel slicer selections that limit the visible population; these were identified by matching oracle values but not independently confirmed through the slicer dropdown.",
+    "Report not refreshed or edited; all observations reflect the imported snapshot as of the watermark dates.",
+    "RLS/OLS not tested; the model has 0 roles. Desktop admin access does not establish user-level visibility.",
+    "Lint findings are inconclusive review leads, not verdicts; each needs analyst context.",
+    "Statistical probes that returned review flags need business explanation before sign-off.",
+    "BigQuery discovery queries ran at query time, not at import time; row counts may differ from the imported model if the warehouse was updated since the last import."
+  ],
+  "review": [],
+  "components": [
+    {
+      "id": "leads",
+      "name": "Leads",
+      "page": "Leads",
+      "definition": "Leads = COUNTROWS(fact_program_inquiry), grouped by dim_channel.channel_name and dim_date.date_key. Table shows Leads, Aggregated Spend, Impressions, Clicks, Paid Cost per Lead per channel.",
+      "claim_ids": [
+        "C-LEADS-TABLE",
+        "C-LEADS-EXCLUDE",
+        "C-LEADS-DATERANGE",
+        "PRB-leads-weekday",
+        "PRB-leads-changepoints",
+        "PRB-leads-additivity"
+      ],
+      "scenarios": [
+        {
+          "id": "leads-state1_baseline",
+          "description": "Baseline: Leads page, July 1-13 2026, all filters default. Observed: leads total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/leads/state1_baseline/screen.png",
+            "evidence/runs/leads/state1_baseline/state.json",
+            "evidence/runs/leads/state1_baseline/check.json"
+          ]
+        },
+        {
+          "id": "leads-state2_no_google",
+          "description": "Exclude Google Ads from channel slicer. Observed: leads total 3,453; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/leads/state2_no_google/screen.png",
+            "evidence/runs/leads/state2_no_google/state.json",
+            "evidence/runs/leads/state2_no_google/check.json"
+          ]
+        },
+        {
+          "id": "leads-state3_google_restored",
+          "description": "Google Ads restored. Observed: leads total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/leads/state3_google_restored/screen.png",
+            "evidence/runs/leads/state3_google_restored/state.json",
+            "evidence/runs/leads/state3_google_restored/check.json"
+          ]
+        },
+        {
+          "id": "leads-state4_short_range",
+          "description": "End date moved to July 7. Observed: leads total 2,252; 7/1/2026 to 7/7/2026.",
+          "evidence": [
+            "evidence/runs/leads/state4_short_range/screen.png",
+            "evidence/runs/leads/state4_short_range/state.json",
+            "evidence/runs/leads/state4_short_range/check.json"
+          ]
+        },
+        {
+          "id": "leads-state5_restored",
+          "description": "Date range restored to July 1-13. Observed: leads total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/leads/state5_restored/screen.png",
+            "evidence/runs/leads/state5_restored/state.json",
+            "evidence/runs/leads/state5_restored/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/leads/journal.json",
+      "what_it_shows": "Daily lead counts by channel for the selected date range, with a total in a channel table and two line charts (overall and per-channel)."
+    },
+    {
+      "id": "inquiries",
+      "name": "Inquiries and Reinquiries",
+      "page": "Inquiries and Reinquiries",
+      "definition": "Leads = COUNTROWS(fact_program_inquiry); New Inquiries = filtered inquiry_type='inquiry'; Reinquiries = filtered inquiry_type='reinquiry'; Reuniquries % = Reinquiries / Leads. Channel bars, franchise bars, monthly combo chart, and a channel table.",
+      "claim_ids": [
+        "C-INQ-TABLE",
+        "C-INQ-CROSSFILTER",
+        "C-INQ-MONTHLY-NOFILTER",
+        "PRB-inq-fanout",
+        "PRB-inq-duplicate-keys",
+        "PRB-campaign-name-churn-inquiries"
+      ],
+      "scenarios": [
+        {
+          "id": "inquiries-state1_baseline",
+          "description": "Baseline: Inquiries page, July 1-13 2026, all filters default. Observed: inquiries total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/inquiries/state1_baseline/screen.png",
+            "evidence/runs/inquiries/state1_baseline/state.json",
+            "evidence/runs/inquiries/state1_baseline/check.json"
+          ]
+        },
+        {
+          "id": "inquiries-state2_referrals_click",
+          "description": "Clicked Referrals bar on channel chart. Observe cross-highlight vs cross-filter on table, franchise bars, and monthly combo. Observed: inquiries total 996; 7/1/2026 to 7/13/2026; 3 selected marks.",
+          "evidence": [
+            "evidence/runs/inquiries/state2_referrals_click/screen.png",
+            "evidence/runs/inquiries/state2_referrals_click/state.json",
+            "evidence/runs/inquiries/state2_referrals_click/check.json"
+          ]
+        },
+        {
+          "id": "inquiries-state3_cleared",
+          "description": "Clicked Referrals bar again to clear selection. Observed: inquiries total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/inquiries/state3_cleared/screen.png",
+            "evidence/runs/inquiries/state3_cleared/state.json",
+            "evidence/runs/inquiries/state3_cleared/check.json"
+          ]
+        },
+        {
+          "id": "inquiries-state4_short_range",
+          "description": "End date moved to July 7. Observed: inquiries total 2,252; 7/1/2026 to 7/7/2026.",
+          "evidence": [
+            "evidence/runs/inquiries/state4_short_range/screen.png",
+            "evidence/runs/inquiries/state4_short_range/state.json",
+            "evidence/runs/inquiries/state4_short_range/check.json"
+          ]
+        },
+        {
+          "id": "inquiries-state5_restored",
+          "description": "Date range restored to July 1-13. Check whether the monthly combo reacted to the date slicer. Observed: inquiries total 4,360; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/inquiries/state5_restored/screen.png",
+            "evidence/runs/inquiries/state5_restored/state.json",
+            "evidence/runs/inquiries/state5_restored/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/inquiries/journal.json",
+      "what_it_shows": "Inquiries split into new inquiries and reinquiries by channel, franchise, and month. A bar chart click cross-filters other visuals."
+    },
+    {
+      "id": "velocity",
+      "name": "Contract Velocity",
+      "page": "Contract Velocity",
+      "definition": "Starts = COUNTROWS(fact_contract); Median Days to Contract = MEDIAN(fact_contract[days_to_contract]); P75 = PERCENTILE.INC(fact_contract[days_to_contract], 0.75). The channel slicer has a saved selection of Google Ads, Meta, Ask-Students Call Center.",
+      "claim_ids": [
+        "C-VEL-CARDS",
+        "C-VEL-SAVED-SELECTION",
+        "PRB-contract-missing-days",
+        "PRB-contract-nonpositive-value"
+      ],
+      "scenarios": [
+        {
+          "id": "velocity-state1_baseline",
+          "description": "Baseline: Contract Velocity, July 1-13 2026. The Channel slicer has a saved selection of Google Ads, Meta, Ask-Students Call Center. Observed: Starts 48; Median Days to Contract 12; P75 Days to Contract 26; velocity total 48; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/velocity/state1_baseline/screen.png",
+            "evidence/runs/velocity/state1_baseline/state.json",
+            "evidence/runs/velocity/state1_baseline/check.json"
+          ]
+        },
+        {
+          "id": "velocity-state2_no_google",
+          "description": "Unchecked Google Ads from channel slicer. Observed: Starts 17; Median Days to Contract 9; P75 Days to Contract 22; velocity total 17; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/velocity/state2_no_google/screen.png",
+            "evidence/runs/velocity/state2_no_google/state.json",
+            "evidence/runs/velocity/state2_no_google/check.json"
+          ]
+        },
+        {
+          "id": "velocity-state3_restored_channel",
+          "description": "Restored Google Ads in channel slicer. Observed: Starts 48; Median Days to Contract 12; P75 Days to Contract 26; velocity total 48; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/velocity/state3_restored_channel/screen.png",
+            "evidence/runs/velocity/state3_restored_channel/state.json",
+            "evidence/runs/velocity/state3_restored_channel/check.json"
+          ]
+        },
+        {
+          "id": "velocity-state4_extended",
+          "description": "Date range extended to July 1-31. Observed: Starts 183; Median Days to Contract 12; P75 Days to Contract 37; velocity total 183; 7/1/2026 to 7/31/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/velocity/state4_extended/screen.png",
+            "evidence/runs/velocity/state4_extended/state.json",
+            "evidence/runs/velocity/state4_extended/check.json"
+          ]
+        },
+        {
+          "id": "velocity-state5_restored",
+          "description": "Date range restored to July 1-13. Observed: Starts 48; Median Days to Contract 12; P75 Days to Contract 26; velocity total 48; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/velocity/state5_restored/screen.png",
+            "evidence/runs/velocity/state5_restored/state.json",
+            "evidence/runs/velocity/state5_restored/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/velocity/journal.json",
+      "what_it_shows": "Contract starts, median and P75 days-to-contract for the selected channels and date range, with a channel breakdown table."
+    },
+    {
+      "id": "meta_daily",
+      "name": "Meta Daily",
+      "page": "Meta Daily",
+      "definition": "Meta Direct Leads = SUM(fact_meta_leads_daily[leads_onsite_grouped]) (platform export); Meta CL Leads = CALCULATE([Leads], channel_key='meta') (CRM inquiries attributed to Meta); % Meta vs CL Leads = Meta CL Leads / Meta Direct Leads. Platform line chart shows both series by date; ratio chart shows the percentage.",
+      "claim_ids": [
+        "C-META-TABLE",
+        "C-META-RATIO",
+        "PRB-meta-weekday",
+        "PRB-meta-changepoints",
+        "PRB-meta-ratio-stability"
+      ],
+      "scenarios": [
+        {
+          "id": "meta_daily-state1_baseline",
+          "description": "Baseline: Meta Daily page, July 1-13 2026. Observed: meta total 834; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/meta_daily/state1_baseline/screen.png",
+            "evidence/runs/meta_daily/state1_baseline/state.json",
+            "evidence/runs/meta_daily/state1_baseline/check.json"
+          ]
+        },
+        {
+          "id": "meta_daily-state2_single_day",
+          "description": "Single day July 7. Observed: meta total 60; 7/7/2026 to 7/7/2026.",
+          "evidence": [
+            "evidence/runs/meta_daily/state2_single_day/screen.png",
+            "evidence/runs/meta_daily/state2_single_day/state.json",
+            "evidence/runs/meta_daily/state2_single_day/check.json"
+          ]
+        },
+        {
+          "id": "meta_daily-state3_august",
+          "description": "August 1-13 2026. Observed: meta total 713; 8/1/2026 to 8/13/2026.",
+          "evidence": [
+            "evidence/runs/meta_daily/state3_august/screen.png",
+            "evidence/runs/meta_daily/state3_august/state.json",
+            "evidence/runs/meta_daily/state3_august/check.json"
+          ]
+        },
+        {
+          "id": "meta_daily-state4_restored",
+          "description": "Restored to July 1-13. Observed: meta total 834; 7/1/2026 to 7/13/2026.",
+          "evidence": [
+            "evidence/runs/meta_daily/state4_restored/screen.png",
+            "evidence/runs/meta_daily/state4_restored/state.json",
+            "evidence/runs/meta_daily/state4_restored/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/meta_daily/journal.json",
+      "what_it_shows": "Daily comparison between platform-reported Meta leads and CRM-attributed Meta leads, with a ratio chart and a detail table."
+    },
+    {
+      "id": "pnl",
+      "name": "Executive Summary - P&L",
+      "page": "Executive Summary - P&L",
+      "definition": "Total Spend Combined = [Spend] + IF(toggle=1, [Other Expenses Total], 0). Spend uses a 3-tier allocation model (direct_campus, province_only, unattributed). Cards show abbreviated dollar amounts ($240K). Channel slicer has a saved 6-channel selection. The Include Other Expenses slicer toggles between 'Paid Ads Spend' and 'All Expenses'.",
+      "claim_ids": [
+        "C-PNL-LEADS",
+        "C-PNL-TOGGLE",
+        "C-PNL-TABLE-ALL",
+        "PRB-spend-changepoints",
+        "PRB-campaign-window-spend",
+        "PRB-channel-mix-stability"
+      ],
+      "scenarios": [
+        {
+          "id": "pnl-state1_baseline",
+          "description": "Baseline: Executive Summary P&L, July 1-13 2026. Channel slicer has a saved 6-channel selection. Card amounts like Spend show abbreviated text ($240K) which cannot be parsed as plain numbers. Observed: Spend $240K; Leads 1,993; Starts 68; Conversion 3.4; Contract Value $840K; CAC $3.5K; Est. EBITDA $134K; ROAS 258.4; pnl total 4,360; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/pnl/state1_baseline/screen.png",
+            "evidence/runs/pnl/state1_baseline/state.json",
+            "evidence/runs/pnl/state1_baseline/check.json"
+          ]
+        },
+        {
+          "id": "pnl-state2_march",
+          "description": "Date range changed to March 1-31 2026. Observed: Spend $334K; Leads 2,503; Starts 119; Conversion 4.8; Contract Value $1,308K; CAC $2.8K; Est. EBITDA $209K; ROAS 152.5; pnl total 9,645; 3/1/2026 to 3/31/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/pnl/state2_march/screen.png",
+            "evidence/runs/pnl/state2_march/state.json",
+            "evidence/runs/pnl/state2_march/check.json"
+          ]
+        },
+        {
+          "id": "pnl-state3_july_back",
+          "description": "Date restored to July 1-13. Observed: Spend $240K; Leads 1,993; Starts 68; Conversion 3.4; Contract Value $840K; CAC $3.5K; Est. EBITDA $134K; ROAS 258.4; pnl total 4,360; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/pnl/state3_july_back/screen.png",
+            "evidence/runs/pnl/state3_july_back/state.json",
+            "evidence/runs/pnl/state3_july_back/check.json"
+          ]
+        },
+        {
+          "id": "pnl-state4_all_expenses",
+          "description": "All Expenses toggle selected. The Spend card should increase. Observed: Spend $240K; Leads 1,993; Starts 68; Conversion 3.4; Contract Value $840K; CAC $3.5K; Est. EBITDA $134K; ROAS 258.4; pnl total 4,360; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/pnl/state4_all_expenses/screen.png",
+            "evidence/runs/pnl/state4_all_expenses/state.json",
+            "evidence/runs/pnl/state4_all_expenses/check.json"
+          ]
+        },
+        {
+          "id": "pnl-state5_restored",
+          "description": "Paid Ads toggle restored, July 1-13. Observed: Spend $240K; Leads 1,993; Starts 68; Conversion 3.4; Contract Value $840K; CAC $3.5K; Est. EBITDA $134K; ROAS 258.4; pnl total 4,360; 7/1/2026 to 7/13/2026; Channel: Multiple selections.",
+          "evidence": [
+            "evidence/runs/pnl/state5_restored/screen.png",
+            "evidence/runs/pnl/state5_restored/state.json",
+            "evidence/runs/pnl/state5_restored/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/pnl/journal.json",
+      "what_it_shows": "High-level P&L metrics: leads, starts, spend, contract value, conversion, cost-per-contract, ROAS and EBITDA. Includes a toggle between paid-ads-only and all-expenses spend."
+    },
+    {
+      "id": "daily_leads",
+      "name": "Daily Leads",
+      "page": "Daily Leads",
+      "definition": "Page-level filters: dim_date.is_current_mtd = TRUE and dim_channel.channel_name IN {Ask-Students Call Center, Google Ads, Portal Life, Meta, National PPL - GE, National Web Organic}. The day_num slicer selects individual days for the HTML cards but has NoFilter interactions with the table and line chart. There is no date range slicer: the month shown depends on the is_current_mtd calculated column and the import watermark (Sep 3). A baseline/change/reset cycle for Jul 1-31 and Aug 1-31 is NOT achievable through the page UI.",
+      "claim_ids": [
+        "C-DAILY-TABLE",
+        "C-DAILY-NO-DATE-SLICER",
+        "PRB-event-day-utc",
+        "PRB-event-day-toronto",
+        "PRB-dax-assert-completed-months"
+      ],
+      "scenarios": [
+        {
+          "id": "daily_leads-state1_default",
+          "description": "Daily Leads page with its default page-level filters (is_current_mtd=TRUE, 6 named channels). This page has no date range slicer; the month shown depends on the is_current_mtd calculated column and the import watermark (Sept 3). July 1-31 and August 1-31 ranges are NOT achievable through the page UI. Observed: daily total 196.",
+          "evidence": [
+            "evidence/runs/daily_leads/state1_default/screen.png",
+            "evidence/runs/daily_leads/state1_default/state.json",
+            "evidence/runs/daily_leads/state1_default/check.json"
+          ]
+        },
+        {
+          "id": "daily_leads-state2_stable",
+          "description": "Second capture confirming stable observation. Observed: daily total 196.",
+          "evidence": [
+            "evidence/runs/daily_leads/state2_stable/screen.png",
+            "evidence/runs/daily_leads/state2_stable/state.json",
+            "evidence/runs/daily_leads/state2_stable/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/daily_leads/journal.json",
+      "what_it_shows": "A daily table and line chart of leads for the current month-to-date, filtered to six named channels. Includes HTML metric cards for averages and breakdowns."
+    }
+  ]
+}
