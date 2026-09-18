@@ -109,3 +109,22 @@ wording is replaced by a neutral question and moved into the technical note). A
 case whose claims carry no `change_classification` renders exactly as before.
 Invoke the capture skill before delivery. Restore and capture the final UI state
 before sealing, then validate, seal, render and verify without further evidence writes.
+
+## What the regression delivers
+
+A regression case produces its own pages, built from its own evidence - never by
+editing the baseline's:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/scripts/findings_report.py --case <new> --out <case-parent>/<new-name>-findings.html --signoff <new-name>-signoff.html
+python ${CLAUDE_PLUGIN_ROOT}/scripts/review_form.py --case <new> --out <case-parent>/<new-name>-signoff.html
+```
+
+The sign-off page of a regression case **is** the regression report: it leads
+with the strip counting the classifications, badges each claim, and puts every
+`new regression` first in the affected component's questions. The findings report
+beside it is the fix list - what broke, worst first, with what still passes as
+the negative control. Produce the how-it-works report as well when the report
+definition or the model changed, so the reader can see what the new structure
+looks like. Report every path in the final message, and say which baseline case
+the comparison is against.

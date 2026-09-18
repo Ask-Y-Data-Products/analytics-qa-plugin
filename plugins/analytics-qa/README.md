@@ -22,6 +22,25 @@ The story, the screenshots and the community knowledge base are in the
 | `regress` | Replay the sealed baseline against a changed report, period or model; classify preserved / expected change / new regression / fixed / still open, with untouched pages as negative controls. |
 | `retrospective` | Turn the review into an anonymised know-how article and, only with the user's explicit approval, publish it to the shared knowledge base that `investigate` and `detect` search. |
 
+## Artifacts
+
+Each step leaves a page that stands on its own. All four are derived from the
+case and written beside it, so regenerating one changes no evidence.
+
+| Skill | Question it answers | File | Audience |
+| --- | --- | --- | --- |
+| `investigate` | How does this BI actually work? | `<case>-how-it-works.html` (`scripts/lineage_report.py`) | an analyst or engineer who inherited the report and has to understand it |
+| `evaluate` | Do the numbers behave? | feeds the sign-off page; no separate file | — |
+| `detect` | What is wrong with it? | `<case>-findings.html` (`scripts/findings_report.py`) | whoever decides what to fix |
+| `capture` | What is the evidence, and do you sign? | `<case>/report.html` and `<case>-signoff.html` (`scripts/review_form.py`) | an auditor, and the analyst who signs |
+| `regress` | What did the change break? | the regression case's own `-findings.html` and `-signoff.html` | the analyst deciding whether the change is acceptable |
+
+The how-it-works page is built only from the evidence the case already holds -
+visual bindings, the copied report definition, the model capture and the recorded
+trace - and names what that evidence does not cover instead of guessing. The
+findings page is built from `case.json` alone: defects worst first, open
+questions by component, model lint by detector, and what was checked and passed.
+
 ## Run on another project
 
 1. Install Python dependencies from this directory's `requirements.txt` into your

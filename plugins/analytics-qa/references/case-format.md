@@ -129,6 +129,28 @@ Paths: `case.json`, `procedures/*`, `evidence/source/*`, query/DAX JSON and PNG
 captures under `evidence/`, derived `report.html`, hash index `manifest.json`.
 Preserve baseline artifacts. A changed definition requires new evidence/review.
 
+## Artifacts
+
+A finished review is five files. One lives inside the case; the other four are
+written beside it, never into it, and every one of them is derived - regenerating
+them changes no evidence.
+
+| File | Question it answers | Written by | Who reads it |
+| --- | --- | --- | --- |
+| `<case>-how-it-works.html` | How does this BI actually work? | `investigate`, `scripts/lineage_report.py` | an analyst or engineer who inherited the report |
+| `<case>-findings.html` | What is wrong with it? | `detect`, `scripts/findings_report.py` | whoever decides what to fix |
+| `<case>/report.html` | What is the evidence? | `capture`, `qa.py render` | anyone auditing the record |
+| `<case>-signoff.html` | Do you sign? | `capture`, `scripts/review_form.py` | the analyst who signs, and it is the regression report on a regression case |
+| `<case>/manifest.json` | Has the evidence changed? | `qa.py seal` | `qa.py verify` |
+
+`lineage_report.py` and `findings_report.py` take `--case` and `--out`, refuse an
+output inside the case, work on an unsealed case (reporting the manifest as
+`unsealed`), print a JSON summary and stamp the same generator meta tags the
+sign-off page does: `<meta name="generator" content="analytics-qa <script>
+<version>">` with the case id and manifest digest. `findings_report.py` also
+takes `--signoff <relative path or url>`, which turns every item into a link to
+that component's card (`#comp-<component id>`) on the sign-off page.
+
 Sealing validates records and hashes evidence; it does NOT prove semantic truth.
 Review remains empty until explicit human feedback. A future review revision
 records claim/finding IDs, decision, reviewer, confirmation provenance and the

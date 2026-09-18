@@ -4,7 +4,7 @@
   "observation": "state.json",
   "observation_sha256": "5edb1172e4d46c1b79e4909970e810a4e5f90cc288cd0a957ae02b0eb00a79bf",
   "expected": {
-    "/verified_report_title": "launchlife-fake",
+    "/verified_report_title": "sample-marketing",
     "/active_page": "Executive Summary - P&L",
     "/popup_open": false,
     "/calendar_open": false,
@@ -16,8 +16,8 @@
   "checks": [
     {
       "pointer": "/verified_report_title",
-      "expected": "launchlife-fake",
-      "actual": "launchlife-fake",
+      "expected": "sample-marketing",
+      "actual": "sample-marketing",
       "status": "passed"
     },
     {

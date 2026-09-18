@@ -110,3 +110,19 @@ Do not lower thresholds to make flags disappear. Do not run a statistic on fewer
 points than its minimum and call the result clean. Do not treat an empty lint as
 proof. Do not skip the detect pass for a component because the capture cycle
 passed; the two answer different questions.
+
+## 6. Produce the findings report
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/scripts/findings_report.py --case <case> --out <case-parent>/<case-name>-findings.html --signoff <case-name>-signoff.html
+```
+
+This is the artifact of this step: what is wrong with the report, worst first.
+It reads `case.json` only - every failed claim and finding as a defect, every
+inconclusive claim as an open question grouped by component, the model lint
+grouped by detector with its objects, and a compact list of what was checked and
+passed, so the reader sees the scope and not only the problems. `--signoff` is
+the file name the capture skill will write beside the case; every item then links
+to that component's card there. Report the absolute path. Run it again after any
+claim changes, and run it even when nothing failed: "nothing found, here is what
+was checked" is a result the analyst needs to see.

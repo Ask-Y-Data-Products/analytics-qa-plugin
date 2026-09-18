@@ -4,7 +4,7 @@
   "observation": "state.json",
   "observation_sha256": "4f1c5c5594116e7ca71deebc339373f14ad227925125b943c81a5ce450bba8c5",
   "expected": {
-    "/verified_report_title": "launchlife-fake",
+    "/verified_report_title": "sample-marketing",
     "/active_page": "Contract Velocity",
     "/popup_open": false,
     "/calendar_open": false,
@@ -15,8 +15,8 @@
   "checks": [
     {
       "pointer": "/verified_report_title",
-      "expected": "launchlife-fake",
-      "actual": "launchlife-fake",
+      "expected": "sample-marketing",
+      "actual": "sample-marketing",
       "status": "passed"
     },
     {

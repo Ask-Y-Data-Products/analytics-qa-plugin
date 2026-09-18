@@ -166,8 +166,22 @@ shared drive without the case), also produce a self-contained copy with
 screenshot. It starts with no decisions, requires reviewer
 name and confirmation, and exports decisions pinned to the manifest. Open it in
 a headless browser (or read it back) and confirm every screenshot resolves and
-each component card shows its scenarios before reporting the path. The final
-message must give the absolute paths of report.html and the sign-off page.
+each component card shows its scenarios before reporting the path.
+
+The review is delivered as four pages, each answering a different question, and
+the final message must list the absolute path of every one that exists:
+
+| File | Question it answers | Written by |
+| --- | --- | --- |
+| `<case-name>-how-it-works.html` | How does this report work? | `investigate` (`lineage_report.py`) |
+| `<case-name>-findings.html` | What is wrong with it? | `detect` (`findings_report.py`) |
+| `<case>/report.html` | What is the evidence? | `qa.py render` |
+| `<case-name>-signoff.html` | Do you sign? | `review_form.py` |
+
+Regenerate the how-it-works and findings pages after sealing, so all four
+describe the same sealed case and carry its manifest digest; both refuse to write
+inside the case and neither adds evidence. If one of them was never produced, say
+so rather than implying the deliverable is complete.
 
 After the sign-off page exists, run the retrospective skill; it is part of
 finishing a review, not an extra. It reviews the sessions and the case, writes an

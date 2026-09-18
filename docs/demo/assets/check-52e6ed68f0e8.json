@@ -4,7 +4,7 @@
   "observation": "state.json",
   "observation_sha256": "a32e7e8f203618c5a65564eeab42930d39491dd8570af830448195af1f7c1942",
   "expected": {
-    "/verified_report_title": "launchlife-fake",
+    "/verified_report_title": "sample-marketing",
     "/active_page": "Meta Daily",
     "/popup_open": false,
     "/calendar_open": false,
@@ -16,8 +16,8 @@
   "checks": [
     {
       "pointer": "/verified_report_title",
-      "expected": "launchlife-fake",
-      "actual": "launchlife-fake",
+      "expected": "sample-marketing",
+      "actual": "sample-marketing",
       "status": "passed"
     },
     {

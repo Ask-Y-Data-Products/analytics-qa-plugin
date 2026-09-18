@@ -4,7 +4,7 @@
   "observation": "state.json",
   "observation_sha256": "3aaadd1a0fe121513422447b853bfaae8732bdf49335907093cb76cf6f29238c",
   "expected": {
-    "/verified_report_title": "launchlife-fake",
+    "/verified_report_title": "sample-marketing",
     "/active_page": "Leads",
     "/popup_open": false,
     "/calendar_open": false,
@@ -14,8 +14,8 @@
   "checks": [
     {
       "pointer": "/verified_report_title",
-      "expected": "launchlife-fake",
-      "actual": "launchlife-fake",
+      "expected": "sample-marketing",
+      "actual": "sample-marketing",
       "status": "passed"
     },
     {

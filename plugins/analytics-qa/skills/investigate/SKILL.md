@@ -55,7 +55,23 @@ case's `limitations` or in the relevant finding.
 4. State the reporting grain, population, keys, business definition provenance,
    timezone, completeness and important unknowns in `scope`. Propose claims and
    targeted counterexamples. Distinguish source completeness from MAX(date).
-5. Continue into the evaluate skill for a full validation request. Do not stop
+5. Produce this step's artifact: the "how it works" report.
+
+   ```
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/lineage_report.py --case <case> --out <case-parent>/<case-name>-how-it-works.html
+   ```
+
+   It is built only from what the case already holds - the inventory's visual
+   bindings, the copied report definition, the model capture and the trace you
+   recorded - and it never queries anything. It lays out every page and visual,
+   the measure behind each label on screen, the tables those measures read and
+   where those tables come from, the filters and the interaction settings, and an
+   explicit list of what the evidence does not cover. Report its absolute path.
+   This is the deliverable of the investigation step and it is useful on its own:
+   it is the document to hand someone who inherited a report and has to
+   understand it, whether or not anyone goes on to test it.
+
+6. Continue into the evaluate skill for a full validation request. Do not stop
    at listing files when the user asked for validation.
    Invoke the capture skill before sealing and delivery, including its final
    reset-before-seal and post-render verification steps.

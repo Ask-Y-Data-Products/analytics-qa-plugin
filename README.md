@@ -156,9 +156,39 @@ to fix the problem, and the baseline the next regression is measured against.
 
 ---
 
+## See the actual output
+
+These are the real pages from one run on the anonymised report in this repository.
+Nothing was written by hand; open them and click around.
+
+| Report | What it answers | Who reads it |
+| --- | --- | --- |
+| [How it works](https://ask-y-data-products.github.io/measure-qa-harness/demo/how-it-works.html) | How is this dashboard actually built: screen label to measure to table to source column, page by page | Whoever inherited the report |
+| [Findings](https://ask-y-data-products.github.io/measure-qa-harness/demo/findings.html) | What is wrong with it, ranked, each with the question to settle it | Whoever has to fix it |
+| [Sign-off page](https://ask-y-data-products.github.io/measure-qa-harness/demo/signoff.html) | What we saw in each situation, what checks out, what needs your decision | The analyst or stakeholder who signs |
+| [Capture report](https://ask-y-data-products.github.io/measure-qa-harness/demo/capture-report.html) | The sealed evidence behind every claim: screenshots, observations, receipts, queries | An auditor, or the agent asked to fix it |
+| [Regression report](https://ask-y-data-products.github.io/measure-qa-harness/demo/regression.html) | What the last change broke, preserved or fixed, with negative controls | The person approving the change |
+
+---
+
 ## How it works
 
-Six skills. Each leaves evidence the next one uses.
+Six skills, each answering a different question and each leaving a report you can
+use on its own. They share one case, so later steps build on earlier evidence,
+but you can stop after any of them.
+
+| Skill | The question | What it produces | Needs |
+| --- | --- | --- | --- |
+| **`/analytics-qa:investigate`** | How does this thing work? | **How it works** report | the file and, optionally, the warehouse |
+| **`/analytics-qa:evaluate`** | Do the numbers behave? | captured situations, checks and receipts | the live report open in Desktop |
+| **`/analytics-qa:detect`** | What is wrong with it anyway? | **Findings** report | the engine; never touches the UI |
+| **`/analytics-qa:capture`** | What is the evidence, and do you sign? | **Capture report** + **sign-off page** | the case so far |
+| **`/analytics-qa:regress`** | What did the change break? | **Regression report** | the baseline case and the changed report |
+| **`/analytics-qa:retrospective`** | What should everyone else learn? | an anonymised article for the knowledge base | your approval |
+
+They stay separate because they need different access and answer different
+questions. `detect` runs on a report you cannot drive; `evaluate` needs the live
+window; `investigate` needs neither the engine nor the UI. Run the ones you need.
 
 | Skill | What happens |
 | --- | --- |

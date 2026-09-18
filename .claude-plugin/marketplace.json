@@ -9,7 +9,7 @@
       "name": "analytics-qa",
       "source": "./plugins/analytics-qa",
       "description": "Measure QA Community Harness: investigate, test, capture and regress Power BI / dbt dashboards with receipt-backed evidence, an analyst sign-off page, failure-mode detectors and a shared, anonymised knowledge base.",
-      "version": "0.6.1"
+      "version": "0.7.0"
     }
   ]
 }

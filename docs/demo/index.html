@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Measure QA Community Harness — example reports</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f3f5f6;color:#1f2528;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:840px;margin:auto;padding:40px 24px 64px}
+  h1{font-size:28px;margin:0 0 6px}
+  .lead{color:#586066;margin:0 0 24px;font-size:17px}
+  .note{border-left:4px solid #c27c11;background:#fff6df;padding:12px 16px;border-radius:4px;margin:0 0 28px;font-size:14.5px}
+  ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  li{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  a.title{font-size:18px;font-weight:600;color:#0b5c8e;text-decoration:none}
+  a.title:hover{text-decoration:underline}
+  li p{margin:4px 0 0;color:#333b40;font-size:14.5px}
+  .who{display:inline-block;margin-top:8px;font-size:12.5px;color:#586066;background:#f3f5f6;border-radius:999px;padding:3px 10px}
+  .step{font-size:12.5px;color:#8b959a;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  footer{margin-top:32px;color:#586066;font-size:13.5px}
+  footer a{color:#0b5c8e}
+</style>
+<main>
+  <h1>Example reports</h1>
+  <p class="lead">Produced by one unattended run of the Measure QA Community Harness on an
+  anonymised Power BI marketing report, plus a second run against a copy of it with one
+  column deliberately rebound. Nothing on these pages was written by hand.</p>
+
+  <p class="note">Demo copy: the screenshots are downscaled for the web and the report's
+  internal file name is replaced, so this bundle no longer matches the evidence manifest of
+  the sealed case it came from. The case itself is unchanged. No decision has been recorded
+  on the sign-off pages — they are shown as an analyst first receives them.</p>
+
+  <ul>
+    <li>
+      <span class="step">/analytics-qa:investigate</span><br>
+      <a class="title" href="how-it-works.html">How it works</a>
+      <p>How the dashboard is actually built: page by page, the label on screen, the measure
+      behind it, the tables that measure reads, where those tables come from, and which
+      filters reach which visual. 16 pages, 252 visuals, 40 of 171 measures actually used.</p>
+      <span class="who">For whoever inherited the report</span>
+    </li>
+    <li>
+      <span class="step">/analytics-qa:detect</span><br>
+      <a class="title" href="findings.html">Findings</a>
+      <p>What is wrong with it: 4 defects worst first, 11 open questions, 7 model-lint flags
+      and the 17 checks that passed — each with the question that settles it.</p>
+      <span class="who">For whoever has to fix it</span>
+    </li>
+    <li>
+      <span class="step">/analytics-qa:capture</span><br>
+      <a class="title" href="signoff.html">Sign-off page</a>
+      <p>What the screen showed in each situation, which checks hold, and the questions an
+      analyst has to answer — with Sign off and Reject per component. Click any screenshot.</p>
+      <span class="who">For the analyst or stakeholder who signs</span>
+    </li>
+    <li>
+      <span class="step">/analytics-qa:capture</span><br>
+      <a class="title" href="capture-report.html">Capture report</a>
+      <p>The sealed record behind every claim: screenshots, observations, receipts, queries
+      and limitations. This is what the next regression is measured against.</p>
+      <span class="who">For an auditor, or for the agent asked to fix it</span>
+    </li>
+    <li>
+      <span class="step">/analytics-qa:regress</span><br>
+      <a class="title" href="regression.html">Regression report</a>
+      <p>One column of one table was rebound without telling the session. It found the single
+      changed visual, proved the consequence at both layers, and classified every baseline
+      expectation: 3 new regressions, 14 preserved, 15 still open.</p>
+      <span class="who">For the person approving a change</span>
+    </li>
+  </ul>
+
+  <footer>
+    <a href="https://github.com/Ask-Y-Data-Products/measure-qa-harness">Measure QA Community Harness</a>
+    — an open-source Claude Code plugin by <a href="https://ask-y.ai">Ask-Y</a> for the Measure community.
+  </footer>
+</main>
+</html>
