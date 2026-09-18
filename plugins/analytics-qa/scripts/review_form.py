@@ -1,22 +1,36 @@
 """Create a local sign-off page beside, never inside, a sealed evidence case.
 
-The page is written for an analyst, not for an engineer. Per component it says
-in one plain sentence what the figure is, then tells the story situation by
-situation: a grid of tiles, each headed by the situation's own title, the filters
-that produced it, its key figures and the screenshot itself (click to open it
-full size). Under the tiles the same captures are laid out as a table of what the
-screen showed, the checks an analyst would make by hand (does the reset land back
-on the baseline, did the change move anything, did it move the right way, does
-the card equal the table or the ratio of its two inputs, did our own calculation
-agree), and finally the questions the analyst has to answer. A page-level card
-compares figures that carry the same name on more than one component, and a
-regression case leads with what the baseline lost.
+The page is written for the person who signs, not for an engineer, and the first
+reader is often a stakeholder rather than an analyst. It opens with one plain
+sentence - how many parts of the report were checked and how they came out - and
+then the counts. Per component it leads with a status chip in three words anyone
+knows (Looks right, Needs your decision, Problem found), says in one plain
+sentence what the figure is, and then puts the questions first: each in its own
+bordered block with a one-line reason and, where a claim can answer it, the two
+buttons that do. Under the questions the captures tell the story situation by
+situation - a grid of tiles, each headed by the situation's own title, the
+filters that produced it, its key figures and the screenshot itself (click to
+open it full size) - then the table of what the screen showed, then the checks an
+analyst would make by hand (does the reset land back on the baseline, did the
+change move anything, did it move the right way, does the card equal the table or
+the ratio of its two inputs, did our own calculation agree), with the checks that
+passed collapsed behind one line so a failure is never buried in green ticks. A
+page-level card compares figures that carry the same name on more than one
+component; a regression case leads with one sentence a manager can act on and
+badges every component with what happened to it.
 
-Every technical form - the DAX definition, the per-claim expectations - is kept
-in a collapsed block, and Sign / Reject buttons map to per-claim decisions
-(accepted, confirmed_defect, unresolved) so the export stays compatible with
-`qa.py review`. Nothing is pre-selected and the export stays disabled until the
-reviewer identifies themselves and confirms.
+Every technical form - the DAX definition, the per-claim expectations, the
+manifest digest and the generator identity - is kept in a collapsed block, and a
+`@media print` block opens them all again for a reader who prints to PDF. Sign /
+Reject buttons map to per-claim decisions (accepted, confirmed_defect,
+unresolved) so the export stays compatible with `qa.py review`. Nothing is
+pre-selected and the export stays disabled until the reviewer identifies
+themselves and confirms.
+
+The page works alone: the button downloads the decisions file. Served by
+`review_server.py`, which announces its endpoint before this page's own script
+runs, the same button reads "Submit decisions", posts them and shows the counts
+and a link to the capture report the server just produced.
 
 This module renders; `analyst_view.py` derives. Everything the page asserts about
 the captures comes from the sealed observations, the run journal and the plan,
@@ -36,9 +50,11 @@ import analyst_view
 from connections import digest
 from qa import verify
 
-STYLE = '''*{box-sizing:border-box}body{margin:0;color:#1f2528;background:#f3f5f6;font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:1400px;margin:auto;padding:20px 24px 60px}h1{font-size:26px;margin:6px 0 4px}h2{font-size:22px;margin:0}
-.lead{color:#586066;margin:0 0 18px}.notice{border-left:4px solid #c27c11;padding:10px 14px;background:#fff6df;border-radius:4px;margin:0 0 18px}
+STYLE = '''*{box-sizing:border-box}body{margin:0;color:#1f2528;background:#f3f5f6;font:16.5px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1400px;margin:auto;padding:20px 24px 60px}h1{font-size:30px;margin:6px 0 10px;line-height:1.2}h2{font-size:23px;margin:0}
+.plain{max-width:72ch}
+.headline{font-size:21px;line-height:1.35;margin:0 0 10px;color:#1f2528;font-weight:600}
+.lead{color:#333b40;font-size:19px;line-height:1.4;margin:0 0 16px}.notice{border-left:4px solid #c27c11;padding:10px 14px;background:#fff6df;border-radius:4px;margin:0 0 18px}
 .summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.pill{padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #d3d9dc;font-size:14px}
 .pill b{font-size:16px}.pill.pass b{color:#16794a}.pill.fail b{color:#b42318}.pill.open b{color:#8a5a00}
 .changes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:14px}
@@ -112,10 +128,54 @@ details.claims td:first-child{width:74px;font-weight:600}select,textarea.small,i
 .identity{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:18px 20px;max-width:640px}.identity label{display:block;margin:8px 0}
 #export{font:inherit;font-weight:600;padding:12px 22px;border:0;border-radius:8px;background:#0b5c8e;color:#fff;cursor:pointer}#export:disabled{opacity:.45;cursor:default}
 .manifest{overflow-wrap:anywhere;font:12px ui-monospace,monospace;color:#586066}
-@media(max-width:760px){main{padding:12px}.decide button{flex:1 1 40%}}'''
+.chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-block;font-size:14px;font-weight:600;border-radius:999px;padding:5px 14px;border:1px solid #d3d9dc;white-space:nowrap}
+.chip.ok{color:#16794a;background:#eaf6f0;border-color:#a7d6c0}
+.chip.decision{color:#8a5a00;background:#fff6df;border-color:#e6c98a}
+.chip.problem{color:#b42318;background:#fdecea;border-color:#efb3ad}
+.tag.ok{color:#16794a;background:#eaf6f0}.tag.problem{color:#b42318;background:#fdecea}.tag.decision{color:#8a5a00;background:#fff6df}
+.asks{margin:0 0 4px}
+.ask{border:1px solid #d9dfe2;border-left:5px solid #9aa4a9;border-radius:8px;padding:13px 16px;margin:0 0 12px;background:#fff}
+.ask.issue{border-left-color:#b42318;background:#fffaf9}.ask.open{border-left-color:#c27c11;background:#fffdf7}
+.ask.ok{border-left-color:#16794a}
+.ask .q{margin:0;font-size:17.5px;line-height:1.4;font-weight:600;max-width:72ch}
+.ask .why{margin:6px 0 0;color:#586066;font-size:14px;max-width:72ch}
+.ask .detail{display:block;margin:6px 0 0;color:#333b40;font-size:15px;max-width:72ch}
+.ask .meta{display:inline-block;color:#8b959a;font-size:12px;margin-left:6px}
+.ask details.note{margin-top:6px}.ask details.note p{margin:4px 0 0;font-size:13px;color:#586066;overflow-wrap:anywhere}
+.answer{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.answer button{font:inherit;font-size:15px;font-weight:600;padding:9px 16px;border-radius:8px;border:2px solid #9aa4a9;background:#fff;color:#333b40;cursor:pointer}
+.answer button.defect{border-color:#b42318;color:#b42318}.answer button.unclear{border-color:#c27c11;color:#8a5a00}
+.answer button[aria-pressed=true].defect{background:#b42318;color:#fff}
+.answer button[aria-pressed=true].unclear{background:#c27c11;color:#fff;border-color:#c27c11}
+details.passed{margin:6px 0 0;border:1px solid #e3e7e9;border-radius:8px;padding:8px 12px;background:#fafbfb}
+details.passed summary{cursor:pointer;color:#16794a;font-size:14.5px;font-weight:600}
+details.passed ul.checks{margin-top:6px}
+details.fineprint{margin:26px 0 0;border-top:1px solid #d9dfe2;padding-top:12px}
+details.fineprint summary{cursor:pointer;color:#586066;font-size:14px}
+details.fineprint dl{margin:10px 0 0;font-size:13.5px;color:#333b40}
+details.fineprint dt{font-weight:600;color:#586066;margin-top:8px}details.fineprint dd{margin:2px 0 0;overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:12.5px}
+#submitted{margin:10px 0 0;padding:12px 14px;border:1px solid #16794a;border-left:5px solid #16794a;border-radius:8px;background:#eaf6f0;font-size:15.5px}
+#submitted a{font-weight:700;color:#0b5c8e;font-size:16.5px}
+#submitted.bad{border-color:#b42318;border-left-color:#b42318;background:#fdecea}
+@media(max-width:760px){main{padding:12px}.decide button{flex:1 1 40%}}
+@media print{
+ body{background:#fff;font-size:12pt}main{max-width:none;padding:0}
+ details{display:block}details>summary{color:#586066;font-weight:600}details>*{display:block!important}
+ .decide,.answer,#export,.identity button,.identity label{display:none!important}
+ .card,.ask,.sit,.toc{break-inside:avoid;page-break-inside:avoid}
+ .sits{grid-template-columns:repeat(2,minmax(0,1fr))}
+ a[href]{text-decoration:none;color:#1f2528}
+ img{max-width:100%}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}'''
 
 SCRIPT = '''const p=JSON.parse(document.getElementById('payload').textContent);
 const reviewer=document.getElementById('reviewer'),confirmation=document.getElementById('confirmation'),button=document.getElementById('export');
+// review_server.py injects window.ANALYTICS_QA_REVIEW before this script when the page is served
+// locally; opened from disk there is no endpoint and the page downloads the file exactly as before.
+const server=(typeof window!=='undefined'&&window.ANALYTICS_QA_REVIEW)||null;
+const online=!!(server&&server.endpoint);
 const byStatus={sign:{passed:'accepted',failed:'confirmed_defect',inconclusive:'unresolved'},reject:{passed:'unresolved',failed:'unresolved',inconclusive:'unresolved'}};
 function claimsOf(card){return Array.from(card.querySelectorAll('tr[data-claim]'));}
 function update(){const any=Array.from(document.querySelectorAll('tbody select')).some(s=>s.value);button.disabled=!reviewer.value.trim()||!confirmation.checked||!any;}
@@ -123,15 +183,23 @@ function describe(card){const rows=claimsOf(card).filter(r=>r.querySelector('sel
  const el=card.querySelector('.state');if(!el)return;if(!n){el.textContent='No decision recorded for this component.';card.classList.remove('signed','rejected');return;}
  const kinds={};rows.forEach(r=>{const v=r.querySelector('select').value;kinds[v]=(kinds[v]||0)+1;});
  el.textContent=n+' of '+claimsOf(card).length+' expectations decided: '+Object.entries(kinds).map(([k,v])=>v+' '+k.replace('_',' ')).join(', ')+'.';}
+function rowFor(id){return Array.from(document.querySelectorAll('tr[data-claim]')).find(r=>r.dataset.claim===id)||null;}
+function syncAnswers(){document.querySelectorAll('.answer button[data-claim]').forEach(b=>{const row=rowFor(b.dataset.claim);
+ const value=row?row.querySelector('select').value:'';b.setAttribute('aria-pressed',String(!!value&&value===b.dataset.decision));});}
 function decide(card,mode){const map=byStatus[mode];card.querySelectorAll('.decide button[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
  card.classList.toggle('signed',mode==='sign');card.classList.toggle('rejected',mode==='reject');
- claimsOf(card).forEach(r=>{r.querySelector('select').value=map[r.dataset.status];});describe(card);update();}
+ claimsOf(card).forEach(r=>{r.querySelector('select').value=map[r.dataset.status];});describe(card);syncAnswers();update();}
 function clear(card){card.querySelectorAll('.decide button[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed','false'));card.classList.remove('signed','rejected');
- claimsOf(card).forEach(r=>{r.querySelector('select').value='';});describe(card);update();}
+ claimsOf(card).forEach(r=>{r.querySelector('select').value='';});describe(card);syncAnswers();update();}
+document.querySelectorAll('.answer button[data-claim]').forEach(b=>b.addEventListener('click',()=>{const row=rowFor(b.dataset.claim);if(!row)return;
+ const select=row.querySelector('select');select.value=(select.value===b.dataset.decision)?'':b.dataset.decision;
+ const card=row.closest('.card');
+ if(card){card.querySelectorAll('.decide button[aria-pressed]').forEach(x=>x.setAttribute('aria-pressed','false'));card.classList.remove('signed','rejected');describe(card);}
+ syncAnswers();update();}));
 document.querySelectorAll('.card').forEach(card=>{const sign=card.querySelector('.sign');if(!sign)return;
  sign.addEventListener('click',()=>decide(card,'sign'));
  card.querySelector('.reject').addEventListener('click',()=>decide(card,'reject'));card.querySelector('.clear').addEventListener('click',()=>clear(card));
- card.querySelectorAll('tbody select').forEach(s=>s.addEventListener('change',()=>{card.querySelectorAll('.decide button[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed','false'));describe(card);update();}));});
+ card.querySelectorAll('tbody select').forEach(s=>s.addEventListener('change',()=>{card.querySelectorAll('.decide button[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed','false'));describe(card);syncAnswers();update();}));});
 const box=document.getElementById('lightbox'),boxImg=document.getElementById('lightbox-img'),boxCap=document.getElementById('lightbox-cap');
 const modal=box&&typeof box.showModal==='function';
 document.querySelectorAll('a.shot-link').forEach(a=>a.addEventListener('click',ev=>{
@@ -141,15 +209,41 @@ if(box){box.addEventListener('click',()=>box.close());box.addEventListener('clos
 document.querySelectorAll('tr[data-sit]').forEach(row=>{const tile=document.getElementById(row.dataset.sit);if(!tile)return;
  row.addEventListener('mouseenter',()=>tile.classList.add('linked'));row.addEventListener('mouseleave',()=>tile.classList.remove('linked'));});
 document.addEventListener('input',update);document.addEventListener('change',update);
-button.addEventListener('click',()=>{if(button.disabled)return;const at=new Date().toISOString();
- const decisions=Array.from(document.querySelectorAll('tr[data-claim]')).filter(r=>r.querySelector('select').value).map(r=>{const card=r.closest('.card');
+function collect(){const at=new Date().toISOString();
+ return Array.from(document.querySelectorAll('tr[data-claim]')).filter(r=>r.querySelector('select').value).map(r=>{const card=r.closest('.card');
  const own=r.querySelector('textarea').value.trim();const shared=card?card.querySelector('.decide textarea').value.trim():'';
  return {claim_id:r.dataset.claim,decision:r.querySelector('select').value,reviewer:reviewer.value.trim(),comment:own||shared,
  component_id:card?card.dataset.component:null,reviewed_manifest_sha256:p.manifest_sha256,
- confirmation:'Explicit reviewer export from local sign-off page; case '+p.case_id+'; manifest '+p.manifest_sha256+'; client time '+at};});
- const blob=new Blob([JSON.stringify(decisions,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');
+ confirmation:'Explicit reviewer export from local sign-off page; case '+p.case_id+'; manifest '+p.manifest_sha256+'; client time '+at};});}
+function download(decisions){const blob=new Blob([JSON.stringify(decisions,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download=p.case_id+'-decisions.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
- document.getElementById('status').textContent='Decisions exported ('+decisions.length+'). Hand the file back to create the sealed review revision.';});'''
+ document.getElementById('status').textContent='Decisions exported ('+decisions.length+'). Hand the file back to create the sealed review revision.';}
+function tally(counts){return Object.keys(counts||{}).map(k=>counts[k]+' '+k.replace('_',' ')).join(', ');}
+function present(data){const box=document.getElementById('submitted');box.hidden=false;box.className='';box.textContent='';
+ const line=document.createElement('p');line.style.margin='0 0 8px';
+ line.textContent='Recorded '+data.recorded+' decision'+(data.recorded===1?'':'s')+' for '+data.reviewer+': '+tally(data.counts)+'.';
+ box.appendChild(line);
+ if(data.report_url){const a=document.createElement('a');a.href=data.report_url;a.target='_blank';a.rel='noopener';
+  a.textContent='Open the capture report this just produced';box.appendChild(a);}
+ const note=document.createElement('p');note.style.margin='8px 0 0';note.style.fontSize='13.5px';note.style.color='#586066';
+ note.textContent=(data.attestation||'')+' Sealed review revision: '+(data.revision||'');box.appendChild(note);}
+function fail(message){const box=document.getElementById('submitted');box.hidden=false;box.className='bad';
+ box.textContent='Not recorded. '+message;document.getElementById('status').textContent='';button.disabled=false;}
+function submit(decisions){button.disabled=true;
+ document.getElementById('status').textContent='Sending your decisions to the local review server...';
+ fetch(server.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(decisions)})
+  .then(r=>r.json().then(d=>[r.ok,d],()=>[false,{errors:['The review server did not answer with JSON.']}]))
+  .then(pair=>{const ok=pair[0],data=pair[1];
+   if(!ok||!data.ok){throw new Error((data.errors||['The review server refused these decisions.']).join(' '));}
+   document.getElementById('status').textContent='';present(data);})
+  .catch(err=>fail(err.message));}
+if(online){button.textContent='Submit decisions';
+ const note=document.getElementById('submit-note');
+ if(note)note.textContent='Submitting records these decisions on this machine and builds the capture report. This is a local attestation, not an authenticated signature.';}
+button.addEventListener('click',()=>{if(button.disabled)return;const decisions=collect();
+ if(!decisions.length){document.getElementById('status').textContent='No decision is recorded yet.';return;}
+ if(online){submit(decisions);}else{download(decisions);}});'''
 
 MARKS = {'pass': '✓', 'fail': '✗', 'unknown': '?'}
 BLANK_CELL = '—'
@@ -312,35 +406,75 @@ def observed_table(observations, index=None):
             + ''.join(rows) + '</tbody></table></div>')
 
 
-def checks_list(checks, index=None):
+def check_item(check, index):
     esc = html.escape
+    links = check.get('links_html') or view_links(check.get('capture_labels'), index)
+    return (f'<li class="{check["status"]}"><span class="mark">{MARKS.get(check["status"], "?")}</span>'
+            f'{esc(check["text"])}{links}</li>')
+
+
+def checks_list(checks, index=None, collapse_passed=True):
+    """Failures and unsettled checks in the open; the ones that passed behind one line.
+
+    A stakeholder needs to see what went wrong, not read eight green ticks to find
+    it. The passed checks are not removed - the analyst opens the summary line.
+    """
     index = index or {}
     if not checks:
         return '<p>Nothing could be checked automatically from these captures.</p>'
-    items = []
-    for check in checks:
-        links = check.get('links_html') or view_links(check.get('capture_labels'), index)
-        items.append(f'<li class="{check["status"]}"><span class="mark">{MARKS.get(check["status"], "?")}</span>'
-                     f'{esc(check["text"])}{links}</li>')
-    return '<ul class="checks">' + ''.join(items) + '</ul>'
+    hide = (lambda check: check['status'] == 'pass') if collapse_passed else (lambda check: False)
+    passed = [c for c in checks if hide(c)]
+    shown = [c for c in checks if not hide(c)]
+    body = ''
+    if shown:
+        body += '<ul class="checks">' + ''.join(check_item(c, index) for c in shown) + '</ul>'
+    if passed:
+        body += (f'<details class="passed"><summary>{len(passed)} check'
+                 f'{"" if len(passed) == 1 else "s"} passed</summary><ul class="checks">'
+                 + ''.join(check_item(c, index) for c in passed) + '</ul></details>')
+    return body
+
+
+# The two decisions a question about an unsettled or failed expectation can carry. A passed
+# expectation is never questioned, so 'accepted' is never offered here - only the analyst's
+# own row in the expectations table can accept one, and nothing is pre-selected either way.
+ANSWERS = [('confirmed_defect', 'defect', 'Yes, this is a problem'),
+           ('unresolved', 'unclear', 'Not sure yet, needs clarification')]
+
+
+def answer_buttons(claim_id):
+    """The two buttons that answer one question, wired to that claim's own decision."""
+    esc = html.escape
+    if not claim_id:
+        return ''
+    buttons = ''.join(
+        f'<button type="button" class="{klass}" data-claim="{esc(str(claim_id))}" '
+        f'data-decision="{decision}" aria-pressed="false">{esc(label)}</button>'
+        for decision, klass, label in ANSWERS)
+    return f'<div class="answer">{buttons}</div>'
+
+
+def question_block(ask, index=None):
+    """One question in its own bordered block: the question, why we ask, then the answer."""
+    esc = html.escape
+    index = index or {}
+    body = f'<p class="q">{esc(ask["text"])}</p>'
+    if ask.get('why'):
+        body += f'<p class="why">{esc(ask["why"])}</p>'
+    if ask.get('detail'):
+        body += f'<span class="detail">{esc(ask["detail"])}</span>'
+    if ask.get('meta'):
+        body += f'<span class="meta">{esc(ask["meta"])}</span>'
+    body += ask.get('links_html') or view_links(ask.get('capture_labels'), index)
+    if ask.get('technical_note'):
+        body += ('<details class="note"><summary>Technical note</summary><p>'
+                 + esc(ask['technical_note'][:600]) + '</p></details>')
+    body += answer_buttons(ask.get('claim_id'))
+    return f'<div class="ask {ask["severity"]}" data-question="{esc(str(ask.get("id") or ""))}">{body}</div>'
 
 
 def questions_list(asks, index=None):
-    esc = html.escape
-    index = index or {}
-    items = []
-    for ask in asks:
-        body = esc(ask['text'])
-        if ask.get('detail'):
-            body += f'<span class="detail">{esc(ask["detail"])}</span>'
-        if ask.get('meta'):
-            body += f'<span class="meta">{esc(ask["meta"])}</span>'
-        body += ask.get('links_html') or view_links(ask.get('capture_labels'), index)
-        if ask.get('technical_note'):
-            body += ('<details class="note"><summary>Technical note</summary><p>'
-                     + esc(ask['technical_note'][:600]) + '</p></details>')
-        items.append(f'<li class="{ask["severity"]}">{body}</li>')
-    return '<ol class="asks">' + ''.join(items) + '</ol>'
+    return '<div class="asks">' + ''.join(question_block(ask, index) for ask in asks) + '</div>'
 
 
 # --- cards -----------------------------------------------------------------
@@ -355,6 +489,20 @@ def component_view(component, claims, case_dir, catalog=None):
             'asks': analyst_view.questions(component, own, checks, catalog)}
 
 
+def status_chip(status):
+    esc = html.escape
+    return f'<span class="chip {status["key"]}">{esc(status["label"])}</span>'
+
+
+def classification_badge(classification):
+    """What happened to this component since the last approved version, on a regression case."""
+    esc = html.escape
+    if not classification:
+        return ''
+    return (f'<span class="badge {classification_class(classification)}" '
+            f'title="Since the last approved version">{esc(classification)}</span>')
+
+
 def component_card(view, report_dir_rel):
     esc = html.escape
     component, observations = view['component'], view['observations']
@@ -367,18 +515,20 @@ def component_card(view, report_dir_rel):
                  if definition else '')
     situations = (situations_grid(observations, index) if observations
                   else '<p>No screenshots captured for this component.</p>')
+    chips = (status_chip(analyst_view.component_status(own))
+             + classification_badge(analyst_view.component_classification(own)))
     return f'''<section class="card" id="{esc(analyst_view.component_anchor(component["id"]))}" data-component="{esc(component["id"])}">
-<div class="head"><div><h2>{esc(component["name"])}</h2><div class="page">Report page: {esc(component.get("page", ""))} · {passed} of {len(own)} expectations passed</div></div></div>
-<h3>What this shows</h3><p class="shows">{esc(analyst_view.what_it_shows(component))}</p>
+<div class="head"><div><h2>{esc(component["name"])}</h2><div class="page">Report page: {esc(component.get("page", ""))} · {passed} of {len(own)} expectations passed</div></div><div class="chips">{chips}</div></div>
+<h3>What this shows</h3><p class="shows plain">{esc(analyst_view.what_it_shows(component))}</p>
 {technical}
+<h3>Questions for you</h3>
+{questions_list(asks, index)}
 <h3>Situations</h3>
 {situations}
 <h3>What we observed</h3>
 {observed_table(observations, index)}
 <h3>Checks</h3>
 {checks_list(checks, index)}
-<h3>Questions for you</h3>
-{questions_list(asks, index)}
 <div class="decide"><button type="button" class="sign" data-mode="sign" aria-pressed="false">Sign off</button><button type="button" class="reject" data-mode="reject" aria-pressed="false">Reject</button>
 <textarea placeholder="Comment (applies to every expectation of this component unless overridden below)"></textarea><button type="button" class="clear">Clear</button>
 <div class="state">No decision recorded for this component.</div></div>
@@ -456,7 +606,9 @@ def table_of_contents(views, has_across):
         component, own = view['component'], view['claims']
         passed = sum(1 for c in own if c['status'] == 'passed')
         open_questions = sum(1 for a in view['asks'] if a.get('severity') != 'ok')
-        tags = f'<span class="tag">{passed}/{len(own)} passed</span>'
+        status = analyst_view.component_status(own)
+        tags = f'<span class="tag {status["key"]}">{esc(status["label"])}</span>'
+        tags += f'<span class="tag">{passed}/{len(own)} passed</span>'
         if open_questions:
             tags += f'<span class="tag open">{open_questions} question{"s" if open_questions != 1 else ""}</span>'
         items.append(f'<li><a href="#{esc(analyst_view.component_anchor(component["id"]))}">'
@@ -529,7 +681,10 @@ def prepare(case_path, out_path, embed_images=False):
     cards = [component_card(view, report_dir_rel) for view in views]
     leftover = [claims[c] for c in claims if c not in covered]
     if leftover:
-        cards.append('<section class="card" data-component="other"><div class="head"><h2>Other expectations</h2></div>'
+        cards.append('<section class="card" data-component="other"><div class="head"><div><h2>Other expectations</h2>'
+                     '<div class="page">Expectations that belong to no single component</div></div>'
+                     '<div class="chips">' + status_chip(analyst_view.component_status(leftover))
+                     + classification_badge(analyst_view.component_classification(leftover)) + '</div></div>'
                      '<div class="decide"><button type="button" class="sign" data-mode="sign" aria-pressed="false">Sign off</button><button type="button" class="reject" data-mode="reject" aria-pressed="false">Reject</button>'
                      '<textarea placeholder="Comment"></textarea><button type="button" class="clear">Clear</button><div class="state">No decision recorded for this component.</div></div>'
                      '<details class="claims" open><summary>Expectations (' + str(len(leftover)) + ')</summary><table><thead><tr><th>ID</th><th>Expectation and observation</th><th>Decision</th></tr></thead><tbody>'
@@ -539,10 +694,18 @@ def prepare(case_path, out_path, embed_images=False):
     generator = html.escape(f'analytics-qa review_form {version}')
     case_id, sha = html.escape(str(case['id'])), html.escape(manifest_sha)
     header = table_of_contents(views, bool(across)) + across
+    statuses = [analyst_view.component_status(view['claims']) for view in views]
+    if leftover:
+        statuses.append(analyst_view.component_status(leftover))
+    summary = analyst_view.plain_summary(statuses, case['claims'])
+    names = {cid: comp.get('name') for comp in components for cid in comp.get('claim_ids', [])}
+    headline = analyst_view.regression_headline(case['claims'], names)
     document = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="generator" content="{generator}"><meta name="analytics-qa-case" content="{case_id}"><meta name="analytics-qa-manifest-sha256" content="{sha}">
 <title>{{{{ title }}}}</title><style>{STYLE}</style><main data-generator="{generator}" data-case-id="{case_id}" data-manifest-sha256="{sha}">
-<h1>{{{{ title }}}}</h1><p class="lead">For each component: what it shows, what the screen showed in every situation we captured, the checks we ran on those numbers, and the questions only you can answer. Then sign off or reject. <a href="{{{{ report }}}}" target="_blank">Full evidence report</a></p>
+<h1>{{{{ title }}}}</h1>
+{{% if headline %}}<p class="headline plain">{{{{ headline }}}}</p>{{% endif %}}
+<p class="lead plain">{{{{ summary }}}}</p>
 <p class="notice">Awaiting your decisions. No business approval has been recorded.</p>
 <div class="summary"><span class="pill pass"><b>{counts["passed"]}</b> passed</span><span class="pill fail"><b>{counts["failed"]}</b> defects found</span><span class="pill open"><b>{counts["inconclusive"]}</b> need a business decision</span><span class="pill"><b>{len(components)}</b> components</span></div>
 {{{{ strip }}}}
@@ -551,12 +714,18 @@ def prepare(case_path, out_path, embed_images=False):
 <section class="identity"><h2>Record decisions</h2><label>Reviewer<input id="reviewer" type="text" autocomplete="name"></label>
 <label><input id="confirmation" type="checkbox"> I reviewed the screenshots and expectations I decided on.</label>
 <button id="export" disabled>Export decisions</button><p id="status" role="status"></p>
-<p class="manifest">Evidence manifest: {{{{ manifest }}}}</p></section></main>
+<p id="submit-note" class="hint plain">Exporting downloads a decisions file; hand it back to create the sealed review revision. Your name is recorded exactly as you type it: this is a local attestation, not an authenticated signature.</p>
+<div id="submitted" role="status" hidden></div></section>
+<details class="fineprint"><summary>Technical identity of this review</summary>
+<p class="hint plain">Per component this page shows what the figure is, what the screen showed in every situation we captured, the checks we ran on those numbers, and the questions only you can answer. <a href="{{{{ report }}}}" target="_blank">Full evidence report</a></p>
+<dl><dt>Case</dt><dd>{case_id}</dd><dt>Evidence manifest (SHA-256)</dt><dd class="manifest">{{{{ manifest }}}}</dd>
+<dt>Generated by</dt><dd>{generator}</dd></dl></details></main>
 {LIGHTBOX}
 <script type="application/json" id="payload">{{{{ payload }}}}</script><script>{SCRIPT}</script></html>'''
     rendered = Template(document, autoescape=True).render(
         title=str(case.get('target', 'Analytics evidence review')), report=report,
         manifest=manifest_sha, strip=Markup(regression_strip(case['claims'])), header=Markup(header),
+        summary=summary, headline=headline,
         cards=Markup('\n'.join(cards)), payload=Markup(payload))
     embedded = 0
     if embed_images:

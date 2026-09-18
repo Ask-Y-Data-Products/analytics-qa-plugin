@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T16:38:31.622156+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE ROW(\"v\", CALCULATE(SUM(fact_ad_spend_allocated_daily[spend]), dim_date[date_key] >= DATE(2026,7,1) && dim_date[date_key] <= DATE(2026,7,31)))",
+  "columns": [
+    "[v]"
+  ],
+  "rows": [
+    {
+      "[v]": 533669.73
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[v]"
+      ],
+      "rows": [
+        {
+          "[v]": 533669.73
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

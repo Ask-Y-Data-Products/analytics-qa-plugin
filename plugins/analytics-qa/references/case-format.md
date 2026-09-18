@@ -163,3 +163,33 @@ reviewed_manifest_sha256}` where claim_id is a claim in the case, decision is
 accepted, confirmed_defect, unresolved or exception (exception also needs reason,
 scope and expires_at) and reviewer is non-empty. Prose, notes or a sign-off
 narrative in `review` is a validation error.
+
+## Submit endpoint
+
+`scripts/review_server.py --case <sealed case> --signoff <page.html> [--port
+8899] [--out <review revision dir>] [--open]` serves that page on `127.0.0.1`
+only, read-only, and refuses any path outside the page's own folder. It never
+rewrites the file on disk: as the page is served it is told
+`window.ANALYTICS_QA_REVIEW = {"endpoint": "/decisions", "status": "/status"}`
+before the page's own script, which is the only thing that turns the export
+button into **Submit decisions**. The same file opened from disk downloads the
+decisions file exactly as before.
+
+`POST /decisions` takes the array the page already exports — each entry
+`{claim_id, decision, reviewer, comment, component_id, reviewed_manifest_sha256,
+confirmation}`, plus `reason`, `scope` and `expires_at` on an exception. It is
+refused, with every complaint at once and nothing written, when a claim id is not
+in the case, a decision is outside the case's vocabulary, a claim is decided
+twice, the reviewer is empty, the confirmation provenance is missing, the
+`reviewed_manifest_sha256` is not the sealed case's manifest digest, or
+`accepted` names an expectation that did not pass. Otherwise the decisions are
+written beside the case as `<case-name>-decisions.json` and handed to
+`review_revision`, which seals the review revision and renders its report; the
+answer is `{ok, revision, report, report_url, decisions_file, recorded, counts,
+reviewer, verified_files, attestation}`. `GET /status` returns the case id, the
+manifest digest, the vocabulary and every submission so far, and
+`GET /report/<revision>/<file>` serves the produced capture report.
+
+The reviewer string is recorded exactly as supplied and the response says so:
+this is a local attestation, not an authenticated signature. The agent starts the
+server; the person submits. Nothing here writes into the sealed case.

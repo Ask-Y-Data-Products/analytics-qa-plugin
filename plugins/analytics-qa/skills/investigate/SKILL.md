@@ -67,6 +67,20 @@ case's `limitations` or in the relevant finding.
    the measure behind each label on screen, the tables those measures read and
    where those tables come from, the filters and the interaction settings, and an
    explicit list of what the evidence does not cover. Report its absolute path.
+
+   The page now leads with "Follow one number": one visual chain per measure,
+   screen -> measure -> what it does in one plain sentence -> the tables it reads
+   -> where each table comes from, with chips marking the steps that matter for
+   correctness (reads the machine clock, removes a filter, divides without a
+   guard, restricted to one segment). The sentence is produced by matching the
+   shape of the DAX; an expression no pattern matches says "see the definition"
+   and keeps its DAX, and a step the evidence cannot establish says "unknown".
+   A measure only earns a chain if a captured card, KPI or table total binds it,
+   so **capture the visuals that carry the component's headline numbers**: before
+   moving on, open the report and check that every measure you would name in a
+   sentence about this component appears in that section. If one is missing, the
+   capture is missing the card or table that shows it - go back and capture it
+   rather than describing the measure in prose nobody can trace.
    This is the deliverable of the investigation step and it is useful on its own:
    it is the document to hand someone who inherited a report and has to
    understand it, whether or not anyone goes on to test it.

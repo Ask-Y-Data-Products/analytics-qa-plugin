@@ -1,0 +1,3145 @@
+{
+  "kind": "probe",
+  "id": "meta-ratio-bound",
+  "method": "stat.ratio_stability",
+  "question": "Are CRM-attributed Meta leads ever more than what the platform reports on a single day?",
+  "params": {
+    "key_column": "dim_date[date_key]",
+    "numerator": "[MetaCRM]",
+    "denominator": "[MetaPlatform]",
+    "minimum_denominator": 30,
+    "upper_bound": 1.0
+  },
+  "dax": "EVALUATE SUMMARIZECOLUMNS(dim_date[date_key], \"MetaCRM\", [Meta CL Leads], \"MetaPlatform\", [Meta Direct Leads]) ORDER BY dim_date[date_key]",
+  "query_result": {
+    "kind": "dax",
+    "timestamp": "2026-09-18T16:39:06.197399+00:00",
+    "port": 64741,
+    "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "query": "EVALUATE SUMMARIZECOLUMNS(dim_date[date_key], \"MetaCRM\", [Meta CL Leads], \"MetaPlatform\", [Meta Direct Leads]) ORDER BY dim_date[date_key]",
+    "columns": [
+      "dim_date[date_key]",
+      "[MetaCRM]",
+      "[MetaPlatform]"
+    ],
+    "rows": [
+      {
+        "dim_date[date_key]": "1/1/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 4
+      },
+      {
+        "dim_date[date_key]": "1/2/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 6
+      },
+      {
+        "dim_date[date_key]": "1/3/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/4/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "1/5/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/6/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 7
+      },
+      {
+        "dim_date[date_key]": "1/7/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "1/8/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 4
+      },
+      {
+        "dim_date[date_key]": "1/9/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/10/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/11/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/12/2026 12:00:00 AM",
+        "[MetaCRM]": 4,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/13/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/14/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/15/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/16/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/17/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/18/2026 12:00:00 AM",
+        "[MetaCRM]": 4,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/19/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/20/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/21/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/22/2026 12:00:00 AM",
+        "[MetaCRM]": 7,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/23/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/24/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "1/25/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/26/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/27/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/28/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 3
+      },
+      {
+        "dim_date[date_key]": "1/29/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/30/2026 12:00:00 AM",
+        "[MetaCRM]": 4,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "1/31/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/1/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "2/2/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/3/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/4/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/5/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/6/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "2/7/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/8/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 0
+      },
+      {
+        "dim_date[date_key]": "2/9/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/10/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/11/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "2/12/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/13/2026 12:00:00 AM",
+        "[MetaCRM]": 2,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/14/2026 12:00:00 AM",
+        "[MetaCRM]": 7,
+        "[MetaPlatform]": 2
+      },
+      {
+        "dim_date[date_key]": "2/15/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 5
+      },
+      {
+        "dim_date[date_key]": "2/16/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/17/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/18/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 3
+      },
+      {
+        "dim_date[date_key]": "2/19/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/20/2026 12:00:00 AM",
+        "[MetaCRM]": 4,
+        "[MetaPlatform]": 1
+      },
+      {
+        "dim_date[date_key]": "2/21/2026 12:00:00 AM",
+        "[MetaCRM]": 3,
+        "[MetaPlatform]": 5
+      },
+      {
+        "dim_date[date_key]": "2/22/2026 12:00:00 AM",
+        "[MetaCRM]": 11,
+        "[MetaPlatform]": 19
+      },
+      {
+        "dim_date[date_key]": "2/23/2026 12:00:00 AM",
+        "[MetaCRM]": 5,
+        "[MetaPlatform]": 11
+      },
+      {
+        "dim_date[date_key]": "2/24/2026 12:00:00 AM",
+        "[MetaCRM]": 8,
+        "[MetaPlatform]": 13
+      },
+      {
+        "dim_date[date_key]": "2/25/2026 12:00:00 AM",
+        "[MetaCRM]": 15,
+        "[MetaPlatform]": 17
+      },
+      {
+        "dim_date[date_key]": "2/26/2026 12:00:00 AM",
+        "[MetaCRM]": 17,
+        "[MetaPlatform]": 23
+      },
+      {
+        "dim_date[date_key]": "2/27/2026 12:00:00 AM",
+        "[MetaCRM]": 12,
+        "[MetaPlatform]": 21
+      },
+      {
+        "dim_date[date_key]": "2/28/2026 12:00:00 AM",
+        "[MetaCRM]": 13,
+        "[MetaPlatform]": 19
+      },
+      {
+        "dim_date[date_key]": "3/1/2026 12:00:00 AM",
+        "[MetaCRM]": 6,
+        "[MetaPlatform]": 17
+      },
+      {
+        "dim_date[date_key]": "3/2/2026 12:00:00 AM",
+        "[MetaCRM]": 33,
+        "[MetaPlatform]": 16
+      },
+      {
+        "dim_date[date_key]": "3/3/2026 12:00:00 AM",
+        "[MetaCRM]": 23,
+        "[MetaPlatform]": 24
+      },
+      {
+        "dim_date[date_key]": "3/4/2026 12:00:00 AM",
+        "[MetaCRM]": 5,
+        "[MetaPlatform]": 15
+      },
+      {
+        "dim_date[date_key]": "3/5/2026 12:00:00 AM",
+        "[MetaCRM]": 19,
+        "[MetaPlatform]": 8
+      },
+      {
+        "dim_date[date_key]": "3/6/2026 12:00:00 AM",
+        "[MetaCRM]": 16,
+        "[MetaPlatform]": 18
+      },
+      {
+        "dim_date[date_key]": "3/7/2026 12:00:00 AM",
+        "[MetaCRM]": 6,
+        "[MetaPlatform]": 10
+      },
+      {
+        "dim_date[date_key]": "3/8/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 33
+      },
+      {
+        "dim_date[date_key]": "3/9/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "3/10/2026 12:00:00 AM",
+        "[MetaCRM]": 37,
+        "[MetaPlatform]": 43
+      },
+      {
+        "dim_date[date_key]": "3/11/2026 12:00:00 AM",
+        "[MetaCRM]": 28,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "3/12/2026 12:00:00 AM",
+        "[MetaCRM]": 18,
+        "[MetaPlatform]": 22
+      },
+      {
+        "dim_date[date_key]": "3/13/2026 12:00:00 AM",
+        "[MetaCRM]": 17,
+        "[MetaPlatform]": 19
+      },
+      {
+        "dim_date[date_key]": "3/14/2026 12:00:00 AM",
+        "[MetaCRM]": 11,
+        "[MetaPlatform]": 15
+      },
+      {
+        "dim_date[date_key]": "3/15/2026 12:00:00 AM",
+        "[MetaCRM]": 22,
+        "[MetaPlatform]": 28
+      },
+      {
+        "dim_date[date_key]": "3/16/2026 12:00:00 AM",
+        "[MetaCRM]": 27,
+        "[MetaPlatform]": 27
+      },
+      {
+        "dim_date[date_key]": "3/17/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "3/18/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 33
+      },
+      {
+        "dim_date[date_key]": "3/19/2026 12:00:00 AM",
+        "[MetaCRM]": 28,
+        "[MetaPlatform]": 31
+      },
+      {
+        "dim_date[date_key]": "3/20/2026 12:00:00 AM",
+        "[MetaCRM]": 21,
+        "[MetaPlatform]": 26
+      },
+      {
+        "dim_date[date_key]": "3/21/2026 12:00:00 AM",
+        "[MetaCRM]": 21,
+        "[MetaPlatform]": 30
+      },
+      {
+        "dim_date[date_key]": "3/22/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 38
+      },
+      {
+        "dim_date[date_key]": "3/23/2026 12:00:00 AM",
+        "[MetaCRM]": 44,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "3/24/2026 12:00:00 AM",
+        "[MetaCRM]": 47,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "3/25/2026 12:00:00 AM",
+        "[MetaCRM]": 61,
+        "[MetaPlatform]": 78
+      },
+      {
+        "dim_date[date_key]": "3/26/2026 12:00:00 AM",
+        "[MetaCRM]": 65,
+        "[MetaPlatform]": 91
+      },
+      {
+        "dim_date[date_key]": "3/27/2026 12:00:00 AM",
+        "[MetaCRM]": 36,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "3/28/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 90
+      },
+      {
+        "dim_date[date_key]": "3/29/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 75
+      },
+      {
+        "dim_date[date_key]": "3/30/2026 12:00:00 AM",
+        "[MetaCRM]": 59,
+        "[MetaPlatform]": 80
+      },
+      {
+        "dim_date[date_key]": "3/31/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 68
+      },
+      {
+        "dim_date[date_key]": "4/1/2026 12:00:00 AM",
+        "[MetaCRM]": 54,
+        "[MetaPlatform]": 59
+      },
+      {
+        "dim_date[date_key]": "4/2/2026 12:00:00 AM",
+        "[MetaCRM]": 51,
+        "[MetaPlatform]": 60
+      },
+      {
+        "dim_date[date_key]": "4/3/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 61
+      },
+      {
+        "dim_date[date_key]": "4/4/2026 12:00:00 AM",
+        "[MetaCRM]": 53,
+        "[MetaPlatform]": 66
+      },
+      {
+        "dim_date[date_key]": "4/5/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 48
+      },
+      {
+        "dim_date[date_key]": "4/6/2026 12:00:00 AM",
+        "[MetaCRM]": 65,
+        "[MetaPlatform]": 86
+      },
+      {
+        "dim_date[date_key]": "4/7/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "4/8/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 72
+      },
+      {
+        "dim_date[date_key]": "4/9/2026 12:00:00 AM",
+        "[MetaCRM]": 59,
+        "[MetaPlatform]": 74
+      },
+      {
+        "dim_date[date_key]": "4/10/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 65
+      },
+      {
+        "dim_date[date_key]": "4/11/2026 12:00:00 AM",
+        "[MetaCRM]": 38,
+        "[MetaPlatform]": 76
+      },
+      {
+        "dim_date[date_key]": "4/12/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 59
+      },
+      {
+        "dim_date[date_key]": "4/13/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "4/14/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "4/15/2026 12:00:00 AM",
+        "[MetaCRM]": 40,
+        "[MetaPlatform]": 61
+      },
+      {
+        "dim_date[date_key]": "4/16/2026 12:00:00 AM",
+        "[MetaCRM]": 34,
+        "[MetaPlatform]": 53
+      },
+      {
+        "dim_date[date_key]": "4/17/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "4/18/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 49
+      },
+      {
+        "dim_date[date_key]": "4/19/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 65
+      },
+      {
+        "dim_date[date_key]": "4/20/2026 12:00:00 AM",
+        "[MetaCRM]": 88,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "4/21/2026 12:00:00 AM",
+        "[MetaCRM]": 44,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "4/22/2026 12:00:00 AM",
+        "[MetaCRM]": 36,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "4/23/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "4/24/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 41
+      },
+      {
+        "dim_date[date_key]": "4/25/2026 12:00:00 AM",
+        "[MetaCRM]": 31,
+        "[MetaPlatform]": 38
+      },
+      {
+        "dim_date[date_key]": "4/26/2026 12:00:00 AM",
+        "[MetaCRM]": 46,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "4/27/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "4/28/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 47
+      },
+      {
+        "dim_date[date_key]": "4/29/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "4/30/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 53
+      },
+      {
+        "dim_date[date_key]": "5/1/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "5/2/2026 12:00:00 AM",
+        "[MetaCRM]": 34,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "5/3/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 40
+      },
+      {
+        "dim_date[date_key]": "5/4/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "5/5/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 53
+      },
+      {
+        "dim_date[date_key]": "5/6/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 45
+      },
+      {
+        "dim_date[date_key]": "5/7/2026 12:00:00 AM",
+        "[MetaCRM]": 44,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "5/8/2026 12:00:00 AM",
+        "[MetaCRM]": 27,
+        "[MetaPlatform]": 32
+      },
+      {
+        "dim_date[date_key]": "5/9/2026 12:00:00 AM",
+        "[MetaCRM]": 31,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "5/10/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 41
+      },
+      {
+        "dim_date[date_key]": "5/11/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 48
+      },
+      {
+        "dim_date[date_key]": "5/12/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "5/13/2026 12:00:00 AM",
+        "[MetaCRM]": 47,
+        "[MetaPlatform]": 51
+      },
+      {
+        "dim_date[date_key]": "5/14/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "5/15/2026 12:00:00 AM",
+        "[MetaCRM]": 36,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "5/16/2026 12:00:00 AM",
+        "[MetaCRM]": 34,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "5/17/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "5/18/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "5/19/2026 12:00:00 AM",
+        "[MetaCRM]": 51,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "5/20/2026 12:00:00 AM",
+        "[MetaCRM]": 44,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "5/21/2026 12:00:00 AM",
+        "[MetaCRM]": 47,
+        "[MetaPlatform]": 48
+      },
+      {
+        "dim_date[date_key]": "5/22/2026 12:00:00 AM",
+        "[MetaCRM]": 36,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "5/23/2026 12:00:00 AM",
+        "[MetaCRM]": 33,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "5/24/2026 12:00:00 AM",
+        "[MetaCRM]": 45,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "5/25/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "5/26/2026 12:00:00 AM",
+        "[MetaCRM]": 31,
+        "[MetaPlatform]": 35
+      },
+      {
+        "dim_date[date_key]": "5/27/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "5/28/2026 12:00:00 AM",
+        "[MetaCRM]": 40,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "5/29/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "5/30/2026 12:00:00 AM",
+        "[MetaCRM]": 40,
+        "[MetaPlatform]": 38
+      },
+      {
+        "dim_date[date_key]": "5/31/2026 12:00:00 AM",
+        "[MetaCRM]": 49,
+        "[MetaPlatform]": 45
+      },
+      {
+        "dim_date[date_key]": "6/1/2026 12:00:00 AM",
+        "[MetaCRM]": 49,
+        "[MetaPlatform]": 52
+      },
+      {
+        "dim_date[date_key]": "6/2/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "6/3/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 61
+      },
+      {
+        "dim_date[date_key]": "6/4/2026 12:00:00 AM",
+        "[MetaCRM]": 38,
+        "[MetaPlatform]": 40
+      },
+      {
+        "dim_date[date_key]": "6/5/2026 12:00:00 AM",
+        "[MetaCRM]": 46,
+        "[MetaPlatform]": 51
+      },
+      {
+        "dim_date[date_key]": "6/6/2026 12:00:00 AM",
+        "[MetaCRM]": 37,
+        "[MetaPlatform]": 51
+      },
+      {
+        "dim_date[date_key]": "6/7/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "6/8/2026 12:00:00 AM",
+        "[MetaCRM]": 49,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "6/9/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "6/10/2026 12:00:00 AM",
+        "[MetaCRM]": 29,
+        "[MetaPlatform]": 32
+      },
+      {
+        "dim_date[date_key]": "6/11/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 37
+      },
+      {
+        "dim_date[date_key]": "6/12/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 35
+      },
+      {
+        "dim_date[date_key]": "6/13/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "6/14/2026 12:00:00 AM",
+        "[MetaCRM]": 33,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "6/15/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 47
+      },
+      {
+        "dim_date[date_key]": "6/16/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 47
+      },
+      {
+        "dim_date[date_key]": "6/17/2026 12:00:00 AM",
+        "[MetaCRM]": 31,
+        "[MetaPlatform]": 29
+      },
+      {
+        "dim_date[date_key]": "6/18/2026 12:00:00 AM",
+        "[MetaCRM]": 28,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "6/19/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "6/20/2026 12:00:00 AM",
+        "[MetaCRM]": 22,
+        "[MetaPlatform]": 26
+      },
+      {
+        "dim_date[date_key]": "6/21/2026 12:00:00 AM",
+        "[MetaCRM]": 23,
+        "[MetaPlatform]": 35
+      },
+      {
+        "dim_date[date_key]": "6/22/2026 12:00:00 AM",
+        "[MetaCRM]": 38,
+        "[MetaPlatform]": 45
+      },
+      {
+        "dim_date[date_key]": "6/23/2026 12:00:00 AM",
+        "[MetaCRM]": 27,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "6/24/2026 12:00:00 AM",
+        "[MetaCRM]": 13,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "6/25/2026 12:00:00 AM",
+        "[MetaCRM]": 1,
+        "[MetaPlatform]": 46
+      },
+      {
+        "dim_date[date_key]": "6/26/2026 12:00:00 AM",
+        "[MetaCRM]": 109,
+        "[MetaPlatform]": 23
+      },
+      {
+        "dim_date[date_key]": "6/27/2026 12:00:00 AM",
+        "[MetaCRM]": 33,
+        "[MetaPlatform]": 40
+      },
+      {
+        "dim_date[date_key]": "6/28/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "6/29/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 67
+      },
+      {
+        "dim_date[date_key]": "6/30/2026 12:00:00 AM",
+        "[MetaCRM]": 45,
+        "[MetaPlatform]": 60
+      },
+      {
+        "dim_date[date_key]": "7/1/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 64
+      },
+      {
+        "dim_date[date_key]": "7/2/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "7/3/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "7/4/2026 12:00:00 AM",
+        "[MetaCRM]": 53,
+        "[MetaPlatform]": 76
+      },
+      {
+        "dim_date[date_key]": "7/5/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 65
+      },
+      {
+        "dim_date[date_key]": "7/6/2026 12:00:00 AM",
+        "[MetaCRM]": 45,
+        "[MetaPlatform]": 70
+      },
+      {
+        "dim_date[date_key]": "7/7/2026 12:00:00 AM",
+        "[MetaCRM]": 133,
+        "[MetaPlatform]": 60
+      },
+      {
+        "dim_date[date_key]": "7/8/2026 12:00:00 AM",
+        "[MetaCRM]": 59,
+        "[MetaPlatform]": 70
+      },
+      {
+        "dim_date[date_key]": "7/9/2026 12:00:00 AM",
+        "[MetaCRM]": 51,
+        "[MetaPlatform]": 64
+      },
+      {
+        "dim_date[date_key]": "7/10/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 55
+      },
+      {
+        "dim_date[date_key]": "7/11/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 57
+      },
+      {
+        "dim_date[date_key]": "7/12/2026 12:00:00 AM",
+        "[MetaCRM]": 46,
+        "[MetaPlatform]": 65
+      },
+      {
+        "dim_date[date_key]": "7/13/2026 12:00:00 AM",
+        "[MetaCRM]": 56,
+        "[MetaPlatform]": 76
+      },
+      {
+        "dim_date[date_key]": "7/14/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 78
+      },
+      {
+        "dim_date[date_key]": "7/15/2026 12:00:00 AM",
+        "[MetaCRM]": 43,
+        "[MetaPlatform]": 59
+      },
+      {
+        "dim_date[date_key]": "7/16/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 74
+      },
+      {
+        "dim_date[date_key]": "7/17/2026 12:00:00 AM",
+        "[MetaCRM]": 70,
+        "[MetaPlatform]": 87
+      },
+      {
+        "dim_date[date_key]": "7/18/2026 12:00:00 AM",
+        "[MetaCRM]": 54,
+        "[MetaPlatform]": 70
+      },
+      {
+        "dim_date[date_key]": "7/19/2026 12:00:00 AM",
+        "[MetaCRM]": 44,
+        "[MetaPlatform]": 62
+      },
+      {
+        "dim_date[date_key]": "7/20/2026 12:00:00 AM",
+        "[MetaCRM]": 58,
+        "[MetaPlatform]": 80
+      },
+      {
+        "dim_date[date_key]": "7/21/2026 12:00:00 AM",
+        "[MetaCRM]": 60,
+        "[MetaPlatform]": 76
+      },
+      {
+        "dim_date[date_key]": "7/22/2026 12:00:00 AM",
+        "[MetaCRM]": 73,
+        "[MetaPlatform]": 87
+      },
+      {
+        "dim_date[date_key]": "7/23/2026 12:00:00 AM",
+        "[MetaCRM]": 42,
+        "[MetaPlatform]": 64
+      },
+      {
+        "dim_date[date_key]": "7/24/2026 12:00:00 AM",
+        "[MetaCRM]": 63,
+        "[MetaPlatform]": 60
+      },
+      {
+        "dim_date[date_key]": "7/25/2026 12:00:00 AM",
+        "[MetaCRM]": 52,
+        "[MetaPlatform]": 66
+      },
+      {
+        "dim_date[date_key]": "7/26/2026 12:00:00 AM",
+        "[MetaCRM]": 58,
+        "[MetaPlatform]": 74
+      },
+      {
+        "dim_date[date_key]": "7/27/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "7/28/2026 12:00:00 AM",
+        "[MetaCRM]": 27,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "7/29/2026 12:00:00 AM",
+        "[MetaCRM]": 34,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "7/30/2026 12:00:00 AM",
+        "[MetaCRM]": 49,
+        "[MetaPlatform]": 51
+      },
+      {
+        "dim_date[date_key]": "7/31/2026 12:00:00 AM",
+        "[MetaCRM]": 29,
+        "[MetaPlatform]": 31
+      },
+      {
+        "dim_date[date_key]": "8/1/2026 12:00:00 AM",
+        "[MetaCRM]": 37,
+        "[MetaPlatform]": 43
+      },
+      {
+        "dim_date[date_key]": "8/2/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 43
+      },
+      {
+        "dim_date[date_key]": "8/3/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 43
+      },
+      {
+        "dim_date[date_key]": "8/4/2026 12:00:00 AM",
+        "[MetaCRM]": 33,
+        "[MetaPlatform]": 40
+      },
+      {
+        "dim_date[date_key]": "8/5/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 41
+      },
+      {
+        "dim_date[date_key]": "8/6/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 33
+      },
+      {
+        "dim_date[date_key]": "8/7/2026 12:00:00 AM",
+        "[MetaCRM]": 48,
+        "[MetaPlatform]": 56
+      },
+      {
+        "dim_date[date_key]": "8/8/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 44
+      },
+      {
+        "dim_date[date_key]": "8/9/2026 12:00:00 AM",
+        "[MetaCRM]": 41,
+        "[MetaPlatform]": 54
+      },
+      {
+        "dim_date[date_key]": "8/10/2026 12:00:00 AM",
+        "[MetaCRM]": 126,
+        "[MetaPlatform]": 69
+      },
+      {
+        "dim_date[date_key]": "8/11/2026 12:00:00 AM",
+        "[MetaCRM]": 404,
+        "[MetaPlatform]": 105
+      },
+      {
+        "dim_date[date_key]": "8/12/2026 12:00:00 AM",
+        "[MetaCRM]": 75,
+        "[MetaPlatform]": 82
+      },
+      {
+        "dim_date[date_key]": "8/13/2026 12:00:00 AM",
+        "[MetaCRM]": 59,
+        "[MetaPlatform]": 60
+      },
+      {
+        "dim_date[date_key]": "8/14/2026 12:00:00 AM",
+        "[MetaCRM]": 57,
+        "[MetaPlatform]": 61
+      },
+      {
+        "dim_date[date_key]": "8/15/2026 12:00:00 AM",
+        "[MetaCRM]": 46,
+        "[MetaPlatform]": 50
+      },
+      {
+        "dim_date[date_key]": "8/16/2026 12:00:00 AM",
+        "[MetaCRM]": 63,
+        "[MetaPlatform]": 69
+      },
+      {
+        "dim_date[date_key]": "8/17/2026 12:00:00 AM",
+        "[MetaCRM]": 65,
+        "[MetaPlatform]": 69
+      },
+      {
+        "dim_date[date_key]": "8/18/2026 12:00:00 AM",
+        "[MetaCRM]": 37,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "8/19/2026 12:00:00 AM",
+        "[MetaCRM]": 38,
+        "[MetaPlatform]": 42
+      },
+      {
+        "dim_date[date_key]": "8/20/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 33
+      },
+      {
+        "dim_date[date_key]": "8/21/2026 12:00:00 AM",
+        "[MetaCRM]": 20,
+        "[MetaPlatform]": 27
+      },
+      {
+        "dim_date[date_key]": "8/22/2026 12:00:00 AM",
+        "[MetaCRM]": 38,
+        "[MetaPlatform]": 41
+      },
+      {
+        "dim_date[date_key]": "8/23/2026 12:00:00 AM",
+        "[MetaCRM]": 32,
+        "[MetaPlatform]": 36
+      },
+      {
+        "dim_date[date_key]": "8/24/2026 12:00:00 AM",
+        "[MetaCRM]": 39,
+        "[MetaPlatform]": 43
+      },
+      {
+        "dim_date[date_key]": "8/25/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 33
+      },
+      {
+        "dim_date[date_key]": "8/26/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "8/27/2026 12:00:00 AM",
+        "[MetaCRM]": 23,
+        "[MetaPlatform]": 31
+      },
+      {
+        "dim_date[date_key]": "8/28/2026 12:00:00 AM",
+        "[MetaCRM]": 29,
+        "[MetaPlatform]": 31
+      },
+      {
+        "dim_date[date_key]": "8/29/2026 12:00:00 AM",
+        "[MetaCRM]": 29,
+        "[MetaPlatform]": 34
+      },
+      {
+        "dim_date[date_key]": "8/30/2026 12:00:00 AM",
+        "[MetaCRM]": 25,
+        "[MetaPlatform]": 29
+      },
+      {
+        "dim_date[date_key]": "8/31/2026 12:00:00 AM",
+        "[MetaCRM]": 30,
+        "[MetaPlatform]": 39
+      },
+      {
+        "dim_date[date_key]": "9/1/2026 12:00:00 AM",
+        "[MetaCRM]": 36,
+        "[MetaPlatform]": 45
+      },
+      {
+        "dim_date[date_key]": "9/2/2026 12:00:00 AM",
+        "[MetaCRM]": 35,
+        "[MetaPlatform]": 47
+      },
+      {
+        "dim_date[date_key]": "9/3/2026 12:00:00 AM",
+        "[MetaCRM]": 19,
+        "[MetaPlatform]": 23
+      },
+      {
+        "dim_date[date_key]": "9/4/2026 12:00:00 AM",
+        "[MetaCRM]": null,
+        "[MetaPlatform]": 6
+      }
+    ],
+    "result_sets": [
+      {
+        "columns": [
+          "dim_date[date_key]",
+          "[MetaCRM]",
+          "[MetaPlatform]"
+        ],
+        "rows": [
+          {
+            "dim_date[date_key]": "1/1/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 4
+          },
+          {
+            "dim_date[date_key]": "1/2/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 6
+          },
+          {
+            "dim_date[date_key]": "1/3/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/4/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "1/5/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/6/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 7
+          },
+          {
+            "dim_date[date_key]": "1/7/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "1/8/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 4
+          },
+          {
+            "dim_date[date_key]": "1/9/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/10/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/11/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/12/2026 12:00:00 AM",
+            "[MetaCRM]": 4,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/13/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/14/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/15/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/16/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/17/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/18/2026 12:00:00 AM",
+            "[MetaCRM]": 4,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/19/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/20/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/21/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/22/2026 12:00:00 AM",
+            "[MetaCRM]": 7,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/23/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/24/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "1/25/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/26/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/27/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/28/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 3
+          },
+          {
+            "dim_date[date_key]": "1/29/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/30/2026 12:00:00 AM",
+            "[MetaCRM]": 4,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "1/31/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/1/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "2/2/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/3/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/4/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/5/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/6/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "2/7/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/8/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 0
+          },
+          {
+            "dim_date[date_key]": "2/9/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/10/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/11/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "2/12/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/13/2026 12:00:00 AM",
+            "[MetaCRM]": 2,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/14/2026 12:00:00 AM",
+            "[MetaCRM]": 7,
+            "[MetaPlatform]": 2
+          },
+          {
+            "dim_date[date_key]": "2/15/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 5
+          },
+          {
+            "dim_date[date_key]": "2/16/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/17/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/18/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 3
+          },
+          {
+            "dim_date[date_key]": "2/19/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/20/2026 12:00:00 AM",
+            "[MetaCRM]": 4,
+            "[MetaPlatform]": 1
+          },
+          {
+            "dim_date[date_key]": "2/21/2026 12:00:00 AM",
+            "[MetaCRM]": 3,
+            "[MetaPlatform]": 5
+          },
+          {
+            "dim_date[date_key]": "2/22/2026 12:00:00 AM",
+            "[MetaCRM]": 11,
+            "[MetaPlatform]": 19
+          },
+          {
+            "dim_date[date_key]": "2/23/2026 12:00:00 AM",
+            "[MetaCRM]": 5,
+            "[MetaPlatform]": 11
+          },
+          {
+            "dim_date[date_key]": "2/24/2026 12:00:00 AM",
+            "[MetaCRM]": 8,
+            "[MetaPlatform]": 13
+          },
+          {
+            "dim_date[date_key]": "2/25/2026 12:00:00 AM",
+            "[MetaCRM]": 15,
+            "[MetaPlatform]": 17
+          },
+          {
+            "dim_date[date_key]": "2/26/2026 12:00:00 AM",
+            "[MetaCRM]": 17,
+            "[MetaPlatform]": 23
+          },
+          {
+            "dim_date[date_key]": "2/27/2026 12:00:00 AM",
+            "[MetaCRM]": 12,
+            "[MetaPlatform]": 21
+          },
+          {
+            "dim_date[date_key]": "2/28/2026 12:00:00 AM",
+            "[MetaCRM]": 13,
+            "[MetaPlatform]": 19
+          },
+          {
+            "dim_date[date_key]": "3/1/2026 12:00:00 AM",
+            "[MetaCRM]": 6,
+            "[MetaPlatform]": 17
+          },
+          {
+            "dim_date[date_key]": "3/2/2026 12:00:00 AM",
+            "[MetaCRM]": 33,
+            "[MetaPlatform]": 16
+          },
+          {
+            "dim_date[date_key]": "3/3/2026 12:00:00 AM",
+            "[MetaCRM]": 23,
+            "[MetaPlatform]": 24
+          },
+          {
+            "dim_date[date_key]": "3/4/2026 12:00:00 AM",
+            "[MetaCRM]": 5,
+            "[MetaPlatform]": 15
+          },
+          {
+            "dim_date[date_key]": "3/5/2026 12:00:00 AM",
+            "[MetaCRM]": 19,
+            "[MetaPlatform]": 8
+          },
+          {
+            "dim_date[date_key]": "3/6/2026 12:00:00 AM",
+            "[MetaCRM]": 16,
+            "[MetaPlatform]": 18
+          },
+          {
+            "dim_date[date_key]": "3/7/2026 12:00:00 AM",
+            "[MetaCRM]": 6,
+            "[MetaPlatform]": 10
+          },
+          {
+            "dim_date[date_key]": "3/8/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 33
+          },
+          {
+            "dim_date[date_key]": "3/9/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "3/10/2026 12:00:00 AM",
+            "[MetaCRM]": 37,
+            "[MetaPlatform]": 43
+          },
+          {
+            "dim_date[date_key]": "3/11/2026 12:00:00 AM",
+            "[MetaCRM]": 28,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "3/12/2026 12:00:00 AM",
+            "[MetaCRM]": 18,
+            "[MetaPlatform]": 22
+          },
+          {
+            "dim_date[date_key]": "3/13/2026 12:00:00 AM",
+            "[MetaCRM]": 17,
+            "[MetaPlatform]": 19
+          },
+          {
+            "dim_date[date_key]": "3/14/2026 12:00:00 AM",
+            "[MetaCRM]": 11,
+            "[MetaPlatform]": 15
+          },
+          {
+            "dim_date[date_key]": "3/15/2026 12:00:00 AM",
+            "[MetaCRM]": 22,
+            "[MetaPlatform]": 28
+          },
+          {
+            "dim_date[date_key]": "3/16/2026 12:00:00 AM",
+            "[MetaCRM]": 27,
+            "[MetaPlatform]": 27
+          },
+          {
+            "dim_date[date_key]": "3/17/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "3/18/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 33
+          },
+          {
+            "dim_date[date_key]": "3/19/2026 12:00:00 AM",
+            "[MetaCRM]": 28,
+            "[MetaPlatform]": 31
+          },
+          {
+            "dim_date[date_key]": "3/20/2026 12:00:00 AM",
+            "[MetaCRM]": 21,
+            "[MetaPlatform]": 26
+          },
+          {
+            "dim_date[date_key]": "3/21/2026 12:00:00 AM",
+            "[MetaCRM]": 21,
+            "[MetaPlatform]": 30
+          },
+          {
+            "dim_date[date_key]": "3/22/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 38
+          },
+          {
+            "dim_date[date_key]": "3/23/2026 12:00:00 AM",
+            "[MetaCRM]": 44,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "3/24/2026 12:00:00 AM",
+            "[MetaCRM]": 47,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "3/25/2026 12:00:00 AM",
+            "[MetaCRM]": 61,
+            "[MetaPlatform]": 78
+          },
+          {
+            "dim_date[date_key]": "3/26/2026 12:00:00 AM",
+            "[MetaCRM]": 65,
+            "[MetaPlatform]": 91
+          },
+          {
+            "dim_date[date_key]": "3/27/2026 12:00:00 AM",
+            "[MetaCRM]": 36,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "3/28/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 90
+          },
+          {
+            "dim_date[date_key]": "3/29/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 75
+          },
+          {
+            "dim_date[date_key]": "3/30/2026 12:00:00 AM",
+            "[MetaCRM]": 59,
+            "[MetaPlatform]": 80
+          },
+          {
+            "dim_date[date_key]": "3/31/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 68
+          },
+          {
+            "dim_date[date_key]": "4/1/2026 12:00:00 AM",
+            "[MetaCRM]": 54,
+            "[MetaPlatform]": 59
+          },
+          {
+            "dim_date[date_key]": "4/2/2026 12:00:00 AM",
+            "[MetaCRM]": 51,
+            "[MetaPlatform]": 60
+          },
+          {
+            "dim_date[date_key]": "4/3/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 61
+          },
+          {
+            "dim_date[date_key]": "4/4/2026 12:00:00 AM",
+            "[MetaCRM]": 53,
+            "[MetaPlatform]": 66
+          },
+          {
+            "dim_date[date_key]": "4/5/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 48
+          },
+          {
+            "dim_date[date_key]": "4/6/2026 12:00:00 AM",
+            "[MetaCRM]": 65,
+            "[MetaPlatform]": 86
+          },
+          {
+            "dim_date[date_key]": "4/7/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "4/8/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 72
+          },
+          {
+            "dim_date[date_key]": "4/9/2026 12:00:00 AM",
+            "[MetaCRM]": 59,
+            "[MetaPlatform]": 74
+          },
+          {
+            "dim_date[date_key]": "4/10/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 65
+          },
+          {
+            "dim_date[date_key]": "4/11/2026 12:00:00 AM",
+            "[MetaCRM]": 38,
+            "[MetaPlatform]": 76
+          },
+          {
+            "dim_date[date_key]": "4/12/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 59
+          },
+          {
+            "dim_date[date_key]": "4/13/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "4/14/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "4/15/2026 12:00:00 AM",
+            "[MetaCRM]": 40,
+            "[MetaPlatform]": 61
+          },
+          {
+            "dim_date[date_key]": "4/16/2026 12:00:00 AM",
+            "[MetaCRM]": 34,
+            "[MetaPlatform]": 53
+          },
+          {
+            "dim_date[date_key]": "4/17/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "4/18/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 49
+          },
+          {
+            "dim_date[date_key]": "4/19/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 65
+          },
+          {
+            "dim_date[date_key]": "4/20/2026 12:00:00 AM",
+            "[MetaCRM]": 88,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "4/21/2026 12:00:00 AM",
+            "[MetaCRM]": 44,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "4/22/2026 12:00:00 AM",
+            "[MetaCRM]": 36,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "4/23/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "4/24/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 41
+          },
+          {
+            "dim_date[date_key]": "4/25/2026 12:00:00 AM",
+            "[MetaCRM]": 31,
+            "[MetaPlatform]": 38
+          },
+          {
+            "dim_date[date_key]": "4/26/2026 12:00:00 AM",
+            "[MetaCRM]": 46,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "4/27/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "4/28/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 47
+          },
+          {
+            "dim_date[date_key]": "4/29/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "4/30/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 53
+          },
+          {
+            "dim_date[date_key]": "5/1/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "5/2/2026 12:00:00 AM",
+            "[MetaCRM]": 34,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "5/3/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 40
+          },
+          {
+            "dim_date[date_key]": "5/4/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "5/5/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 53
+          },
+          {
+            "dim_date[date_key]": "5/6/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 45
+          },
+          {
+            "dim_date[date_key]": "5/7/2026 12:00:00 AM",
+            "[MetaCRM]": 44,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "5/8/2026 12:00:00 AM",
+            "[MetaCRM]": 27,
+            "[MetaPlatform]": 32
+          },
+          {
+            "dim_date[date_key]": "5/9/2026 12:00:00 AM",
+            "[MetaCRM]": 31,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "5/10/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 41
+          },
+          {
+            "dim_date[date_key]": "5/11/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 48
+          },
+          {
+            "dim_date[date_key]": "5/12/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "5/13/2026 12:00:00 AM",
+            "[MetaCRM]": 47,
+            "[MetaPlatform]": 51
+          },
+          {
+            "dim_date[date_key]": "5/14/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "5/15/2026 12:00:00 AM",
+            "[MetaCRM]": 36,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "5/16/2026 12:00:00 AM",
+            "[MetaCRM]": 34,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "5/17/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "5/18/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "5/19/2026 12:00:00 AM",
+            "[MetaCRM]": 51,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "5/20/2026 12:00:00 AM",
+            "[MetaCRM]": 44,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "5/21/2026 12:00:00 AM",
+            "[MetaCRM]": 47,
+            "[MetaPlatform]": 48
+          },
+          {
+            "dim_date[date_key]": "5/22/2026 12:00:00 AM",
+            "[MetaCRM]": 36,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "5/23/2026 12:00:00 AM",
+            "[MetaCRM]": 33,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "5/24/2026 12:00:00 AM",
+            "[MetaCRM]": 45,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "5/25/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "5/26/2026 12:00:00 AM",
+            "[MetaCRM]": 31,
+            "[MetaPlatform]": 35
+          },
+          {
+            "dim_date[date_key]": "5/27/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "5/28/2026 12:00:00 AM",
+            "[MetaCRM]": 40,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "5/29/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "5/30/2026 12:00:00 AM",
+            "[MetaCRM]": 40,
+            "[MetaPlatform]": 38
+          },
+          {
+            "dim_date[date_key]": "5/31/2026 12:00:00 AM",
+            "[MetaCRM]": 49,
+            "[MetaPlatform]": 45
+          },
+          {
+            "dim_date[date_key]": "6/1/2026 12:00:00 AM",
+            "[MetaCRM]": 49,
+            "[MetaPlatform]": 52
+          },
+          {
+            "dim_date[date_key]": "6/2/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "6/3/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 61
+          },
+          {
+            "dim_date[date_key]": "6/4/2026 12:00:00 AM",
+            "[MetaCRM]": 38,
+            "[MetaPlatform]": 40
+          },
+          {
+            "dim_date[date_key]": "6/5/2026 12:00:00 AM",
+            "[MetaCRM]": 46,
+            "[MetaPlatform]": 51
+          },
+          {
+            "dim_date[date_key]": "6/6/2026 12:00:00 AM",
+            "[MetaCRM]": 37,
+            "[MetaPlatform]": 51
+          },
+          {
+            "dim_date[date_key]": "6/7/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "6/8/2026 12:00:00 AM",
+            "[MetaCRM]": 49,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "6/9/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "6/10/2026 12:00:00 AM",
+            "[MetaCRM]": 29,
+            "[MetaPlatform]": 32
+          },
+          {
+            "dim_date[date_key]": "6/11/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 37
+          },
+          {
+            "dim_date[date_key]": "6/12/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 35
+          },
+          {
+            "dim_date[date_key]": "6/13/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "6/14/2026 12:00:00 AM",
+            "[MetaCRM]": 33,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "6/15/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 47
+          },
+          {
+            "dim_date[date_key]": "6/16/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 47
+          },
+          {
+            "dim_date[date_key]": "6/17/2026 12:00:00 AM",
+            "[MetaCRM]": 31,
+            "[MetaPlatform]": 29
+          },
+          {
+            "dim_date[date_key]": "6/18/2026 12:00:00 AM",
+            "[MetaCRM]": 28,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "6/19/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "6/20/2026 12:00:00 AM",
+            "[MetaCRM]": 22,
+            "[MetaPlatform]": 26
+          },
+          {
+            "dim_date[date_key]": "6/21/2026 12:00:00 AM",
+            "[MetaCRM]": 23,
+            "[MetaPlatform]": 35
+          },
+          {
+            "dim_date[date_key]": "6/22/2026 12:00:00 AM",
+            "[MetaCRM]": 38,
+            "[MetaPlatform]": 45
+          },
+          {
+            "dim_date[date_key]": "6/23/2026 12:00:00 AM",
+            "[MetaCRM]": 27,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "6/24/2026 12:00:00 AM",
+            "[MetaCRM]": 13,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "6/25/2026 12:00:00 AM",
+            "[MetaCRM]": 1,
+            "[MetaPlatform]": 46
+          },
+          {
+            "dim_date[date_key]": "6/26/2026 12:00:00 AM",
+            "[MetaCRM]": 109,
+            "[MetaPlatform]": 23
+          },
+          {
+            "dim_date[date_key]": "6/27/2026 12:00:00 AM",
+            "[MetaCRM]": 33,
+            "[MetaPlatform]": 40
+          },
+          {
+            "dim_date[date_key]": "6/28/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "6/29/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 67
+          },
+          {
+            "dim_date[date_key]": "6/30/2026 12:00:00 AM",
+            "[MetaCRM]": 45,
+            "[MetaPlatform]": 60
+          },
+          {
+            "dim_date[date_key]": "7/1/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 64
+          },
+          {
+            "dim_date[date_key]": "7/2/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "7/3/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "7/4/2026 12:00:00 AM",
+            "[MetaCRM]": 53,
+            "[MetaPlatform]": 76
+          },
+          {
+            "dim_date[date_key]": "7/5/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 65
+          },
+          {
+            "dim_date[date_key]": "7/6/2026 12:00:00 AM",
+            "[MetaCRM]": 45,
+            "[MetaPlatform]": 70
+          },
+          {
+            "dim_date[date_key]": "7/7/2026 12:00:00 AM",
+            "[MetaCRM]": 133,
+            "[MetaPlatform]": 60
+          },
+          {
+            "dim_date[date_key]": "7/8/2026 12:00:00 AM",
+            "[MetaCRM]": 59,
+            "[MetaPlatform]": 70
+          },
+          {
+            "dim_date[date_key]": "7/9/2026 12:00:00 AM",
+            "[MetaCRM]": 51,
+            "[MetaPlatform]": 64
+          },
+          {
+            "dim_date[date_key]": "7/10/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 55
+          },
+          {
+            "dim_date[date_key]": "7/11/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 57
+          },
+          {
+            "dim_date[date_key]": "7/12/2026 12:00:00 AM",
+            "[MetaCRM]": 46,
+            "[MetaPlatform]": 65
+          },
+          {
+            "dim_date[date_key]": "7/13/2026 12:00:00 AM",
+            "[MetaCRM]": 56,
+            "[MetaPlatform]": 76
+          },
+          {
+            "dim_date[date_key]": "7/14/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 78
+          },
+          {
+            "dim_date[date_key]": "7/15/2026 12:00:00 AM",
+            "[MetaCRM]": 43,
+            "[MetaPlatform]": 59
+          },
+          {
+            "dim_date[date_key]": "7/16/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 74
+          },
+          {
+            "dim_date[date_key]": "7/17/2026 12:00:00 AM",
+            "[MetaCRM]": 70,
+            "[MetaPlatform]": 87
+          },
+          {
+            "dim_date[date_key]": "7/18/2026 12:00:00 AM",
+            "[MetaCRM]": 54,
+            "[MetaPlatform]": 70
+          },
+          {
+            "dim_date[date_key]": "7/19/2026 12:00:00 AM",
+            "[MetaCRM]": 44,
+            "[MetaPlatform]": 62
+          },
+          {
+            "dim_date[date_key]": "7/20/2026 12:00:00 AM",
+            "[MetaCRM]": 58,
+            "[MetaPlatform]": 80
+          },
+          {
+            "dim_date[date_key]": "7/21/2026 12:00:00 AM",
+            "[MetaCRM]": 60,
+            "[MetaPlatform]": 76
+          },
+          {
+            "dim_date[date_key]": "7/22/2026 12:00:00 AM",
+            "[MetaCRM]": 73,
+            "[MetaPlatform]": 87
+          },
+          {
+            "dim_date[date_key]": "7/23/2026 12:00:00 AM",
+            "[MetaCRM]": 42,
+            "[MetaPlatform]": 64
+          },
+          {
+            "dim_date[date_key]": "7/24/2026 12:00:00 AM",
+            "[MetaCRM]": 63,
+            "[MetaPlatform]": 60
+          },
+          {
+            "dim_date[date_key]": "7/25/2026 12:00:00 AM",
+            "[MetaCRM]": 52,
+            "[MetaPlatform]": 66
+          },
+          {
+            "dim_date[date_key]": "7/26/2026 12:00:00 AM",
+            "[MetaCRM]": 58,
+            "[MetaPlatform]": 74
+          },
+          {
+            "dim_date[date_key]": "7/27/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "7/28/2026 12:00:00 AM",
+            "[MetaCRM]": 27,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "7/29/2026 12:00:00 AM",
+            "[MetaCRM]": 34,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "7/30/2026 12:00:00 AM",
+            "[MetaCRM]": 49,
+            "[MetaPlatform]": 51
+          },
+          {
+            "dim_date[date_key]": "7/31/2026 12:00:00 AM",
+            "[MetaCRM]": 29,
+            "[MetaPlatform]": 31
+          },
+          {
+            "dim_date[date_key]": "8/1/2026 12:00:00 AM",
+            "[MetaCRM]": 37,
+            "[MetaPlatform]": 43
+          },
+          {
+            "dim_date[date_key]": "8/2/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 43
+          },
+          {
+            "dim_date[date_key]": "8/3/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 43
+          },
+          {
+            "dim_date[date_key]": "8/4/2026 12:00:00 AM",
+            "[MetaCRM]": 33,
+            "[MetaPlatform]": 40
+          },
+          {
+            "dim_date[date_key]": "8/5/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 41
+          },
+          {
+            "dim_date[date_key]": "8/6/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 33
+          },
+          {
+            "dim_date[date_key]": "8/7/2026 12:00:00 AM",
+            "[MetaCRM]": 48,
+            "[MetaPlatform]": 56
+          },
+          {
+            "dim_date[date_key]": "8/8/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 44
+          },
+          {
+            "dim_date[date_key]": "8/9/2026 12:00:00 AM",
+            "[MetaCRM]": 41,
+            "[MetaPlatform]": 54
+          },
+          {
+            "dim_date[date_key]": "8/10/2026 12:00:00 AM",
+            "[MetaCRM]": 126,
+            "[MetaPlatform]": 69
+          },
+          {
+            "dim_date[date_key]": "8/11/2026 12:00:00 AM",
+            "[MetaCRM]": 404,
+            "[MetaPlatform]": 105
+          },
+          {
+            "dim_date[date_key]": "8/12/2026 12:00:00 AM",
+            "[MetaCRM]": 75,
+            "[MetaPlatform]": 82
+          },
+          {
+            "dim_date[date_key]": "8/13/2026 12:00:00 AM",
+            "[MetaCRM]": 59,
+            "[MetaPlatform]": 60
+          },
+          {
+            "dim_date[date_key]": "8/14/2026 12:00:00 AM",
+            "[MetaCRM]": 57,
+            "[MetaPlatform]": 61
+          },
+          {
+            "dim_date[date_key]": "8/15/2026 12:00:00 AM",
+            "[MetaCRM]": 46,
+            "[MetaPlatform]": 50
+          },
+          {
+            "dim_date[date_key]": "8/16/2026 12:00:00 AM",
+            "[MetaCRM]": 63,
+            "[MetaPlatform]": 69
+          },
+          {
+            "dim_date[date_key]": "8/17/2026 12:00:00 AM",
+            "[MetaCRM]": 65,
+            "[MetaPlatform]": 69
+          },
+          {
+            "dim_date[date_key]": "8/18/2026 12:00:00 AM",
+            "[MetaCRM]": 37,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "8/19/2026 12:00:00 AM",
+            "[MetaCRM]": 38,
+            "[MetaPlatform]": 42
+          },
+          {
+            "dim_date[date_key]": "8/20/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 33
+          },
+          {
+            "dim_date[date_key]": "8/21/2026 12:00:00 AM",
+            "[MetaCRM]": 20,
+            "[MetaPlatform]": 27
+          },
+          {
+            "dim_date[date_key]": "8/22/2026 12:00:00 AM",
+            "[MetaCRM]": 38,
+            "[MetaPlatform]": 41
+          },
+          {
+            "dim_date[date_key]": "8/23/2026 12:00:00 AM",
+            "[MetaCRM]": 32,
+            "[MetaPlatform]": 36
+          },
+          {
+            "dim_date[date_key]": "8/24/2026 12:00:00 AM",
+            "[MetaCRM]": 39,
+            "[MetaPlatform]": 43
+          },
+          {
+            "dim_date[date_key]": "8/25/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 33
+          },
+          {
+            "dim_date[date_key]": "8/26/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "8/27/2026 12:00:00 AM",
+            "[MetaCRM]": 23,
+            "[MetaPlatform]": 31
+          },
+          {
+            "dim_date[date_key]": "8/28/2026 12:00:00 AM",
+            "[MetaCRM]": 29,
+            "[MetaPlatform]": 31
+          },
+          {
+            "dim_date[date_key]": "8/29/2026 12:00:00 AM",
+            "[MetaCRM]": 29,
+            "[MetaPlatform]": 34
+          },
+          {
+            "dim_date[date_key]": "8/30/2026 12:00:00 AM",
+            "[MetaCRM]": 25,
+            "[MetaPlatform]": 29
+          },
+          {
+            "dim_date[date_key]": "8/31/2026 12:00:00 AM",
+            "[MetaCRM]": 30,
+            "[MetaPlatform]": 39
+          },
+          {
+            "dim_date[date_key]": "9/1/2026 12:00:00 AM",
+            "[MetaCRM]": 36,
+            "[MetaPlatform]": 45
+          },
+          {
+            "dim_date[date_key]": "9/2/2026 12:00:00 AM",
+            "[MetaCRM]": 35,
+            "[MetaPlatform]": 47
+          },
+          {
+            "dim_date[date_key]": "9/3/2026 12:00:00 AM",
+            "[MetaCRM]": 19,
+            "[MetaPlatform]": 23
+          },
+          {
+            "dim_date[date_key]": "9/4/2026 12:00:00 AM",
+            "[MetaCRM]": null,
+            "[MetaPlatform]": 6
+          }
+        ]
+      }
+    ],
+    "complete": true,
+    "context": "engine query; not proof of applied UI state"
+  },
+  "outcome": {
+    "method": "ratio_stability",
+    "status": "flagged",
+    "minimum_denominator": 30,
+    "band": {
+      "q1": 0.7439945092656143,
+      "q3": 0.9203921568627451,
+      "low": 0.479398037869918,
+      "high": 1.1849886282584414
+    },
+    "testable_points": 168,
+    "low_volume_points": [
+      {
+        "key": "1/1/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 4
+      },
+      {
+        "key": "1/2/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 6,
+        "ratio": 0.16666666666666666
+      },
+      {
+        "key": "1/3/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "1/4/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 2
+      },
+      {
+        "key": "1/5/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "1/6/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 7,
+        "ratio": 0.14285714285714285
+      },
+      {
+        "key": "1/7/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 2,
+        "ratio": 0.5
+      },
+      {
+        "key": "1/8/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 4,
+        "ratio": 0.5
+      },
+      {
+        "key": "1/9/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "1/10/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 0
+      },
+      {
+        "key": "1/11/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "1/12/2026 12:00:00 AM",
+        "numerator": 4,
+        "denominator": 0
+      },
+      {
+        "key": "1/13/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 0
+      },
+      {
+        "key": "1/14/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "1/15/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 0
+      },
+      {
+        "key": "1/16/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 0
+      },
+      {
+        "key": "1/17/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 0
+      },
+      {
+        "key": "1/18/2026 12:00:00 AM",
+        "numerator": 4,
+        "denominator": 0
+      },
+      {
+        "key": "1/19/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "1/20/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 0
+      },
+      {
+        "key": "1/21/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 1,
+        "ratio": 3.0
+      },
+      {
+        "key": "1/22/2026 12:00:00 AM",
+        "numerator": 7,
+        "denominator": 0
+      },
+      {
+        "key": "1/23/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 0
+      },
+      {
+        "key": "1/24/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 0
+      },
+      {
+        "key": "1/25/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "1/26/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "1/27/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "1/28/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 3,
+        "ratio": 0.3333333333333333
+      },
+      {
+        "key": "1/29/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "1/30/2026 12:00:00 AM",
+        "numerator": 4,
+        "denominator": 1,
+        "ratio": 4.0
+      },
+      {
+        "key": "1/31/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/1/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 2,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/2/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "2/3/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "2/4/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "2/5/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/6/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 2
+      },
+      {
+        "key": "2/7/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "2/8/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 0
+      },
+      {
+        "key": "2/9/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 1
+      },
+      {
+        "key": "2/10/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/11/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 2
+      },
+      {
+        "key": "2/12/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/13/2026 12:00:00 AM",
+        "numerator": 2,
+        "denominator": 1,
+        "ratio": 2.0
+      },
+      {
+        "key": "2/14/2026 12:00:00 AM",
+        "numerator": 7,
+        "denominator": 2,
+        "ratio": 3.5
+      },
+      {
+        "key": "2/15/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 5,
+        "ratio": 0.2
+      },
+      {
+        "key": "2/16/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/17/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 1,
+        "ratio": 3.0
+      },
+      {
+        "key": "2/18/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 3,
+        "ratio": 0.3333333333333333
+      },
+      {
+        "key": "2/19/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 1,
+        "ratio": 1.0
+      },
+      {
+        "key": "2/20/2026 12:00:00 AM",
+        "numerator": 4,
+        "denominator": 1,
+        "ratio": 4.0
+      },
+      {
+        "key": "2/21/2026 12:00:00 AM",
+        "numerator": 3,
+        "denominator": 5,
+        "ratio": 0.6
+      },
+      {
+        "key": "2/22/2026 12:00:00 AM",
+        "numerator": 11,
+        "denominator": 19,
+        "ratio": 0.5789473684210527
+      },
+      {
+        "key": "2/23/2026 12:00:00 AM",
+        "numerator": 5,
+        "denominator": 11,
+        "ratio": 0.45454545454545453
+      },
+      {
+        "key": "2/24/2026 12:00:00 AM",
+        "numerator": 8,
+        "denominator": 13,
+        "ratio": 0.6153846153846154
+      },
+      {
+        "key": "2/25/2026 12:00:00 AM",
+        "numerator": 15,
+        "denominator": 17,
+        "ratio": 0.8823529411764706
+      },
+      {
+        "key": "2/26/2026 12:00:00 AM",
+        "numerator": 17,
+        "denominator": 23,
+        "ratio": 0.7391304347826086
+      },
+      {
+        "key": "2/27/2026 12:00:00 AM",
+        "numerator": 12,
+        "denominator": 21,
+        "ratio": 0.5714285714285714
+      },
+      {
+        "key": "2/28/2026 12:00:00 AM",
+        "numerator": 13,
+        "denominator": 19,
+        "ratio": 0.6842105263157895
+      },
+      {
+        "key": "3/1/2026 12:00:00 AM",
+        "numerator": 6,
+        "denominator": 17,
+        "ratio": 0.35294117647058826
+      },
+      {
+        "key": "3/2/2026 12:00:00 AM",
+        "numerator": 33,
+        "denominator": 16,
+        "ratio": 2.0625
+      },
+      {
+        "key": "3/3/2026 12:00:00 AM",
+        "numerator": 23,
+        "denominator": 24,
+        "ratio": 0.9583333333333334
+      },
+      {
+        "key": "3/4/2026 12:00:00 AM",
+        "numerator": 5,
+        "denominator": 15,
+        "ratio": 0.3333333333333333
+      },
+      {
+        "key": "3/5/2026 12:00:00 AM",
+        "numerator": 19,
+        "denominator": 8,
+        "ratio": 2.375
+      },
+      {
+        "key": "3/6/2026 12:00:00 AM",
+        "numerator": 16,
+        "denominator": 18,
+        "ratio": 0.8888888888888888
+      },
+      {
+        "key": "3/7/2026 12:00:00 AM",
+        "numerator": 6,
+        "denominator": 10,
+        "ratio": 0.6
+      },
+      {
+        "key": "3/12/2026 12:00:00 AM",
+        "numerator": 18,
+        "denominator": 22,
+        "ratio": 0.8181818181818182
+      },
+      {
+        "key": "3/13/2026 12:00:00 AM",
+        "numerator": 17,
+        "denominator": 19,
+        "ratio": 0.8947368421052632
+      },
+      {
+        "key": "3/14/2026 12:00:00 AM",
+        "numerator": 11,
+        "denominator": 15,
+        "ratio": 0.7333333333333333
+      },
+      {
+        "key": "3/15/2026 12:00:00 AM",
+        "numerator": 22,
+        "denominator": 28,
+        "ratio": 0.7857142857142857
+      },
+      {
+        "key": "3/16/2026 12:00:00 AM",
+        "numerator": 27,
+        "denominator": 27,
+        "ratio": 1.0
+      },
+      {
+        "key": "3/20/2026 12:00:00 AM",
+        "numerator": 21,
+        "denominator": 26,
+        "ratio": 0.8076923076923077
+      },
+      {
+        "key": "6/17/2026 12:00:00 AM",
+        "numerator": 31,
+        "denominator": 29,
+        "ratio": 1.0689655172413792
+      },
+      {
+        "key": "6/20/2026 12:00:00 AM",
+        "numerator": 22,
+        "denominator": 26,
+        "ratio": 0.8461538461538461
+      },
+      {
+        "key": "6/26/2026 12:00:00 AM",
+        "numerator": 109,
+        "denominator": 23,
+        "ratio": 4.739130434782608
+      },
+      {
+        "key": "8/21/2026 12:00:00 AM",
+        "numerator": 20,
+        "denominator": 27,
+        "ratio": 0.7407407407407407
+      },
+      {
+        "key": "8/30/2026 12:00:00 AM",
+        "numerator": 25,
+        "denominator": 29,
+        "ratio": 0.8620689655172413
+      },
+      {
+        "key": "9/3/2026 12:00:00 AM",
+        "numerator": 19,
+        "denominator": 23,
+        "ratio": 0.8260869565217391
+      },
+      {
+        "key": "9/4/2026 12:00:00 AM",
+        "numerator": null,
+        "denominator": 6
+      }
+    ],
+    "flagged": [
+      {
+        "key": "4/20/2026 12:00:00 AM",
+        "numerator": 88,
+        "denominator": 39,
+        "ratio": 2.2564102564102564,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "4/26/2026 12:00:00 AM",
+        "numerator": 46,
+        "denominator": 42,
+        "ratio": 1.0952380952380953,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "4/30/2026 12:00:00 AM",
+        "numerator": 57,
+        "denominator": 53,
+        "ratio": 1.0754716981132075,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/4/2026 12:00:00 AM",
+        "numerator": 43,
+        "denominator": 39,
+        "ratio": 1.1025641025641026,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/17/2026 12:00:00 AM",
+        "numerator": 41,
+        "denominator": 39,
+        "ratio": 1.0512820512820513,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/19/2026 12:00:00 AM",
+        "numerator": 51,
+        "denominator": 50,
+        "ratio": 1.02,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/24/2026 12:00:00 AM",
+        "numerator": 45,
+        "denominator": 44,
+        "ratio": 1.0227272727272727,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/25/2026 12:00:00 AM",
+        "numerator": 57,
+        "denominator": 56,
+        "ratio": 1.0178571428571428,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/28/2026 12:00:00 AM",
+        "numerator": 40,
+        "denominator": 34,
+        "ratio": 1.1764705882352942,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/29/2026 12:00:00 AM",
+        "numerator": 43,
+        "denominator": 37,
+        "ratio": 1.162162162162162,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/30/2026 12:00:00 AM",
+        "numerator": 40,
+        "denominator": 38,
+        "ratio": 1.0526315789473684,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "5/31/2026 12:00:00 AM",
+        "numerator": 49,
+        "denominator": 45,
+        "ratio": 1.0888888888888888,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "6/11/2026 12:00:00 AM",
+        "numerator": 41,
+        "denominator": 37,
+        "ratio": 1.1081081081081081,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "6/15/2026 12:00:00 AM",
+        "numerator": 57,
+        "denominator": 47,
+        "ratio": 1.2127659574468086,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "7/7/2026 12:00:00 AM",
+        "numerator": 133,
+        "denominator": 60,
+        "ratio": 2.216666666666667,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "7/24/2026 12:00:00 AM",
+        "numerator": 63,
+        "denominator": 60,
+        "ratio": 1.05,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "8/10/2026 12:00:00 AM",
+        "numerator": 126,
+        "denominator": 69,
+        "ratio": 1.826086956521739,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "8/11/2026 12:00:00 AM",
+        "numerator": 404,
+        "denominator": 105,
+        "ratio": 3.8476190476190477,
+        "reason": "bound",
+        "bound": 1.0
+      },
+      {
+        "key": "6/24/2026 12:00:00 AM",
+        "numerator": 13,
+        "denominator": 39,
+        "ratio": 0.3333333333333333,
+        "reason": "band",
+        "band": [
+          0.479398037869918,
+          1.1849886282584414
+        ]
+      },
+      {
+        "key": "6/25/2026 12:00:00 AM",
+        "numerator": 1,
+        "denominator": 46,
+        "ratio": 0.021739130434782608,
+        "reason": "band",
+        "band": [
+          0.479398037869918,
+          1.1849886282584414
+        ]
+      }
+    ]
+  },
+  "status": "review",
+  "interpretation_required": true,
+  "note": "A flagged statistic is a review lead; a clean statistic is not proof. dax.assert probes pass or fail on the stated expectation."
+}

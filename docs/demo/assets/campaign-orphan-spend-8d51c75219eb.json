@@ -1,0 +1,8 @@
+{
+  "kind": "probe",
+  "id": "campaign-orphan-spend",
+  "method": "dax.assert",
+  "dax": "EVALUATE ROW(\"OrphanSpend\", CALCULATE(SUM(fact_ad_spend_allocated_daily[spend]), ISBLANK(RELATED(dim_campaign[campaign_name]))))",
+  "status": "inconclusive",
+  "error": "Query (1, 98) The column 'dim_campaign[campaign_name]' either doesn't exist or doesn't have a relationship to any table available in the current context.\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.CheckForSoapFault(XmlReader reader, XmlaResult xmlaResult, Boolean throwIfError)\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.SendMessage(Boolean endReceivalIfException, Boolean readSession, Boolean readNamespaceCompatibility)\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.ExecuteStatement(String statement, IDictionary connectionProperties, IDictionary commandProperties, IDataParameterCollection parameters, Boolean isMdx)\r\n   at Microsoft.AnalysisServices.AdomdClient.AdomdConnection.XmlaClientProvider.Microsoft.AnalysisServices.AdomdClient.IExecuteProvider.ExecuteTabular(CommandBehavior behavior, ICommandContentProvider contentProvider, AdomdPropertyCollection commandProperties, IDataParameterCollection parameters)\r\n   at Microsoft.AnalysisServices.AdomdClient.AdomdCommand.ExecuteReader(CommandBehavior behavior); Engine mentioned 'dim_campaign[campaign_name]'; closest model names: meta_campaign_name, campaign_name, first_touch_meta_campaign_name"
+}

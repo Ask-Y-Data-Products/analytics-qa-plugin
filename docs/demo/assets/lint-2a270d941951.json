@@ -1,0 +1,498 @@
+{
+  "kind": "model_lint",
+  "at": "2026-09-18T16:33:56.714928+00:00",
+  "model_dir": "C:\\work\\asky\\analytics-qa-fake\\discovery\\model",
+  "report": "C:\\work\\asky\\analytics-qa-fake\\discovery\\demo-report",
+  "inputs_sha256": {
+    "TMSCHEMA_CALCULATION_GROUPS.json": "9c9444850f185bd766061dfaea15d9d53554d92279f5a8da57b29d24c3fed1ab",
+    "TMSCHEMA_CALCULATION_ITEMS.json": "193bb10f848a7f7741eb10f44574374a4bda581fa44c564aa56fe4f13daa5778",
+    "TMSCHEMA_COLUMNS.json": "cb5e427b86d110e947cda45a687f655946f0d926d0c2f9a3208b35ff123f6b0f",
+    "TMSCHEMA_EXPRESSIONS.json": "9c20267382b70eb4025613776596085fe68bf747e9301996a507694dcd804e18",
+    "TMSCHEMA_HIERARCHIES.json": "4d08fcb6edcff6eea49c2267824d995cf94bba8ac089c30340eaec736eb744cb",
+    "TMSCHEMA_LEVELS.json": "55f839562346809d405afe23793bb91c7881600370d06aaa4c9d1ff781d47686",
+    "TMSCHEMA_MEASURES.json": "53219191a80e847fb9868f4a6f18bc679a118c67a67e602bc03bb76d72273b80",
+    "TMSCHEMA_MODEL.json": "6add5da087207ffce4ea3908a1017d784e3a5dd9231bcccd52aba5ba025c8d0f",
+    "TMSCHEMA_PARTITIONS.json": "1d0819e1a1ac484b64b231ac97a855c9f0e784a3c8debd0589f82f8c23d7b244",
+    "TMSCHEMA_RELATIONSHIPS.json": "e91142a085e574aadbce7f3fb6203849084b8bf16671cfef22757a47b859a5c0",
+    "TMSCHEMA_ROLES.json": "82b830c0d278166d7bf85c9d13a5456e90bb419d3f42722ca040902ef65e3df2",
+    "TMSCHEMA_TABLE_PERMISSIONS.json": "4c0d65818b118421258202dfcc023976a3605885563f0cb59f8cd561b5358bce",
+    "TMSCHEMA_TABLES.json": "ab089e7fe34f5f3937db009af34e450aaa899094ca37948ee4e7a2c199682147",
+    "TMSCHEMA_VARIATIONS.json": "7a23ab7b6c41bb2ad632458825798f421d34438364e32880a51c40602667c577"
+  },
+  "summary": {
+    "lint.volatile_time_in_column": 2,
+    "lint.freshness_label_on_business_date": 1,
+    "lint.format_hides_precision": 3,
+    "lint.volatile_time_in_measure": 20,
+    "lint.raw_division": 1,
+    "lint.date_context_removed": 25,
+    "lint.multiple_relationship_paths": 6
+  },
+  "findings": [
+    {
+      "method": "lint.volatile_time_in_column",
+      "severity": "high",
+      "object": "dim_date[is_completed_month_this_year]",
+      "kind": "calculated_column",
+      "fragment": "dim_date[year] = YEAR ( TODAY () )\n    && dim_date[date_key] < DATE ( YEAR ( TODAY () ), MONTH ( TODAY () ), 1 )",
+      "why": "A calculated column is evaluated when the model is processed or recalculated, not when a visual queries it; a TODAY()/NOW() column freezes the clock at refresh time and can also be re-evaluated on open, so flags such as \"completed month\" drift away from the imported data."
+    },
+    {
+      "method": "lint.volatile_time_in_column",
+      "severity": "high",
+      "object": "dim_date[is_current_month]",
+      "kind": "calculated_column",
+      "fragment": "AND (\n    YEAR ( dim_date[date_key] ) = YEAR ( TODAY () ),\n    MONTH ( dim_date[date_key] ) = MONTH ( TODAY () )\n)",
+      "why": "A calculated column is evaluated when the model is processed or recalculated, not when a visual queries it; a TODAY()/NOW() column freezes the clock at refresh time and can also be re-evaluated on open, so flags such as \"completed month\" drift away from the imported data."
+    },
+    {
+      "method": "lint.freshness_label_on_business_date",
+      "severity": "medium",
+      "object": "_Measures[Last Refresh]",
+      "kind": "measure",
+      "fragment": "MAX ( fact_contact[contact_created_date_key] )",
+      "why": "The measure is named as a refresh/freshness indicator but computes from business data (for example MAX of a business date); it changes with slicers and does not report when the model was refreshed."
+    },
+    {
+      "method": "lint.format_hides_precision",
+      "severity": "low",
+      "object": "_Measures[Avg Days to Realize]",
+      "kind": "measure",
+      "fragment": "format \"0\" on AVERAGEX(...",
+      "why": "The format string rounds a statistic (median, percentile, average, ratio) to an integer; the displayed value differs from the engine value and can hide small changes."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Leads In-Flight]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n        [Contacts],\n        USERELATIONSHIP(fact_contact[first_touch_channel_key], dim_channel[channel_key]),\n        DATESBETWEEN(\n            dim_date[date_key],\n            DATE(YEAR(TODAY()), MONTH(TODAY()), DAY(TODAY())) - 5",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.format_hides_precision",
+      "severity": "low",
+      "object": "_Measures[Median Days to Contract]",
+      "kind": "measure",
+      "fragment": "format \"0\" on MEDIAN (...",
+      "why": "The format string rounds a statistic (median, percentile, average, ratio) to an integer; the displayed value differs from the engine value and can hide small changes."
+    },
+    {
+      "method": "lint.format_hides_precision",
+      "severity": "low",
+      "object": "_Measures[P75 Days to Contract]",
+      "kind": "measure",
+      "fragment": "format \"0\" on PERCENTILE.INC (...",
+      "why": "The format string rounds a statistic (median, percentile, average, ratio) to an integer; the displayed value differs from the engine value and can hide small changes."
+    },
+    {
+      "method": "lint.raw_division",
+      "severity": "low",
+      "object": "_Measures[Conversion]",
+      "kind": "measure",
+      "fragment": "[Starts]/[Leads]",
+      "why": "Division with / returns infinity or an error when the denominator is zero or BLANK; DIVIDE() with an explicit alternate result makes empty slices explicit."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Other Expenses Total]",
+      "kind": "measure",
+      "fragment": "ALLSELECTED('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Snapshot HTML]",
+      "kind": "measure",
+      "fragment": "ALLSELECTED( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Snapshot HTML V2]",
+      "kind": "measure",
+      "fragment": "ALLSELECTED( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[IsCurrentMonth]",
+      "kind": "measure",
+      "fragment": "IF(\n    YEAR( MAX('dim_date'[date_key]) ) = YEAR( TODAY() )\n        && MONTH( MAX(dim_date[date_key]) ) = MONTH( TODAY() ),\n    1,\n    0\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Data Drop Monitor Full HTML]",
+      "kind": "measure",
+      "fragment": "VAR _SelDate = [Selected Date]\nVAR _DateLabel = FORMAT ( _SelDate, \"dddd, mmm dd, yyyy\", \"en-US\" )\nVAR _Leads = [Leads Selected Day]\nVAR _DayAvg = [Day Type Avg This Month]\nVAR _DayVar = [Day Type Variance %]\nVAR _DayVarFmt = FORMAT ( _DayV",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Data Drop Monitor Full HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Selected Date]",
+      "kind": "measure",
+      "fragment": "VAR Sel = SELECTEDVALUE ( dim_date[date_key] )\nRETURN\n    IF ( ISFILTERED ( dim_date[date_key] ) && NOT ISBLANK ( Sel ), Sel, TODAY () - 1 )",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Day Type Avg This Month]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Channel Month Avg Daily Leads]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Province Month Avg Daily Leads]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Card Avg Monthly Leads HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Card Avg Weekday HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Card Province Breakdown HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Card Vs Day Average HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Card Channel Breakdown HTML]",
+      "kind": "measure",
+      "fragment": "REMOVEFILTERS ( dim_date )",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Leads YTD]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_date'[date_key] <= TODAY()\n    )\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Leads YTD]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Elapsed Weeks YTD]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n    DISTINCTCOUNT('dim_date'[iso_week]),\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_date'[date_key] <= TODAY()\n    )\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Elapsed Weeks YTD]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Leads MTD]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        'dim_date'[year] = YEAR(TODAY())\n    )\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Leads MTD]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Leads Target Monthly]",
+      "kind": "measure",
+      "fragment": "VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n            'dim_date'[month_num] = MONTH(TODAY()) &&\n            'dim_date'[year] = YEAR(TODAY())\n        )\n    )\n",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Leads Target Monthly]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Starts YTD]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_date'[date_key] <= TODAY()\n    )\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Starts YTD]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Starts MTD]",
+      "kind": "measure",
+      "fragment": "CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        'dim_date'[year] = YEAR(TODAY())\n    )\n)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Starts MTD]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Starts Target Monthly]",
+      "kind": "measure",
+      "fragment": "VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n            'dim_date'[month_num] = MONTH(TODAY()) &&\n            'dim_date'[year] = YEAR(TODAY())\n        )\n    )\n",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Starts Target Monthly]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Elapsed Days MTD]",
+      "kind": "measure",
+      "fragment": "DAY(TODAY())",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Days In Month]",
+      "kind": "measure",
+      "fragment": "DAY(EOMONTH(TODAY(), 0))",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML]",
+      "kind": "measure",
+      "fragment": "VAR _Style = \"<style>a{color:inherit !important;text-decoration:none !important;pointer-events:none}</style>\"\n\nVAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n    ",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Current ISO Week]",
+      "kind": "measure",
+      "fragment": "WEEKNUM(TODAY(), 21)",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Leads Projected YE (4W)]",
+      "kind": "measure",
+      "fragment": "VAR _CurrentWeek = WEEKNUM(TODAY(), 21)\nVAR _CurrentYear = YEAR(TODAY())\nVAR _RemainingWeeks = 48 - _CurrentWeek\n\nVAR _Last4WeeksLeads =\n    CALCULATE(\n        [Leads],\n        FILTER(\n            ALL('dim_date'),\n            'dim_date'[yea",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Leads Projected YE (4W)]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Starts Projected YE (4W)]",
+      "kind": "measure",
+      "fragment": "VAR _CurrentWeek = WEEKNUM(TODAY(), 21)\nVAR _CurrentYear = YEAR(TODAY())\nVAR _RemainingWeeks = 48 - _CurrentWeek\n\nVAR _Last4WeeksStarts =\n    CALCULATE(\n        [Starts],\n        FILTER(\n            ALL('dim_date'),\n            'dim_date'[y",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Starts Projected YE (4W)]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V2]",
+      "kind": "measure",
+      "fragment": "VAR _Style = \"<style>a{color:inherit !important;text-decoration:none !important;pointer-events:none}</style>\"\n\nVAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n    ",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V2]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V3]",
+      "kind": "measure",
+      "fragment": "VAR _Style = \"<style>a{color:inherit !important;text-decoration:none !important;pointer-events:none}</style>\"\n\nVAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n    ",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V3]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V4]",
+      "kind": "measure",
+      "fragment": "VAR _Style = \"<style>a{color:inherit !important;text-decoration:none !important;pointer-events:none}</style>\"\n\nVAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_date'),\n    ",
+      "why": "The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window."
+    },
+    {
+      "method": "lint.date_context_removed",
+      "severity": "medium",
+      "object": "_Measures[Forecast Province HTML V4]",
+      "kind": "measure",
+      "fragment": "ALL('dim_date')",
+      "why": "The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_contact -> dim_date",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"contact_created_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"first_enrollment_date_key\", \"to\": \"date_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_contact -> dim_channel",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"channel_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_contact -> dim_campaign",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_contract -> dim_channel",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"channel_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_contract -> dim_campaign",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    },
+    {
+      "method": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "object": "fact_inquiry_realization -> dim_date",
+      "kind": "relationship",
+      "fragment": "[{\"from\": \"inquiry_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"contract_start_date_key\", \"to\": \"date_key\", \"active\": false}]",
+      "why": "Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit."
+    }
+  ],
+  "note": "Review leads with literal fragments; each needs an agent claim with context. No finding is proof of a defect; an empty list is not proof of correctness."
+}

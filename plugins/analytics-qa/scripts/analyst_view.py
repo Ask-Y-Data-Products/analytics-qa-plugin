@@ -21,6 +21,9 @@ missing (no `plan.consistency`, no claim `question`, no component
   questions(component, claims, checks, catalog) -> the decisions asked of the analyst
   evaluate_consistency(pair, lookup)          -> one declared pair, equality or derived
   classification_counts(claims)               -> the regression strip, when a case carries one
+  component_status(claims)                    -> "Looks right" / "Needs your decision" / "Problem found"
+  plain_summary(statuses, claims)             -> the one line a stakeholder reads first
+  regression_headline(claims, names)          -> "One thing broke since the last approved version: ..."
   phrase_action(step)                         -> "Google Ads unchecked in Channel"
   format_number(value)                        -> "1,978"
   is_technical(text)                          -> the first engineer-only token, or None
@@ -987,6 +990,21 @@ def detector_label(catalog, method):
 
 NOTHING_TO_ASK = ('Nothing looked inconsistent. Do these figures match what you expect for these dates and filters?')
 
+# One line saying why the reader is being asked, so a question never arrives without its reason.
+# Keyed by the computed check's kind, by a claim's status, and by the regression classification.
+WHY = {
+    'reset': 'We put every filter back the way it started and compared the figures with the first capture.',
+    'changed': 'We changed one filter and compared the figures before and after.',
+    'direction': 'For this change we know which way a count can move, and one figure moved the other way.',
+    'consistency': 'The report states the same quantity in more than one place on this page.',
+    'cross': 'The same figure name appears on more than one part of the report.',
+    'receipt': 'We calculated the figure ourselves from the data and compared it with the screen.',
+    'failed': 'An automatic check found a problem here.',
+    'inconclusive': 'We could not settle this automatically, so it needs a human decision.',
+    'ok': 'Nothing we could check automatically looked wrong, so only you can confirm the figures.',
+    'new regression': 'This expectation held when the report was last approved, and no longer does.',
+}
+
 # The vocabulary the regress skill writes into a claim's `change_classification`.
 # Anything else a case carries is shown as written, never renamed.
 CLASSIFICATIONS = ('preserved', 'expected change pending review', 'new regression',
@@ -1025,7 +1043,7 @@ def regression_question(claim, catalog=None):
     observed = first_sentence(claim.get('observed'))
     entry = {'kind': 'claim', 'id': claim.get('id'), 'claim_id': claim.get('id'), 'severity': 'issue',
              'meta': claim.get('detector'), 'detail': None, 'technical_note': None,
-             'classification': REGRESSION}
+             'classification': REGRESSION, 'why': WHY[REGRESSION]}
     if expected and observed and not is_technical(expected) and not is_technical(observed):
         entry['text'] = (f'Since the baseline, {expected} no longer holds: {observed}. '
                          'Is this an intended change?')
@@ -1057,6 +1075,7 @@ def questions(component, claims, checks, catalog=None, fallback=True):
         items.append({'kind': 'check', 'id': check.get('id'), 'severity': 'issue',
                       'text': check.get('question') or check.get('text'),
                       'detail': check.get('prompt'), 'meta': None, 'technical_note': None,
+                      'why': WHY.get(check.get('kind')),
                       'capture_labels': check.get('capture_labels') or [], 'links': check.get('links') or []})
     for claim in claims or []:
         status = claim.get('status')
@@ -1068,7 +1087,8 @@ def questions(component, claims, checks, catalog=None, fallback=True):
         prefix = 'Defect: ' if status == 'failed' else ''
         entry = {'kind': 'claim', 'id': claim.get('id'), 'claim_id': claim.get('id'),
                  'severity': 'issue' if status == 'failed' else 'open', 'meta': method, 'detail': None,
-                 'technical_note': None, 'classification': classification_of(claim)}
+                 'technical_note': None, 'classification': classification_of(claim),
+                 'why': WHY.get(status)}
         if raw and not token:
             entry['text'] = prefix + raw
         else:
@@ -1088,8 +1108,145 @@ def questions(component, claims, checks, catalog=None, fallback=True):
         items.append(entry)
     if not items and fallback:
         items.append({'kind': 'none', 'id': 'none', 'severity': 'ok', 'text': NOTHING_TO_ASK,
-                      'detail': None, 'meta': None, 'technical_note': None})
+                      'detail': None, 'meta': None, 'technical_note': None, 'why': WHY['ok']})
     return items
+
+
+# --- what a stakeholder reads first ----------------------------------------
+
+NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+                'ten', 'eleven', 'twelve']
+
+# The three words a non-technical reader is asked to understand, and nothing else.
+STATUSES = {'problem': 'Problem found', 'decision': 'Needs your decision', 'ok': 'Looks right'}
+
+
+def spell(count):
+    """'six' for a small count, '37' for a large one; never a bare digit where a word reads better."""
+    number = int(count)
+    return NUMBER_WORDS[number] if 0 <= number < len(NUMBER_WORDS) else format_number(number)
+
+
+def capitalise(text):
+    return text[:1].upper() + text[1:] if text else text
+
+
+def component_status(claims):
+    """The chip a non-technical reader sees on a component, from that component's own claims.
+
+    One failed expectation is a problem; anything unsettled needs a decision; only
+    a component whose every expectation passed is called right. A component that
+    carries no expectation at all is not called right either - nothing proved it.
+    """
+    statuses = [str((claim or {}).get('status') or '') for claim in claims or []]
+    if 'failed' in statuses:
+        key = 'problem'
+    elif statuses and all(status == 'passed' for status in statuses):
+        key = 'ok'
+    else:
+        key = 'decision'
+    return {'key': key, 'label': STATUSES[key]}
+
+
+def _clauses(counts):
+    """'two look wrong', 'four need your decision', 'one looks right' - only the nonzero ones."""
+    phrasing = [('problem', 'look wrong', 'looks wrong'),
+                ('decision', 'need your decision', 'needs your decision'),
+                ('ok', 'look right', 'looks right')]
+    return [f'{spell(counts[key])} {single if counts[key] == 1 else plural}'
+            for key, plural, single in phrasing if counts.get(key)]
+
+
+def plain_summary(statuses, claims=None):
+    """The opening line: how much was checked and how it came out, in a reader's words.
+
+    'Six parts of this report were checked. Two look wrong, four need your decision.'
+    A case with no components falls back to counting its expectations, so an older
+    case still opens with a sentence rather than with a digest.
+    """
+    statuses = list(statuses or [])
+    if statuses:
+        counts = {key: sum(1 for s in statuses if (s or {}).get('key') == key) for key in STATUSES}
+        total = len(statuses)
+        head = (f'{capitalise(spell(total))} part{"" if total == 1 else "s"} of this report '
+                f'{"was" if total == 1 else "were"} checked.')
+    else:
+        found = [str((claim or {}).get('status') or '') for claim in claims or []]
+        if not found:
+            return 'Nothing was checked on this report yet.'
+        counts = {'problem': found.count('failed'), 'decision': found.count('inconclusive'),
+                  'ok': found.count('passed')}
+        total = len(found)
+        head = (f'{capitalise(spell(total))} expectation{"" if total == 1 else "s"} '
+                f'{"was" if total == 1 else "were"} checked.')
+    clauses = _clauses(counts)
+    return head + (' ' + capitalise(join_phrases(clauses)) + '.' if clauses else '')
+
+
+# Worst first: the badge a component carries is the most serious thing that happened to it.
+CLASSIFICATION_SEVERITY = ['new regression', 'still open', 'expected change pending review',
+                           'inconclusive', 'defect fixed', 'preserved']
+
+
+def component_classification(claims):
+    """The most serious `change_classification` among a component's claims, or None."""
+    found = [classification_of(claim) for claim in claims or []]
+    found = [value for value in found if value]
+    if not found:
+        return None
+    for value in CLASSIFICATION_SEVERITY:
+        if value in found:
+            return value
+    return found[0]
+
+
+LEADING_WORDS = ('the', 'this', 'that', 'these', 'those', 'it', 'its', 'a', 'an', 'one', 'no',
+                 'there', 'some', 'every', 'our', 'after', 'since', 'when', 'only', 'now', 'each')
+
+
+def _lead_in(text):
+    """Fold a sentence into the middle of another one, without lower-casing a name."""
+    body = str(text or '').strip().rstrip('.')
+    first = body.split(' ', 1)[0].strip("'\"")
+    if first.lower() in LEADING_WORDS and first != first.upper():
+        return first.lower() + body[len(first):]
+    return body
+
+
+def regression_detail(claim, component_names=None):
+    """What broke, in the reader's words: the observation, else the component, else the id."""
+    observed = first_sentence(claim.get('observed'))
+    if observed and not is_technical(observed):
+        return _lead_in(observed)
+    name = (component_names or {}).get(claim.get('id'))
+    if name:
+        return f"something on '{name}' changed"
+    return f'one expectation ({claim.get("id")}) no longer holds'
+
+
+def regression_headline(claims, component_names=None):
+    """The one sentence a manager can act on, or None when this is not a regression case.
+
+    'One thing broke since the last approved version: the Leads table now leaves
+    out returning enquiries.' Derived only from the claims classified as new
+    regressions; a technical observation is replaced by the component's name
+    rather than shown, and nothing is asserted when nothing carries a
+    classification at all.
+    """
+    if not classification_counts(claims):
+        return None
+    regressions = [claim for claim in claims or [] if classification_of(claim) == REGRESSION]
+    if not regressions:
+        undecided = sum(1 for claim in claims or []
+                        if classification_of(claim) not in (None, 'preserved', 'defect fixed'))
+        tail = ' Some changes still need your decision.' if undecided else ''
+        return 'Nothing broke since the last approved version.' + tail
+    details = [regression_detail(claim, component_names) for claim in regressions]
+    if len(details) == 1:
+        return f'One thing broke since the last approved version: {details[0]}.'
+    shown = join_phrases(details[:2])
+    more = f', and {spell(len(details) - 2)} more' if len(details) > 2 else ''
+    return f'{capitalise(spell(len(details)))} things broke since the last approved version: {shown}{more}.'
 
 
 def what_it_shows(component):

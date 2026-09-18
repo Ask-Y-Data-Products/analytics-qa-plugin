@@ -97,24 +97,20 @@ a community project — every team letting an agent near a dashboard needs them.
 
 ## What it finds
 
-Here is a real page from the anonymised report that ships with the project. The
-CRM says Meta produced 133 leads on 7 July; the platform's own export says 60. The
-ratio line goes through 100% and keeps going.
+The demo dashboard shows a total leads card, leads by channel, a Meta
+platform-versus-CRM comparison and spend by campaign. It looks fine. It is not.
 
-![A Power BI page where CRM-attributed leads exceed the platform's own count on one day, 221.7%](docs/images/powerbi-ratio-above-100.png)
-
-Nobody watching a dashboard notices that on a Tuesday. A ratio-stability probe with
-an upper bound of 1.0 does, on every day of the series at once. In one 32-minute
-run on that report the harness also found:
-
-| What the analyst sees | How it was caught |
+| What a viewer sees | What is actually true |
 | --- | --- |
-| 5,942 inquiries dated on the wrong day | The day-boundary probe run twice: zero mismatches in UTC, 5,942 in the reporting timezone |
-| 534 contracts with a value of zero or less | A data rule the agent wrote from the component's own definition |
-| 1,674 spend rows attributed outside their campaign's active window | Campaign-window alignment against the campaign dimension |
-| A monthly chart that ignores the page date slicer | A baseline / change / reset cycle: the dates moved, that visual did not |
-| 22 measures and columns whose value depends on the machine clock | Deterministic model lint, raised as questions rather than verdicts |
-| The same figure reading 48 on one page and 68 on another | The cross-component comparison, which reads every page's captures together |
+| A total leads card and a leads-by-channel chart side by side | The chart carries a leftover filter and leaves out 2,006 leads, 17% of the total, while the table beside it shows them |
+| A spend-by-campaign chart | A filter lists campaign names, so campaigns renamed at the source silently disappear along with their spend |
+| A card labelled "leads this month" | Its month comes from the machine clock, not the data or the date picker, so it never moves and reports three days of a stale month |
+| A Meta match-rate chart | On 20 days the CRM claims more Meta leads than Meta itself reported, twice to four times as many on the worst days |
+
+The harness found all four, then an agent fixed two of them from the findings
+report, and the regression run confirmed the two fixes, held the other two open,
+and caught something new: removing the campaign filter exposed $18,400 of spend
+on a campaign with no name in the lookup table, which the filter had been hiding.
 
 ---
 
@@ -122,7 +118,11 @@ run on that report the harness also found:
 
 One HTML page, per component, self-contained if you want to mail it.
 
-![One component of the sign-off page: what it shows, four situations with screenshots, the observed table, the checks and the questions](docs/images/signoff-component.png)
+![One component of the sign-off page: what it shows, the situations with screenshots, the observed table, the checks and the questions](docs/images/signoff-component.png)
+
+And the trace behind any number on it, from the screen to the warehouse table:
+
+![Follow one number: on screen, the measure, what it does in one sentence, the tables it reads, where each table comes from](docs/images/follow-one-number.png)
 
 Read it top to bottom, the way you would check the report yourself:
 
@@ -158,16 +158,19 @@ to fix the problem, and the baseline the next regression is measured against.
 
 ## See the actual output
 
-These are the real pages from one run on the anonymised report in this repository.
-Nothing was written by hand; open them and click around.
+One ordinary-looking marketing dashboard with four problems in it, the reports the
+harness produced about it, a fix, and the regression run that checked the fix.
+Every page below came out of an unattended run; nothing was written by hand.
 
 | Report | What it answers | Who reads it |
 | --- | --- | --- |
-| [How it works](https://ask-y-data-products.github.io/measure-qa-harness/demo/how-it-works.html) | How is this dashboard actually built: screen label to measure to table to source column, page by page | Whoever inherited the report |
-| [Findings](https://ask-y-data-products.github.io/measure-qa-harness/demo/findings.html) | What is wrong with it, ranked, each with the question to settle it | Whoever has to fix it |
-| [Sign-off page](https://ask-y-data-products.github.io/measure-qa-harness/demo/signoff.html) | What we saw in each situation, what checks out, what needs your decision | The analyst or stakeholder who signs |
-| [Capture report](https://ask-y-data-products.github.io/measure-qa-harness/demo/capture-report.html) | The sealed evidence behind every claim: screenshots, observations, receipts, queries | An auditor, or the agent asked to fix it |
-| [Regression report](https://ask-y-data-products.github.io/measure-qa-harness/demo/regression.html) | What the last change broke, preserved or fixed, with negative controls | The person approving the change |
+| [How it works](https://ask-y-data-products.github.io/measure-qa-harness/demo/how-it-works.html) | How is this page built: follow one number from the card on screen to the measure, to what it does in plain words, to the warehouse table | Whoever inherited the report |
+| [Findings](https://ask-y-data-products.github.io/measure-qa-harness/demo/findings.html) | What is wrong with it, worst first, each with what we saw and why it matters | Whoever has to fix it |
+| [Sign-off page](https://ask-y-data-products.github.io/measure-qa-harness/demo/signoff.html) | What the screen showed in each situation, what checks out, what needs your decision | The analyst or stakeholder who signs |
+| [Capture report](https://ask-y-data-products.github.io/measure-qa-harness/demo/capture-report.html) | The sealed evidence, with the reviewer's decisions and comments folded in | An auditor, or the agent asked to fix it |
+| [Regression report](https://ask-y-data-products.github.io/measure-qa-harness/demo/regression.html) | What the fix repaired, what it left, and what it exposed | The person approving a change |
+
+[Start at the index](https://ask-y-data-products.github.io/measure-qa-harness/demo/) to walk them in order.
 
 ---
 
@@ -216,7 +219,7 @@ what had changed.
 Twenty-seven minutes later: **3 new regressions, 14 preserved, 15 still open**,
 one visual definition file differing out of 252, and this card.
 
-![The regressed component: what changed in plain words, then the situations that prove it](docs/images/regression-card.png)
+![The regression report: one sentence on what broke, then the counts and each component badged](docs/images/regression-card.png)
 
 It did not stop at "the number moved". It proved which layer moved — the engine
 still returns the old measure, the screen shows the new one — checked that the

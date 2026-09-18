@@ -117,12 +117,31 @@ passed; the two answer different questions.
 python ${CLAUDE_PLUGIN_ROOT}/scripts/findings_report.py --case <case> --out <case-parent>/<case-name>-findings.html --signoff <case-name>-signoff.html
 ```
 
-This is the artifact of this step: what is wrong with the report, worst first.
-It reads `case.json` only - every failed claim and finding as a defect, every
-inconclusive claim as an open question grouped by component, the model lint
-grouped by detector with its objects, and a compact list of what was checked and
-passed, so the reader sees the scope and not only the problems. `--signoff` is
-the file name the capture skill will write beside the case; every item then links
-to that component's card there. Report the absolute path. Run it again after any
-claim changes, and run it even when nothing failed: "nothing found, here is what
-was checked" is a result the analyst needs to see.
+This is the artifact of this step, and it is the page a fixer reads: what is
+wrong with the report, worst first. It reads `case.json` only - every failed
+claim and finding as a defect card, every inconclusive claim as an open question
+grouped by component, the model lint grouped by detector and folded away as the
+least urgent section, and a compact table of what was checked and passed, so the
+reader sees the scope and not only the problems. `--signoff` is the file name the
+capture skill will write beside the case; every item then links to that
+component's card there, and every item carries a stable `#item-<claim id>` anchor
+the deck and the sign-off page can link to. Report the absolute path. Run it
+again after any claim changes, and run it even when nothing failed: "nothing
+found, here is what was checked" is a result the analyst needs to see.
+
+Because the page is built out of the case, a defect is only as readable as what
+you wrote into the claim. Every failed claim and every `findings[]` entry needs:
+
+- a plain **question** an analyst would ask ("Are there contracts with a
+  non-positive contract value?"), because it becomes the card's heading. A
+  question written for engineers is replaced by a neutral fallback heading and
+  the real wording drops into the technical note, which is a worse page.
+- an **impact** sentence on the finding, in the reader's terms ("Anyone reading
+  the monthly chart under a narrowed date range sees the whole year"), because it
+  becomes the "Why it matters" line. Without it the card states a number and
+  leaves the reader to guess whether it matters.
+
+The observation itself stays exact - "Observed 534 == expected 0" is rewritten
+for the reader as "We measured 534 where the check expects 0", so keep writing
+the precise form. Defects are ordered by severity and then by the size of the
+number involved, so record `severity` and, for a detector claim, its `hits`.

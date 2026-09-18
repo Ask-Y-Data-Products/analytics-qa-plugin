@@ -195,10 +195,55 @@ Separate a static binding assertion from runtime measure execution and from
 rendered UI behavior. New cases use schema version 2; every claim needs explicit
 layer coverage, and every experiment needs an executable replay command.
 
+## What the analyst sees first
+
+The page is read by a stakeholder before it is read by an analyst, so it opens
+with one plain sentence ("Six parts of this report were checked. Two look wrong,
+four need your decision.") and then the counts. Every component leads with a chip
+in three words a non-technical reader knows - **Looks right**, **Needs your
+decision**, **Problem found** - derived from that component's own expectations,
+and each question stands in its own bordered block with a one-line reason and,
+where a claim can answer it, two buttons. The checks that passed collapse behind
+"8 checks passed"; failures stay open. The manifest digest and the generator
+identity sit in a collapsed block at the bottom, and a `@media print` block opens
+every collapsed section, drops the buttons and keeps the screenshots, so a
+stakeholder can print to PDF. All of that is derived - you do not write any of it.
+
+## Decisions in a live session: the local review server
+
+Handing a decisions file back by hand is too slow to do in front of the user. Run
+the local server instead, and let the reviewer submit from the page they are
+already reading:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/scripts/review_server.py --case <sealed-case> --signoff <case-name>-signoff.html [--port 8899] [--out <review revision dir>] [--open]
+```
+
+It serves the sign-off page and the sealed screenshots it references on
+`127.0.0.1` only, read-only, refusing any path outside the page's folder. It
+injects nothing into the file on disk: the endpoint is announced as the page is
+served, so the same file opened from disk still downloads the decisions exactly
+as before. When the endpoint is present the export button reads **Submit
+decisions**; a submission is validated against the sealed case (known
+expectations, the case's own decision vocabulary, a non-empty reviewer, the
+sealed manifest digest), written beside the case and handed to `qa.py`'s own
+`review_revision`, which seals the review revision and renders its capture
+report. The response carries the revision path, the counts per decision and the
+URL of that report, and `GET /status` says what has been submitted so far.
+
+**You never submit decisions on the user's behalf.** Start the server, give the
+user the URL, and let them type their own name and press the button. Filling the
+reviewer field, posting to `/decisions` yourself, or driving the page with a
+browser tool to record a decision is fabricated approval, exactly like writing
+the `review` block by hand. The reviewer string is recorded as typed and the
+response says so: this is a local attestation, not an authenticated signature.
+
 ## Review decisions
 
 Import only an actual reviewer export with `qa.py review --case <sealed-case>
 --decisions <export.json> --out <new-review-revision>`, then verify the revision.
+The review server runs exactly this step for the user; either way the decisions
+come from the person, never from you.
 This is a local attestation, not an authenticated digital signature. Reviewers
 inspect a component, ask for drilldown, dispute a definition, or state decisions
 by ID in chat. Run requested follow-up experiments; rerun affected assertions when

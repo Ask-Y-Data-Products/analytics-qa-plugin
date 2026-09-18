@@ -120,9 +120,18 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/findings_report.py --case <new> --out <case
 python ${CLAUDE_PLUGIN_ROOT}/scripts/review_form.py --case <new> --out <case-parent>/<new-name>-signoff.html
 ```
 
-The sign-off page of a regression case **is** the regression report: it leads
-with the strip counting the classifications, badges each claim, and puts every
-`new regression` first in the affected component's questions. The findings report
+The sign-off page of a regression case **is** the regression report. It opens
+with one sentence a manager can act on, derived from the claims you classified as
+`new regression`: "One thing broke since the last approved version: the Leads
+table now leaves out returning enquiries." That sentence is the first line of the
+first claim's `observed`, so write `observed` as one plain sentence of what the
+reader would notice - a technical wording is dropped and replaced by the
+component's name, which tells the reader far less. When nothing carries `new
+regression` the page says "Nothing broke since the last approved version" and, if
+anything is still undecided, that some changes still need a decision. Under the
+sentence comes the strip counting the classifications, then the components, each
+badged with the most serious thing that happened to it; every `new regression`
+leads its component's questions. The findings report
 beside it is the fix list - what broke, worst first, with what still passes as
 the negative control. Produce the how-it-works report as well when the report
 definition or the model changed, so the reader can see what the new structure

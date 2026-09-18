@@ -1,0 +1,37 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T16:33:04.492388+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE\n  ROW(\n    \"Leads MTD\", [Leads MTD],\n    \"Leads Jul1-13\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026, 7, 1) && dim_date[date_key] <= DATE(2026, 7, 13)),\n    \"TODAY\", TODAY()\n  )\n",
+  "columns": [
+    "[Leads MTD]",
+    "[Leads Jul1-13]",
+    "[TODAY]"
+  ],
+  "rows": [
+    {
+      "[Leads MTD]": 535,
+      "[Leads Jul1-13]": 4360,
+      "[TODAY]": "9/18/2026 12:00:00 AM"
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Leads MTD]",
+        "[Leads Jul1-13]",
+        "[TODAY]"
+      ],
+      "rows": [
+        {
+          "[Leads MTD]": 535,
+          "[Leads Jul1-13]": 4360,
+          "[TODAY]": "9/18/2026 12:00:00 AM"
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

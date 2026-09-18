@@ -1,0 +1,29 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T16:37:39.194632+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE ROW(\"v\", [Leads MTD])",
+  "columns": [
+    "[v]"
+  ],
+  "rows": [
+    {
+      "[v]": 535
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[v]"
+      ],
+      "rows": [
+        {
+          "[v]": 535
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

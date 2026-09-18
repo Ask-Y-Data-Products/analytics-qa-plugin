@@ -1,0 +1,105 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T16:33:01.094656+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "DEFINE\n  VAR _start = DATE(2026, 7, 1)\n  VAR _end   = DATE(2026, 7, 13)\nEVALUATE\n  ROW(\n    \"Total Leads\", CALCULATE([Leads], dim_date[date_key] >= _start && dim_date[date_key] <= _end)\n  )\n\nEVALUATE\n  CALCULATETABLE(\n    SUMMARIZECOLUMNS(\n      dim_channel[channel_name],\n      \"Leads\", [Leads]\n    ),\n    dim_date[date_key] >= DATE(2026, 7, 1) && dim_date[date_key] <= DATE(2026, 7, 13)\n  )\n",
+  "columns": [
+    "[Total Leads]"
+  ],
+  "rows": [
+    {
+      "[Total Leads]": 4360
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "[Total Leads]"
+      ],
+      "rows": [
+        {
+          "[Total Leads]": 4360
+        }
+      ]
+    },
+    {
+      "columns": [
+        "dim_channel[channel_name]",
+        "[Leads]"
+      ],
+      "rows": [
+        {
+          "dim_channel[channel_name]": "Referrals",
+          "[Leads]": 996
+        },
+        {
+          "dim_channel[channel_name]": "Agents",
+          "[Leads]": 453
+        },
+        {
+          "dim_channel[channel_name]": "Local Social Media",
+          "[Leads]": 32
+        },
+        {
+          "dim_channel[channel_name]": "Government Funded",
+          "[Leads]": 25
+        },
+        {
+          "dim_channel[channel_name]": "Phone Inquiry",
+          "[Leads]": 12
+        },
+        {
+          "dim_channel[channel_name]": "National Web Organic",
+          "[Leads]": 208
+        },
+        {
+          "dim_channel[channel_name]": "Local Web Organic",
+          "[Leads]": 47
+        },
+        {
+          "dim_channel[channel_name]": "HS Other Media Group",
+          "[Leads]": 90
+        },
+        {
+          "dim_channel[channel_name]": "Billboards & Signage",
+          "[Leads]": 4
+        },
+        {
+          "dim_channel[channel_name]": "Ask-Students Call Center",
+          "[Leads]": 94
+        },
+        {
+          "dim_channel[channel_name]": "Local Web Site Paid",
+          "[Leads]": 591
+        },
+        {
+          "dim_channel[channel_name]": "Meta",
+          "[Leads]": 680
+        },
+        {
+          "dim_channel[channel_name]": "Vendor",
+          "[Leads]": 39
+        },
+        {
+          "dim_channel[channel_name]": "Direct or Unknown",
+          "[Leads]": 78
+        },
+        {
+          "dim_channel[channel_name]": "National PPL - GE",
+          "[Leads]": 99
+        },
+        {
+          "dim_channel[channel_name]": "Portal Life",
+          "[Leads]": 5
+        },
+        {
+          "dim_channel[channel_name]": "Google Ads",
+          "[Leads]": 907
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

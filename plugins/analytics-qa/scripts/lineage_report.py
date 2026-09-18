@@ -26,7 +26,14 @@ through the measures it calls), and the page says so.
   measures_used(pages, model)          -> measures the visuals use, then the rest
   tables_for_measures(measures, model) -> table -> source -> the measures reading it
   plain_visual_type(raw)               -> 'line chart' for 'lineChart'
+  plain_sentence(expression)           -> 'counts rows of fact_contract', by pattern only
+  correctness_chips(expression)        -> the steps worth a second look, as observations
+  follow_one_number(pages, measures, model) -> one chain per headline measure
   render(case_dir, out, title=None)    -> writes the page, returns the summary
+
+The plain sentence is pattern matching, never paraphrase: an expression whose shape
+is not one of the handful of patterns below reads "see the definition" and keeps its
+DAX in the disclosure, because a wrong sentence about a number is worse than none.
 """
 import argparse
 import html
@@ -47,20 +54,43 @@ main{max-width:1400px;margin:auto;padding:20px 24px 60px}h1{font-size:26px;margi
 .lead{color:#586066;margin:0 0 18px}.notice{border-left:4px solid #c27c11;padding:10px 14px;background:#fff6df;border-radius:4px;margin:0 0 18px}
 .summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.pill{padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #d3d9dc;font-size:14px}
 .pill b{font-size:16px}
-.toc{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:12px 16px;margin:0 0 20px}
+.toc{position:sticky;top:0;z-index:6;background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:12px 16px;margin:0 0 20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .toc b{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#586066}
-.toc ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0 0;padding:0}
+.toc ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0 0;padding:0;max-height:24vh;overflow:auto}
 .toc li{display:flex;align-items:baseline;gap:6px;font-size:14px}.toc a{color:#0b5c8e;text-decoration:none;font-weight:600}
 .toc a:hover{text-decoration:underline}.tag{font-size:12px;color:#586066;background:#f3f5f6;border-radius:999px;padding:2px 8px}
 .tag.warn{color:#8a5a00;background:#fff6df}
-.card{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 2px rgba(0,0,0,.04);scroll-margin-top:12px}
+.find{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid #eef1f2}
+.find input{flex:1 1 280px;max-width:460px;padding:7px 11px;border:1px solid #c6ced2;border-radius:8px;font:14px inherit;color:inherit}
+.find .count{font-size:13px;color:#586066}
+.find button{border:1px solid #c6ced2;background:#f7f9f9;border-radius:8px;padding:6px 11px;font:13px inherit;color:#333b40;cursor:pointer}
+.empty{color:#8a5a00;font-size:14px;margin:0 0 18px;padding:10px 14px;background:#fff6df;border-left:4px solid #c27c11;border-radius:4px}
+.chains{list-style:none;margin:0;padding:0}
+.chain{border:1px solid #e3e7e9;border-radius:9px;padding:12px 14px;margin:0 0 12px;background:#fafbfb;scroll-margin-top:var(--sticky,240px)}
+.chain h4{font-size:16px;margin:0 0 2px}.chain h4 a{color:#0b5c8e;text-decoration:none}.chain h4 a:hover{text-decoration:underline}
+.chain .seen{color:#586066;font-size:13px;margin:0 0 9px}
+.steps{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.step{flex:1 1 190px;min-width:180px;background:#fff;border:1px solid #d9dfe2;border-radius:8px;padding:9px 11px}
+.step.wide{flex:1.6 1 250px}
+.step b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#586066;margin:0 0 5px;font-weight:700}
+.step p{margin:0;font-size:13.5px;overflow-wrap:anywhere}
+.step ul{margin:0;padding-left:16px;font-size:13px}.step li{margin:2px 0;overflow-wrap:anywhere}
+.step .src{color:#586066;font-size:12.5px;display:block}
+.step .unknown{color:#8a5a00}
+.arrow{align-self:center;flex:0 0 auto;color:#5f7f96;font-size:22px;font-weight:700;line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 0}
+.chip{font-size:11.5px;border:1px solid #e0c48a;background:#fff6df;color:#8a5a00;border-radius:999px;padding:2px 8px}
+@media(max-width:900px){.steps{flex-direction:column}.arrow{transform:rotate(90deg);align-self:flex-start;margin-left:14px}}
+.totop{position:fixed;right:18px;bottom:18px;z-index:9;background:#fff;border:1px solid #c6ced2;border-radius:999px;padding:8px 14px;font-size:13px;color:#0b5c8e;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+.up{font-size:13px}.up a{color:#586066;text-decoration:none}.up a:hover{text-decoration:underline}
+.card{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 2px rgba(0,0,0,.04);scroll-margin-top:var(--sticky,240px)}
 .head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}.page{color:#586066;font-size:14px}
 h3{font-size:17.5px;margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid #e9eded}
 h4{font-size:15.5px;margin:0 0 4px}
 .hint{color:#586066;font-size:13.5px;margin:4px 0 8px}
 .vis{display:grid;grid-template-columns:1fr;gap:11px;margin:10px 0 4px}
 @media(min-width:1100px){.vis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.v{margin:0;padding:10px 12px 12px;border:1px solid #d9dfe2;border-radius:8px;background:#fafbfb;scroll-margin-top:12px}
+.v{margin:0;padding:10px 12px 12px;border:1px solid #d9dfe2;border-radius:8px;background:#fafbfb;scroll-margin-top:var(--sticky,240px)}
 .v .kind{color:#586066;font-size:13px}.v.mute{opacity:.72}
 .scroll{overflow-x:auto;border:1px solid #e3e7e9;border-radius:8px;margin-bottom:8px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -68,6 +98,8 @@ table th{background:#f7f9f9;font-size:12px;text-transform:uppercase;letter-spaci
 table td,table th{padding:8px 10px;border-bottom:1px solid #e3e7e9;vertical-align:top;text-align:left;overflow-wrap:anywhere}
 table tr:last-child td{border-bottom:0}table tr:hover{background:#f2f7fa}
 table.fields td:first-child{font-weight:600;width:34%}
+#measures table td:first-child,#measures table th:first-child{min-width:150px}
+#measures table td:nth-child(2),#measures table th:nth-child(2){width:32%}
 td a,th a{color:#0b5c8e;text-decoration:none}td a:hover{text-decoration:underline}
 details{margin:6px 0 0}details summary{cursor:pointer;color:#586066;font-size:13px}
 details pre{margin:6px 0 0;padding:10px 12px;background:#f7f9f9;border:1px solid #e3e7e9;border-radius:6px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -78,7 +110,14 @@ ul.gaps{margin:0;padding-left:20px}ul.gaps li{margin:6px 0;font-size:14px}
 code{font:12.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:#f3f5f6;border-radius:4px;padding:1px 5px;overflow-wrap:anywhere}
 .none{color:#586066;font-size:14px;margin:6px 0}
 .manifest{overflow-wrap:anywhere;font:12px ui-monospace,monospace;color:#586066;margin-top:22px}
-@media(max-width:760px){main{padding:12px}}'''
+@media(max-width:760px){main{padding:12px}}
+@media print{body{background:#fff}main{max-width:none;padding:0}
+.toc,.totop,.find,.up{display:none!important}
+.card,.chain,.v{break-inside:avoid;box-shadow:none}
+details{display:block}details summary{font-weight:600;color:#1f2528;list-style:none}
+details>*{display:revert!important}
+details::details-content{content-visibility:visible!important;block-size:auto!important;display:block!important}
+[data-find][hidden]{display:revert!important}}'''
 
 # What a visualType is called in a sentence an analyst would say out loud.
 VISUAL_TYPES = {
@@ -532,6 +571,18 @@ def summarise_source(partition):
     return (line[:110] + ('...' if len(line) > 110 else '')), query
 
 
+def table_sources(model):
+    """table name -> (source in plain words, the queries behind it, how many partitions)."""
+    sources = {}
+    for name, entries in ((model or {}).get('partitions') or {}).items():
+        if not name:
+            continue
+        summaries = [summarise_source(entry) for entry in entries or []]
+        sources[name] = ('; '.join(dict.fromkeys(s for s, _ in summaries if s)) or NOT_CAPTURED,
+                         '\n\n'.join(q for _, q in summaries if q), len(entries or []))
+    return sources
+
+
 def tables_for_measures(measures, model):
     """One record per table the used measures read: where it comes from, and who reads it.
 
@@ -540,7 +591,7 @@ def tables_for_measures(measures, model):
     is listed with its source as 'not captured'.
     """
     model = model or {}
-    partitions = model.get('partitions') or {}
+    sources = table_sources(model)
     hidden = model.get('hidden_tables') or set()
     records = {}
     for measure in measures or []:
@@ -552,14 +603,463 @@ def tables_for_measures(measures, model):
             if measure['name'] not in record['measures']:
                 record['measures'].append(measure['name'])
     for name, record in records.items():
-        entries = partitions.get(name) or []
-        summaries = [summarise_source(entry) for entry in entries]
-        record['source'] = '; '.join(dict.fromkeys(s for s, _ in summaries if s)) or NOT_CAPTURED
-        record['query'] = '\n\n'.join(q for _, q in summaries if q)
-        record['partitions'] = len(entries)
+        source, query, count = sources.get(name, (NOT_CAPTURED, '', 0))
+        record['source'], record['query'], record['partitions'] = source, query, count
     order = {'fact': 0, 'dim': 1}
     return sorted(records.values(),
                   key=lambda r: (order.get(r['name'].split('_')[0].lower(), 2), r['name'].lower()))
+
+
+# --- one expression, in plain words -----------------------------------------
+#
+# Every sentence here is produced by matching the shape of the DAX, never by
+# paraphrasing it. When no pattern matches, `plain_sentence` says "see the
+# definition" and the reader is sent to the expression itself.
+
+LINE_COMMENT = re.compile(r'//[^\n]*')
+BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.S)
+FUNCTION_CALL = re.compile(r'^([A-Za-z][A-Za-z0-9_.]*)\s*\((.*)\)$', re.S)
+COLUMN_REF = re.compile(r"^'?([A-Za-z_][^'\[\]]*?)'?\s*\[([^\]]+)\]$", re.S)
+MEASURE_REF = re.compile(r'^\[([^\]]+)\]$', re.S)
+TABLE_ONLY = re.compile(r"^'?([A-Za-z_][A-Za-z0-9_ ]*?)'?$")
+CLOCK = re.compile(r'\b(TODAY|NOW|UTCNOW|UTCTODAY)\s*\(', re.I)
+FILTER_REMOVAL = re.compile(r'\b(ALL|ALLEXCEPT|ALLSELECTED|ALLNOBLANKROW|REMOVEFILTERS)\s*\(', re.I)
+EQUALITY = re.compile(r"^('?[A-Za-z_][^'\[\]]*?'?\s*\[[^\]]+\])\s*=(?!=)\s*(.+)$", re.S)
+IN_SET = re.compile(r"^('?[A-Za-z_][^'\[\]]*?'?\s*\[[^\]]+\])\s+IN\s*\{(.+)\}$", re.S | re.I)
+NUMBER = re.compile(r'^-?\d+(\.\d+)?$')
+SEE_DEFINITION = 'see the definition'
+UNKNOWN = 'unknown'
+
+REMOVERS = {'ALL', 'ALLSELECTED', 'ALLNOBLANKROW', 'REMOVEFILTERS'}
+CLOCK_UNITS = (('MONTH', 'month'), ('QUARTER', 'quarter'), ('YEAR', 'year'),
+               ('WEEKNUM', 'week'), ('DAY', 'day'))
+AGGREGATIONS_IN_WORDS = {
+    'SUM': 'adds up', 'AVERAGE': 'averages', 'MIN': 'takes the smallest', 'MAX': 'takes the largest',
+    'MEDIAN': 'takes the median of', 'DISTINCTCOUNT': 'counts the distinct values of',
+    'COUNT': 'counts the values of', 'COUNTA': 'counts the values of'}
+
+
+def without_comments(expression):
+    """The expression with its DAX comments removed, so patterns match the code only."""
+    return LINE_COMMENT.sub(' ', BLOCK_COMMENT.sub(' ', str(expression or '')))
+
+
+def _scan(text):
+    """(index, character, depth, in_string) for each character, quotes counted as text."""
+    depth, quote = 0, ''
+    for index, character in enumerate(text):
+        if quote:
+            yield index, character, depth, True
+            if character == quote:
+                quote = ''
+            continue
+        if character in '"\'':
+            quote = character
+            yield index, character, depth, True
+            continue
+        if character in '([{':
+            depth += 1
+        elif character in ')]}':
+            depth -= 1
+        yield index, character, depth, False
+
+
+def balanced(text):
+    """True when every bracket in `text` closes, ignoring what is inside quotes."""
+    depth = 0
+    for _, character, level, quoted in _scan(text):
+        if quoted:
+            continue
+        depth = level
+        if depth < 0:
+            return False
+    return depth == 0
+
+
+def strip_outer(expression):
+    """The expression without surrounding whitespace or a pair of wrapping parentheses."""
+    body = str(expression or '').strip()
+    while body.startswith('(') and body.endswith(')'):
+        inner = body[1:-1]
+        if not balanced(inner):
+            break
+        body = inner.strip()
+    return body
+
+
+def split_arguments(body):
+    """The top-level, comma-separated arguments of a call body."""
+    parts, start = [], 0
+    for index, character, depth, quoted in _scan(body):
+        if character == ',' and depth == 0 and not quoted:
+            parts.append(body[start:index].strip())
+            start = index + 1
+    current = body[start:].strip()
+    if current:
+        parts.append(current)
+    return [part for part in parts if part]
+
+
+def call_of(expression):
+    """('CALCULATE', 'its arguments') when this is exactly one call, else (None, '')."""
+    body = strip_outer(expression)
+    match = FUNCTION_CALL.match(body)
+    if not match or not balanced(match.group(2)):
+        return None, ''
+    return match.group(1).upper(), match.group(2)
+
+
+def table_noun(name):
+    """'dim_channel' -> 'channel'; the name itself when it carries no warehouse prefix."""
+    text = str(name or '').strip().strip("'")
+    for prefix in ('dim_', 'fact_', 'bridge_', 'stg_'):
+        if text.lower().startswith(prefix):
+            text = text[len(prefix):]
+            break
+    return text.replace('_', ' ').strip() or str(name or '')
+
+
+def column_words(name):
+    """'is_first_contract_for_user' -> 'is first contract for user'."""
+    return str(name or '').strip().replace('_', ' ').strip()
+
+
+def pretty_value(value):
+    """'google_ads' -> 'Google Ads'; a value that already reads as words is left alone."""
+    text = str(value or '').strip().strip('"').strip("'").replace('_', ' ').strip()
+    if not text:
+        return ''
+    if text == text.lower():
+        return ' '.join(word[:1].upper() + word[1:] for word in text.split())
+    return text
+
+
+def column_parts(expression):
+    """('dim_channel', 'channel_key') for a column reference, or None."""
+    match = COLUMN_REF.match(strip_outer(expression))
+    return (match.group(1).strip(), match.group(2).strip()) if match else None
+
+
+def is_dimension(table):
+    """True for a table whose name says it describes a thing, so "the Meta channel" reads right."""
+    return str(table or '').strip().strip("'").lower().startswith('dim')
+
+
+def condition_phrase(expression):
+    """One comparison, in plain words: `dim_channel[channel_key] = "meta"` -> 'only the Meta channel'.
+
+    The "the <value> <thing>" wording is only used for a dimension table, where the
+    table names the thing being picked. On a fact table it would read "only the
+    Inquiry program inquiry", so the column does the talking instead.
+    """
+    text = strip_outer(without_comments(expression))
+    match = IN_SET.match(text)
+    if match:
+        parts = column_parts(match.group(1))
+        values = [pretty_value(v) for v in split_arguments(match.group(2)) if pretty_value(v)]
+        if not parts or not values:
+            return None
+        listed = ', '.join(values[:-1]) + ' and ' + values[-1] if len(values) > 1 else values[0]
+        if is_dimension(parts[0]):
+            return f'only the {listed} {table_noun(parts[0])}' + ('s' if len(values) > 1 else '')
+        return f'only rows where {column_words(parts[1])} is {listed}' if len(values) == 1 \
+            else f'only rows where {column_words(parts[1])} is one of {listed}'
+    match = EQUALITY.match(text)
+    if not match:
+        return None
+    parts = column_parts(match.group(1))
+    if not parts:
+        return None
+    table, column = parts
+    value = strip_outer(match.group(2))
+    flag = value.upper().rstrip('()')
+    if flag in ('TRUE', 'FALSE'):
+        return f'only rows where {column_words(column)} is {flag.lower()}'
+    literal = value.strip('"').strip("'")
+    if NUMBER.match(literal):
+        words = column_words(column)
+        if literal in ('0', '1') and re.match(r'^(is|has)\b', words):
+            return f'only rows where {words} is {"true" if literal == "1" else "false"}'
+        return f'only rows where {words} is {literal}'
+    if not literal:
+        return None
+    if is_dimension(table):
+        return f'only the {pretty_value(literal)} {table_noun(table)}'
+    return f'only rows where {column_words(column)} is {pretty_value(literal)}'
+
+
+def clock_unit(expression):
+    """'month' for an expression that compares against MONTH(TODAY()), else None."""
+    text = without_comments(expression)
+    if not CLOCK.search(text):
+        return None
+    for token, word in CLOCK_UNITS:
+        if re.search(r'\b' + token + r'\s*\(', text, re.I):
+            return word
+    return 'date'
+
+
+def plain_filter(expression, depth=0):
+    """(sentence, is_clause) for one filter argument, or None when no pattern matches.
+
+    A clause is a phrase that reads as something the measure *does* ("ignores the
+    date filter"); anything else is a noun phrase that follows "restricted to".
+    """
+    text = strip_outer(without_comments(expression))
+    if not text or depth > 4:
+        return None
+    condition = condition_phrase(text)
+    if condition:
+        return condition, False
+    name, body = call_of(text)
+    if name is None:
+        return None
+    arguments = split_arguments(body)
+    if name in REMOVERS:
+        if not arguments:
+            return 'ignores every filter on the report', True
+        target = column_parts(arguments[0])
+        noun = table_noun(target[0]) if target else table_noun(strip_outer(arguments[0]).strip("'"))
+        return f'ignores the {noun} filter', True
+    if name == 'KEEPFILTERS' and len(arguments) == 1:
+        return plain_filter(arguments[0], depth + 1)
+    if name == 'FILTER' and len(arguments) == 2:
+        inner, condition_text = arguments
+        inner_name, inner_body = call_of(inner)
+        unit = clock_unit(condition_text)
+        if inner_name in REMOVERS:
+            target = column_parts(strip_outer(inner_body)) or (strip_outer(inner_body).strip("'"), '')
+            noun = table_noun(target[0])
+            if unit:
+                return (f"ignores the {noun} filter and uses the machine's current {unit}", True)
+            inside = condition_phrase(condition_text)
+            if inside:
+                return f'ignores the {noun} filter and keeps {inside}', True
+            return None
+        if unit:
+            return (f"uses the machine's current {unit}", True)
+        inside = condition_phrase(condition_text)
+        table = TABLE_ONLY.match(strip_outer(inner))
+        if inside and table:
+            return f'{inside} in {table.group(1).strip()}', False
+        return None
+    return None
+
+
+NOUN_FORMS = (
+    (re.compile(r'^counts rows of (.+)$', re.S), r'the number of rows in \1'),
+    (re.compile(r'^adds up (.+)$', re.S), r'the total of \1'),
+    (re.compile(r'^averages (.+)$', re.S), r'the average of \1'),
+    (re.compile(r'^takes the (smallest|largest|median of) (.+)$', re.S), r'the \1 \2'),
+    (re.compile(r'^counts the (distinct values of|values of) (.+)$', re.S), r'the number of \1 \2'),
+)
+
+
+def noun_phrase(text):
+    """'counts rows of t' -> 'the number of rows in t', so it can follow 'divided by'."""
+    for pattern, replacement in NOUN_FORMS:
+        if pattern.match(str(text or '')):
+            return pattern.sub(replacement, text)
+    return text
+
+
+def plain_phrase(expression, depth=0):
+    """What this expression computes, in plain words, or None when no pattern matches."""
+    text = strip_outer(without_comments(expression))
+    if not text or depth > 4:
+        return None
+    measure = MEASURE_REF.match(text)
+    if measure:
+        return measure.group(1).strip()
+    name, body = call_of(text)
+    if name is None:
+        return None
+    arguments = split_arguments(body)
+    if name == 'COUNTROWS' and len(arguments) == 1:
+        table = TABLE_ONLY.match(strip_outer(arguments[0]))
+        return f'counts rows of {table.group(1).strip()}' if table else None
+    if name in AGGREGATIONS_IN_WORDS and len(arguments) == 1:
+        parts = column_parts(arguments[0])
+        return f'{AGGREGATIONS_IN_WORDS[name]} {parts[1]} in {parts[0]}' if parts else None
+    if name == 'DIVIDE' and len(arguments) >= 2:
+        top, bottom = plain_phrase(arguments[0], depth + 1), plain_phrase(arguments[1], depth + 1)
+        return f'{noun_phrase(top)} divided by {noun_phrase(bottom)}' if top and bottom else None
+    if name == 'CALCULATE' and len(arguments) >= 2:
+        base = plain_phrase(arguments[0], depth + 1)
+        filters = [plain_filter(argument, depth + 1) for argument in arguments[1:]]
+        if not base or not all(filters):
+            return None
+        restricted = [text for text, clause in filters if not clause]
+        clauses = [text for text, clause in filters if clause]
+        sentence = base
+        if restricted:
+            listed = ', '.join(restricted[:-1]) + ' and ' + restricted[-1] \
+                if len(restricted) > 1 else restricted[0]
+            sentence += f', restricted to {listed}'
+        for clause in clauses:
+            sentence += f', and it {clause}'
+        return sentence
+    if name == 'CALCULATE' and len(arguments) == 1:
+        return plain_phrase(arguments[0], depth + 1)
+    return None
+
+
+def plain_sentence(expression):
+    """One sentence for a measure, or 'see the definition' when no pattern fits.
+
+    `plain_sentence(None)` is None: an expression that was never captured is a gap,
+    not an expression nobody could read.
+    """
+    if expression is None or not str(expression).strip():
+        return None
+    return plain_phrase(expression) or (plain_filter(expression) or (None,))[0] or SEE_DEFINITION
+
+
+def sentence_case(text):
+    """'counts rows of x' -> 'Counts rows of x.', leaving an already-final stop alone."""
+    body = str(text or '').strip()
+    if not body:
+        return ''
+    return body[:1].upper() + body[1:] + ('' if body.endswith(('.', '?', '!')) else '.')
+
+
+# --- the steps worth a second look ------------------------------------------
+
+CHIP_CLOCK = 'reads the machine clock'
+CHIP_REMOVES = 'removes a filter'
+CHIP_DIVIDES = 'divides without a guard'
+CHIP_ONE_SEGMENT = 'restricted to one channel or segment'
+
+
+def calls_named(expression, name):
+    """The argument lists of every `name(...)` call in this expression."""
+    text = without_comments(expression)
+    found = []
+    for match in re.finditer(r'\b' + re.escape(name) + r'\s*\(', text, re.I):
+        start = match.end()
+        depth = 1
+        for index, character, _, quoted in _scan(text[start:]):
+            if quoted:
+                continue
+            if character in '([':
+                depth += 1
+            elif character in ')]':
+                depth -= 1
+                if depth == 0:
+                    found.append(split_arguments(text[start:start + index]))
+                    break
+    return found
+
+
+def divides_bare(expression):
+    """True when the expression uses the `/` operator, which has no blank or zero guard."""
+    text = without_comments(expression)
+    for index, character, _, quoted in _scan(text):
+        if quoted or character != '/':
+            continue
+        if text[index - 1:index] == '/' or text[index + 1:index + 2] in ('/', '*'):
+            continue
+        return True
+    return False
+
+
+def correctness_chips(expression):
+    """The steps in this expression a reviewer should look at, as observations.
+
+    These are patterns, not verdicts: a measure may read the clock or drop a filter
+    entirely on purpose. An expression that shows none of them gets no chips.
+    """
+    text = without_comments(expression or '')
+    if not text.strip():
+        return []
+    chips = []
+    if CLOCK.search(text):
+        chips.append(CHIP_CLOCK)
+    if FILTER_REMOVAL.search(text):
+        chips.append(CHIP_REMOVES)
+    if divides_bare(text) or any(len(arguments) < 3 for arguments in calls_named(text, 'DIVIDE')):
+        chips.append(CHIP_DIVIDES)
+    for function in ('CALCULATE', 'CALCULATETABLE', 'FILTER'):
+        for arguments in calls_named(text, function):
+            if any((condition_phrase(argument) or '').startswith('only the') for argument in arguments[1:]):
+                chips.append(CHIP_ONE_SEGMENT)
+                break
+        if CHIP_ONE_SEGMENT in chips:
+            break
+    return chips
+
+
+def measure_chips(measure, model):
+    """The chips of a measure's own expression and of every measure it calls."""
+    measures = (model or {}).get('measures') or {}
+    ordered, seen = [], set()
+    for chip in correctness_chips(measure.get('expression')):
+        if chip not in seen:
+            seen.add(chip)
+            ordered.append(chip)
+    for name in measure.get('through') or []:
+        record = measures.get(str(name).strip().lower()) or {}
+        for chip in correctness_chips(record.get('expression')):
+            if chip in seen:
+                continue
+            seen.add(chip)
+            ordered.append(f'{chip} (in {record.get("name") or name})')
+    return ordered
+
+
+# --- follow one number ------------------------------------------------------
+
+HEADLINE_VISUALS = {'card', 'multi-row card', 'KPI', 'gauge'}
+TOTAL_VISUALS = {'table', 'matrix'}
+VALUE_ROLES = {'Values', 'Value', 'Data', 'Y', 'Y2'}
+
+
+def follow_one_number(pages, measures, model):
+    """One chain per measure a card shows or a table totals, in page order.
+
+    Each chain is the five steps the reader follows: what is on the screen, the
+    measure behind it, what that measure does, the tables it reads and where each
+    of those tables comes from. A step the evidence cannot establish carries
+    `unknown` rather than being left out.
+    """
+    by_key = {m['key']: m for m in measures or []}
+    sources = table_sources(model or {})
+    chains = {}
+    for page in pages or []:
+        for visual in page.get('visuals') or []:
+            kind = visual.get('type')
+            headline, total = kind in HEADLINE_VISUALS, kind in TOTAL_VISUALS
+            if not (headline or total):
+                continue
+            for field in visual.get('fields') or []:
+                if field.get('kind') != 'measure' or not field.get('measure'):
+                    continue
+                if total and field.get('role') not in VALUE_ROLES:
+                    continue
+                key = str(field['measure']).strip().lower()
+                measure = by_key.get(key)
+                if not measure:
+                    continue
+                chain = chains.get(key)
+                if chain is None:
+                    tables = [{'name': name, 'anchor': 'table-' + anchor_slug(name),
+                               'source': sources.get(name, (NOT_CAPTURED, '', 0))[0]}
+                              for name in measure.get('tables') or []]
+                    sentence = plain_sentence(measure.get('expression'))
+                    chain = chains[key] = {
+                        'key': key, 'name': measure['name'], 'anchor': 'chain-' + anchor_slug(key),
+                        'measure_anchor': measure['anchor'], 'expression': measure.get('expression'),
+                        'captured': bool(measure.get('expression')),
+                        'sentence': sentence, 'chips': measure_chips(measure, model),
+                        'through': list(measure.get('through') or []), 'tables': tables,
+                        'seen': []}
+                chain['seen'].append({
+                    'label': field.get('label'), 'page': page.get('name'),
+                    'page_anchor': page.get('anchor'), 'visual': visual_label(visual),
+                    'visual_anchor': visual.get('anchor'),
+                    'how': 'on a card' if headline else 'as a table total',
+                    'kind': kind})
+    return list(chains.values())
 
 
 # --- rendering --------------------------------------------------------------
@@ -571,6 +1071,99 @@ def esc(value):
 def details(summary, body, pre=True):
     inner = f'<pre>{esc(body)}</pre>' if pre else f'<p>{esc(body)}</p>'
     return f'<details><summary>{esc(summary)}</summary>{inner}</details>'
+
+
+MAX_APPEARANCES = 3
+MAX_CHAIN_TABLES = 6
+
+
+def unknown_step(reason):
+    return f'<p class="unknown">{esc(UNKNOWN)} &mdash; {esc(reason)}</p>'
+
+
+def chain_block(chain):
+    """One measure's five-step chain, screen to source, as boxes and arrows."""
+    seen = chain['seen']
+    shown = seen[:MAX_APPEARANCES]
+    items = ''.join(
+        f'<li><a href="#{esc(place["visual_anchor"])}">{esc(place["label"] or chain["name"])}</a> '
+        f'{esc(place["how"])} on <a href="#{esc(place["page_anchor"])}">{esc(place["page"])}</a></li>'
+        for place in shown)
+    if len(seen) > len(shown):
+        items += f'<li>... and {len(seen) - len(shown)} more place(s).</li>'
+    screen = f'<ul>{items}</ul>'
+
+    measure = (f'<p><a href="#{esc(chain["measure_anchor"])}">{esc(chain["name"])}</a></p>')
+
+    if not chain['captured']:
+        does = unknown_step('the model capture holds no expression for this measure')
+    else:
+        does = f'<p>{esc(sentence_case(chain["sentence"]))}</p>'
+        if chain['sentence'] == SEE_DEFINITION:
+            does += '<p class="src">No pattern this page knows matches the expression, so it is shown ' \
+                    'rather than described.</p>'
+    if chain['chips']:
+        does += '<div class="chips">' + ''.join(f'<span class="chip">{esc(chip)}</span>'
+                                                for chip in chain['chips']) + '</div>'
+    if chain['through']:
+        does += f'<p class="src">Through {esc(", ".join(chain["through"][:6]))}.</p>'
+    if chain['expression']:
+        does += details('Its definition', chain['expression'])
+
+    tables = chain['tables'][:MAX_CHAIN_TABLES]
+    if not chain['captured']:
+        reads = unknown_step('without the expression, the tables it reads cannot be read either')
+        comes = unknown_step('no table to follow')
+    elif not tables:
+        reads = unknown_step('the expression names no table this model capture defines')
+        comes = unknown_step('no table to follow')
+    else:
+        more = f'<li>... and {len(chain["tables"]) - len(tables)} more.</li>' \
+            if len(chain['tables']) > len(tables) else ''
+        reads = '<ul>' + ''.join(f'<li><a href="#{esc(t["anchor"])}">{esc(t["name"])}</a></li>'
+                                 for t in tables) + more + '</ul>'
+        comes = '<ul>' + ''.join(
+            f'<li>{esc(t["name"])}<span class="src">{esc(t["source"])}</span></li>'
+            for t in tables) + more + '</ul>'
+
+    arrow = '<span class="arrow" aria-hidden="true">&rarr;</span>'
+    steps = arrow.join([
+        f'<div class="step"><b>1 &middot; On screen</b>{screen}</div>',
+        f'<div class="step"><b>2 &middot; The measure behind it</b>{measure}</div>',
+        f'<div class="step wide"><b>3 &middot; What it does</b>{does}</div>',
+        f'<div class="step"><b>4 &middot; Tables it reads</b>{reads}</div>',
+        f'<div class="step"><b>5 &middot; Where each table comes from</b>{comes}</div>'])
+    words = ' '.join([chain['name'], chain['sentence'] or '', ' '.join(t['name'] for t in chain['tables']),
+                      ' '.join(f"{p['label'] or ''} {p['page'] or ''}" for p in seen)])
+    return (f'<li class="chain" id="{esc(chain["anchor"])}" data-kind="chain" data-find="{esc(words.lower())}">'
+            f'<h4><a href="#{esc(chain["anchor"])}">{esc(chain["name"])}</a></h4>'
+            f'<p class="seen">Shown as {esc(", ".join(dict.fromkeys(p["label"] or chain["name"] for p in shown)))}'
+            f' on {esc(", ".join(dict.fromkeys(p["page"] for p in shown)))}.</p>'
+            f'<div class="steps">{steps}</div></li>')
+
+
+def chains_card(chains, pages):
+    """The follow-one-number section, before the page-by-page catalogue."""
+    if not pages:
+        return ''
+    if not chains:
+        body = ('<p class="none">No captured card, KPI or table total on these pages binds a measure, so '
+                'there is no number to follow from the screen back to a table. That is a gap in the capture, '
+                'not a statement about the report.</p>')
+    else:
+        body = '<ol class="chains">' + ''.join(chain_block(chain) for chain in chains) + '</ol>'
+    return ('<section class="card" id="follow"><div class="head"><div><h2>Follow one number</h2>'
+            f'<div class="page">{len(chains)} number(s) a card shows or a table totals, traced from the '
+            'screen back to the warehouse</div></div></div>'
+            '<p class="hint">Read one row left to right: what you see, the measure behind it, what that '
+            'measure does in one sentence, the tables it reads and where each table comes from. Every step is '
+            'read from the evidence this case captured; a step the evidence cannot establish says '
+            f'"{esc(UNKNOWN)}" instead of guessing, and an expression no pattern matches says '
+            f'"{esc(SEE_DEFINITION)}" and shows the DAX.</p>'
+            '<p class="hint">The amber chips mark steps worth a second look - reading the machine clock, '
+            'dropping a filter, dividing without a guard, narrowing to one segment. They are observations '
+            'about how the measure is written, not verdicts: any of them can be exactly what was intended.</p>'
+            + body + '</section>')
 
 
 def field_table(visual, measures_by_key):
@@ -598,7 +1191,20 @@ def field_table(visual, measures_by_key):
             '<th>What is behind it</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>')
 
 
-def visual_block(visual, measures_by_key):
+def searchable(*parts):
+    """One lower-case haystack for the filter box, from whatever text is worth matching."""
+    words = ' '.join(str(part) for part in parts if part)
+    return re.sub(r'\s+', ' ', words).strip().lower()
+
+
+def visual_words(visual, page_name=''):
+    """Everything about one visual a reader might type into the filter box."""
+    return searchable(page_name, visual_label(visual), visual.get('type'), visual.get('type_raw'),
+                      ' '.join(f"{f.get('label') or ''} {f.get('behind') or ''} {f.get('measure') or ''} "
+                               f"{f.get('entity') or ''}" for f in visual.get('fields') or []))
+
+
+def visual_block(visual, measures_by_key, page_name=''):
     notes = []
     if visual['hidden']:
         notes.append('hidden in the definition')
@@ -610,7 +1216,8 @@ def visual_block(visual, measures_by_key):
     if visual['filters']:
         items = ''.join(f'<li>{esc(f["text"])}</li>' for f in visual['filters'])
         body += f'<p class="hint">Filters on this visual:</p><ul class="plain">{items}</ul>'
-    return (f'<figure class="v{" mute" if visual["hidden"] else ""}" id="{esc(visual["anchor"])}">'
+    return (f'<figure class="v{" mute" if visual["hidden"] else ""}" id="{esc(visual["anchor"])}" '
+            f'data-kind="visual" data-find="{esc(visual_words(visual, page_name))}">'
             f'<h4>{esc(visual_label(visual))}</h4>'
             f'<div class="kind">{esc(visual["type"])}{note}</div>{body}</figure>')
 
@@ -649,16 +1256,20 @@ def page_card(page, measures_by_key, component_by_page):
     if reviewed:
         header += f' · reviewed in this case as "{esc(reviewed)}"'
     header += '</div>'
-    filters = ''
+    detail = ''
     if page['filters']:
-        filters = ('<h3>Filters on this page</h3><ul class="plain">'
+        detail += ('<p class="hint">Filters on this page:</p><ul class="plain">'
                    + ''.join(f'<li>{esc(f["text"])}</li>' for f in page['filters']) + '</ul>')
-    return (f'<section class="card" id="{esc(page["anchor"])}"><div class="head"><div>'
-            f'<h2>{esc(page["name"])}</h2>{header}</div></div>'
-            f'{filters}<h3>What is on the page</h3><div class="vis">'
-            + ''.join(visual_block(v, measures_by_key) for v in page['visuals'])
-            + '</div><h3>How the visuals affect each other</h3>'
-            + interactions_block(page, titles) + '</section>')
+    detail += '<p class="hint">How the visuals affect each other:</p>' + interactions_block(page, titles)
+    words = searchable(page['name'], ' '.join(visual_words(v) for v in page['visuals']),
+                       ' '.join(f['text'] for f in page['filters']))
+    return (f'<section class="card" id="{esc(page["anchor"])}" data-kind="page" data-find="{esc(words)}">'
+            f'<div class="head"><div><h2>{esc(page["name"])}</h2>{header}</div>'
+            '<div class="up"><a href="#top">Back to top</a></div></div>'
+            '<h3>What is on the page</h3><div class="vis">'
+            + ''.join(visual_block(v, measures_by_key, page['name']) for v in page['visuals'])
+            + '</div><details class="pagedetail"><summary>Page filters and how the visuals affect each '
+              'other</summary>' + detail + '</details></section>')
 
 
 def measures_card(measures):
@@ -675,11 +1286,17 @@ def measures_card(measures):
                 else f'<p class="hint">Expression {NOT_CAPTURED}.</p>'
             reads = ', '.join(measure['tables']) or NOT_CAPTURED
             through = f'<br><span class="kind">through {esc(", ".join(measure["through"]))}</span>' if measure['through'] else ''
-            rows.append(f'<tr id="{esc(measure["anchor"])}"><td>{esc(measure["name"])}'
+            sentence = plain_sentence(expression)
+            says = f'<div>{esc(sentence_case(sentence))}</div>' if sentence else ''
+            words = searchable(measure['name'], places, ', '.join(measure['tables']), sentence or '')
+            rows.append(f'<tr id="{esc(measure["anchor"])}" data-kind="measure" data-find="{esc(words)}">'
+                        f'<td>{esc(measure["name"])}'
                         + (f'<br><span class="kind">stored in {esc(measure["home_table"])}</span>' if measure['home_table'] else '')
-                        + f'</td><td>{esc(places)}</td><td>{esc(reads)}{through}{behind}</td></tr>')
+                        + f'</td><td>{esc(places)}</td><td>{says}<span class="kind">Reads {esc(reads)}</span>'
+                        + f'{through}{behind}</td></tr>')
         body = ('<div class="scroll"><table><thead><tr><th>Measure</th><th>Used by</th>'
-                '<th>Reads, and its definition</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>')
+                '<th>What it does, what it reads, and its definition</th></tr></thead><tbody>'
+                + ''.join(rows) + '</tbody></table></div>')
     if unused:
         listing = ', '.join(m['name'] for m in unused)
         body += (f'<h3>Defined but not used on the captured pages</h3>'
@@ -702,7 +1319,9 @@ def tables_card(tables, model):
         rows = []
         for table in tables:
             query = details('Its source query', table['query']) if table.get('query') else ''
-            rows.append(f'<tr id="{esc(table["anchor"])}"><td>{esc(table["name"])}'
+            rows.append(f'<tr id="{esc(table["anchor"])}" data-kind="table" '
+                        f'data-find="{esc(searchable(table["name"], table["source"], ", ".join(table["measures"])))}">'
+                        f'<td>{esc(table["name"])}'
                         + ('<br><span class="kind">hidden in the model</span>' if table['hidden'] else '')
                         + f'</td><td>{esc(table["source"])}{query}</td>'
                         f'<td>{esc(", ".join(table["measures"]))}</td></tr>')
@@ -789,18 +1408,80 @@ def collect_gaps(case_dir, case, pages, measures, model):
     return gaps
 
 
-def table_of_contents(pages, has_trace, has_tables):
-    items = [f'<li><a href="#{esc(page["anchor"])}">{esc(page["name"])}</a>'
-             f'<span class="tag">{len(page["visuals"])} visual(s)</span>'
-             + ('<span class="tag warn">hidden</span>' if page['hidden'] else '') + '</li>'
-             for page in pages]
+FILTER_SCRIPT = '''<script>
+(function () {
+  // Anchors must land below the sticky contents, whatever height it wraps to.
+  var toc = document.querySelector('.toc');
+  function pad() {
+    if (toc) {
+      document.documentElement.style.setProperty('--sticky', (toc.offsetHeight + 16) + 'px');
+    }
+  }
+  window.addEventListener('resize', pad);
+  pad();
+})();
+(function () {
+  var box = document.getElementById('find');
+  if (!box) { return; }
+  var count = document.getElementById('find-count');
+  var empty = document.getElementById('find-empty');
+  var clear = document.getElementById('find-clear');
+  var targets = Array.prototype.slice.call(document.querySelectorAll('[data-find]'));
+  function apply() {
+    var query = box.value.trim().toLowerCase();
+    var kept = {page: 0, chain: 0, visual: 0, measure: 0, table: 0, toc: 0};
+    targets.forEach(function (node) {
+      var match = !query || node.getAttribute('data-find').indexOf(query) !== -1;
+      node.hidden = !match;
+      if (match) {
+        var kind = node.getAttribute('data-kind');
+        if (kind in kept) { kept[kind] += 1; }
+      }
+    });
+    if (count) {
+      count.textContent = query
+        ? kept.page + ' page(s), ' + kept.chain + ' trace(s), ' + kept.measure + ' measure(s) match'
+        : '';
+    }
+    if (empty) {
+      empty.hidden = !query || kept.page + kept.chain + kept.measure + kept.table > 0;
+    }
+  }
+  box.addEventListener('input', apply);
+  if (clear) { clear.addEventListener('click', function () { box.value = ''; apply(); box.focus(); }); }
+  window.addEventListener('beforeprint', function () {
+    box.value = '';
+    apply();
+    Array.prototype.forEach.call(document.querySelectorAll('details'), function (node) { node.open = true; });
+  });
+  apply();
+})();
+</script>'''
+
+
+def table_of_contents(pages, has_trace, has_tables, has_chains=False):
+    items = []
+    if has_chains:
+        items.append('<li><a href="#follow">Follow one number</a></li>')
+    items += [f'<li data-kind="toc" data-find="{esc(page["name"].lower())}">'
+              f'<a href="#{esc(page["anchor"])}">{esc(page["name"])}</a>'
+              f'<span class="tag">{len(page["visuals"])} visual(s)</span>'
+              + ('<span class="tag warn">hidden</span>' if page['hidden'] else '') + '</li>'
+              for page in pages]
     items.append('<li><a href="#measures">Measures</a></li>')
     if has_tables:
         items.append('<li><a href="#tables">Where the numbers come from</a></li>')
     if has_trace:
         items.append('<li><a href="#trace">What the investigation traced</a></li>')
     items.append('<li><a href="#gaps">What this does not cover</a></li>')
-    return '<nav class="toc" aria-label="Contents"><b>Jump to</b><ol>' + ''.join(items) + '</ol></nav>'
+    find = ('<div class="find"><label for="find">Filter</label>'
+            '<input id="find" type="search" autocomplete="off" '
+            'placeholder="Type a page, a visual, a measure or a table - everything else is hidden">'
+            '<button type="button" id="find-clear">Clear</button>'
+            '<span class="count" id="find-count" role="status"></span></div>')
+    return ('<nav class="toc" aria-label="Contents"><b>Jump to</b><ol>' + ''.join(items) + '</ol>'
+            + find + '</nav><p class="empty" id="find-empty" hidden>Nothing on this page matches what you '
+            'typed. Clear the filter to see everything again.</p>')
 
 
 def manifest_state(case_dir):
@@ -822,6 +1503,7 @@ def render(case_dir, out, title=None):
     pages = pages_from_evidence(case_dir)
     measures = measures_used(pages, model)
     tables = tables_for_measures(measures, model)
+    chains = follow_one_number(pages, measures, model)
     measures_by_key = {m['key']: m for m in measures}
     component_by_page = {str(c.get('page') or '').strip().lower(): c.get('name')
                          for c in case.get('components') or [] if isinstance(c, dict)}
@@ -839,7 +1521,7 @@ def render(case_dir, out, title=None):
 <meta name="generator" content="{esc(generator)}"><meta name="analytics-qa-case" content="{esc(case.get('id', ''))}">
 <meta name="analytics-qa-manifest-sha256" content="{esc(sha)}">
 <title>{{{{ title }}}} - how it works</title><style>{STYLE}</style>
-<main data-generator="{esc(generator)}" data-case-id="{esc(case.get('id', ''))}" data-manifest-sha256="{esc(sha)}">
+<main id="top" data-generator="{esc(generator)}" data-case-id="{esc(case.get('id', ''))}" data-manifest-sha256="{esc(sha)}">
 <h1>{{{{ title }}}}: how it works</h1>
 <p class="lead">What each page shows, which measure is behind each figure, which tables those measures read and
 where those tables come from. Everything here is read from the evidence this case captured - nothing was queried
@@ -847,9 +1529,11 @@ to write it, and nothing is inferred beyond what the definitions say.</p>
 <p class="notice">This describes the captured snapshot of the report and its model, taken {{{{ captured }}}}. It is a
 description, not a verdict: it says how the report is built, not whether its numbers are right.</p>
 <div class="summary"><span class="pill"><b>{len(pages)}</b> pages</span><span class="pill"><b>{visuals}</b> visuals</span>
-<span class="pill"><b>{len(used)}</b> measures used</span><span class="pill"><b>{len(tables)}</b> tables</span>
+<span class="pill"><b>{len(used)}</b> measures used</span><span class="pill"><b>{len(chains)}</b> numbers traced</span>
+<span class="pill"><b>{len(tables)}</b> tables</span>
 <span class="pill">{{{{ seal }}}}</span></div>
 {{{{ toc }}}}
+{{{{ chains }}}}
 {{{{ report_filters }}}}
 {{{{ pages }}}}
 {{{{ measures }}}}
@@ -857,21 +1541,24 @@ description, not a verdict: it says how the report is built, not whether its num
 {{{{ trace }}}}
 {{{{ gaps }}}}
 <p class="manifest">Generated by {esc(generator)} from case {esc(case.get('id', ''))}; evidence manifest {{{{ manifest }}}}.</p>
+<a class="totop" href="#top">Back to top</a>
+{{{{ script }}}}
 </main></html>'''
     rendered = Template(document, autoescape=True).render(
         title=heading, captured=str(inventory.get('captured_at') or 'at an unrecorded time'),
         seal='sealed evidence' if sealed else 'unsealed case', manifest=sha,
-        toc=Markup(table_of_contents(pages, bool(case.get('trace')), bool(tables))),
+        toc=Markup(table_of_contents(pages, bool(case.get('trace')), bool(tables), bool(pages))),
+        chains=Markup(chains_card(chains, pages)),
         report_filters=Markup(report_filters_card(pages)),
         pages=Markup(body), measures=Markup(measures_card(measures)),
         tables=Markup(tables_card(tables, model)), trace=Markup(trace_card(case)),
-        gaps=Markup(gaps_card(gaps)))
+        gaps=Markup(gaps_card(gaps)), script=Markup(FILTER_SCRIPT))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(rendered, encoding='utf-8')
     return {'report': str(out), 'case': case.get('id'), 'pages': len(pages), 'visuals': visuals,
             'measures_used': len(used), 'measures_defined': len(measures), 'tables': len(tables),
-            'model_captured': model['captured'], 'manifest_sha256': sha, 'sealed': sealed,
-            'gaps': len(gaps), 'generator': generator}
+            'traced': len(chains), 'model_captured': model['captured'], 'manifest_sha256': sha,
+            'sealed': sealed, 'gaps': len(gaps), 'generator': generator}
 
 
 def main():

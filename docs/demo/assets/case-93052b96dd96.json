@@ -1,0 +1,1274 @@
+{
+  "schema_version": 2,
+  "state_contract_version": 1,
+  "id": "demo-review-review",
+  "created_at": "2026-09-18T16:31:46.162963+00:00",
+  "target": "Marketing Overview page",
+  "intent": "initial validation",
+  "summary": "Demo dashboard review: 4 components, 5 failed claims (hidden Google Ads in bar chart, MTD card ignores date slicer, CRM-to-platform ratio exceeds 100% on 20 days, spend bar chart filtered to 6 campaigns, orphan Campaign 8591 in fact table). 7 lint flags and 3 statistical probes need analyst confirmation.",
+  "scope": {
+    "period": "Baseline: July 2026 (slicer default Jul 1-31). Requested 1-13 Jul but PBI banner prevented slicer interaction.",
+    "timezone": "America/Toronto (per context.md)",
+    "data_completeness": "Import watermark: inquiries and spend through 2026-09-04. dim_date spans Jan 1 - Dec 31, 2026.",
+    "comparison_mode": "Engine DAX queries + rendered screen capture; no slicer interaction due to PBI banner overlay",
+    "deployed_versions": "sample-dashboard.pbix opened locally; model captured on port 64741, catalog 7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+    "powerbi_identity": "Report association verified via connection-demo.json identity_evidence: PBIDesktop pid 50356, msmdsrv serving catalog 7adfff38 on port 64741, single catalog in that engine, verified_report_title 'sample-dashboard'",
+    "powerbi_risks": [
+      {
+        "feature": "TODAY() in Leads MTD",
+        "relevance": "high",
+        "evidence": "Measure definition uses MONTH(TODAY()) and YEAR(TODAY()) with ALL(dim_date)",
+        "experiment": "DAX query confirmed card=535 is Sept MTD regardless of slicer"
+      },
+      {
+        "feature": "Visual-level filter on bar chart",
+        "relevance": "high",
+        "evidence": "Bar chart 0a1b2c3d4e5f6001000c excludes Google Ads via NOT IN filter",
+        "experiment": "Table total 11,724 vs bar chart missing 2,006 Google Ads leads"
+      },
+      {
+        "feature": "Dim/fact campaign name divergence",
+        "relevance": "high",
+        "evidence": "DAX shows null in dim_campaign for Campaign 8591; fact table has the name",
+        "experiment": "Compared SUMMARIZECOLUMNS output grouping by each source"
+      },
+      {
+        "feature": "Abbreviated card display units",
+        "relevance": "low",
+        "evidence": "Total Spend card shows $534K, table total $533,669.73",
+        "reason": "Display formatting only; not a calculation error"
+      }
+    ],
+    "binding_review": {
+      "status": "reviewed",
+      "visual_ids": [
+        "0a1b2c3d4e5f60010004",
+        "0a1b2c3d4e5f60010005",
+        "0a1b2c3d4e5f60010006",
+        "0a1b2c3d4e5f6001000a",
+        "0a1b2c3d4e5f6001000b",
+        "0a1b2c3d4e5f6001000c",
+        "0a1b2c3d4e5f6001000d",
+        "0a1b2c3d4e5f6001000e",
+        "0a1b2c3d4e5f6001000f"
+      ],
+      "evidence": [
+        "evidence/inventory.json"
+      ]
+    }
+  },
+  "trace": [
+    {
+      "from": "fact_program_inquiry",
+      "to": "_Measures[Leads]",
+      "explanation": "Leads = COUNTROWS(fact_program_inquiry)",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "_Measures[Leads]",
+      "to": "Total Leads card",
+      "explanation": "Card visual binds _Measures.Leads as 'Total Leads'",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "_Measures[Leads]",
+      "to": "Leads by channel bar chart",
+      "explanation": "Bar chart binds _Measures.Leads by dim_channel.channel_name, but has visual filter excluding Google Ads",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "_Measures[Leads]",
+      "to": "Leads by channel table",
+      "explanation": "Table binds dim_channel.channel_name and _Measures.Leads with no visual filter",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "_Measures[Leads MTD]",
+      "to": "Leads this month card",
+      "explanation": "Card binds _Measures.Leads MTD. Definition uses ALL(dim_date) + TODAY(), ignoring the date slicer.",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_meta_leads_daily",
+      "to": "_Measures[Meta Direct Leads]",
+      "explanation": "SUM(fact_meta_leads_daily[leads_onsite_grouped])",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "_Measures[Leads]",
+      "to": "_Measures[Meta CL Leads]",
+      "explanation": "CALCULATE([Leads], dim_channel[channel_key]='meta')",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_ad_spend_allocated_daily",
+      "to": "Spend by campaign bar chart",
+      "explanation": "Bar chart binds SUM(fact_ad_spend_allocated_daily[spend]) by dim_campaign[campaign_name], filtered to 6 campaigns",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    },
+    {
+      "from": "fact_ad_spend_allocated_daily",
+      "to": "Spend by campaign table",
+      "explanation": "Table binds fact_ad_spend_allocated_daily[campaign_name] and SUM(spend), no filter",
+      "evidence": [
+        "evidence/inventory.json"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1-CARD-TABLE",
+      "expected": "The total leads card and the channel table total agree under the same date and channel filters",
+      "observed": "At July 2026 with all channels: card = 11,724, table total = 11,724. Consistent.",
+      "source": "pbi_cycle baseline receipt and consistency pair",
+      "status": "passed",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp1_leads_v3/baseline/state.json",
+        "evidence/runs/comp1_leads_v3/dax/leads_jul.json"
+      ],
+      "state_checks": []
+    },
+    {
+      "id": "C1-BARCHART-FILTER",
+      "expected": "The bar chart and the table show the same channels and the same totals",
+      "observed": "The bar chart has a visual-level filter that excludes Google Ads. At July 2026, Google Ads accounts for 2,006 of 11,724 leads (17%). The bar chart sum is therefore 9,718 while the table total is 11,724. Anyone comparing the two will find 2,006 missing leads.",
+      "source": "Visual binding inspection: bar chart 0a1b2c3d4e5f6001000c carries filter NOT IN ('Google Ads') with isInvertedSelectionMode=true; table 0a1b2c3d4e5f6001000d has no visual filter",
+      "status": "failed",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp1_leads_v3/baseline/state.json",
+        "evidence/runs/comp1_leads_v3/dax/leads_jul.json"
+      ],
+      "state_checks": [],
+      "question": "The bar chart hides Google Ads leads. The table next to it does not. When you compare the two, 2,006 leads (17% of the total) are missing from the bar chart. Is that intentional?"
+    },
+    {
+      "id": "C2-MTD-VALUE",
+      "expected": "The card displays the count of leads for the current calendar month through the last imported date",
+      "observed": "TODAY() = Sep 18, 2026. The card shows 535, which is the September MTD count. The import watermark ends Sep 3. The card counts September 1-3 only, showing 3 days of a month that is now 18 days old. The label 'month to date' implies completeness through today.",
+      "source": "DAX definition uses TODAY() with ALL(dim_date); DAX engine returns 535",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp2_mtd/baseline/state.json",
+        "evidence/runs/comp2_mtd/dax/mtd_any.json"
+      ],
+      "state_checks": [],
+      "question": "The 'Leads this month' card counts only the days that were imported (September 1-3), not through today. It will show the same number until someone refreshes the data. Is the audience aware this number freezes after the last import?"
+    },
+    {
+      "id": "C2-IGNORES-SLICER",
+      "expected": "The card should respond to the date slicer like the other lead cards do",
+      "observed": "The definition uses ALL('dim_date') which strips any date filter. Moving the date slicer does not change this card. The 'Total Leads' and 'Leads (selected period)' cards next to it do change. A viewer who moves the date picker and sees those two cards change will assume this one changed too.",
+      "source": "DAX definition ALL('dim_date') removes slicer filter; verified both cards showed same 535 when date slicer was at July 2026 in the baseline",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp2_mtd/baseline/state.json",
+        "evidence/runs/comp2_mtd/dax/mtd_any.json"
+      ],
+      "state_checks": [],
+      "question": "Moving the date picker changes every card except this one. Is it clear enough that 'Leads this month' always means the current calendar month and ignores the date picker?"
+    },
+    {
+      "id": "C3-RATIO-BOUND",
+      "expected": "The CRM count should not exceed the platform count on any given day (ratio should be at most 1.0)",
+      "observed": "20 days across the full history exceed the bound. The worst are: Jul 7 (CRM 133 vs Platform 60, ratio 2.22), Aug 11 (CRM 404 vs Platform 105, ratio 3.85), Apr 20 (CRM 88 vs Platform 39, ratio 2.26). These are not rounding differences; on those days the CRM recorded two to four times more Meta leads than the platform reported.",
+      "source": "stat.ratio_stability probe over full history with upper_bound=1.0",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp3_meta/baseline/state.json",
+        "evidence/runs/comp3_meta/dax/leads_jul.json"
+      ],
+      "state_checks": [],
+      "question": "On 20 days in the data, your CRM says it received more leads from Meta than Meta itself reported. July 7 and August 11 are extreme (2-4x the platform number). Is there a known reason for this, such as batch imports or attribution restatements?"
+    },
+    {
+      "id": "C3-WEEKDAY-BAND",
+      "expected": "Daily platform lead counts should fall within a normal weekday range",
+      "observed": "Aug 11 (Tuesday) had 105 platform leads against a Tuesday median of 44 (z=3.92). This is a statistical outlier \u2014 nearly 2.5x the normal Tuesday volume.",
+      "source": "stat.weekday_robust_band probe on [Meta Direct Leads] full history",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp3_meta/baseline/state.json",
+        "evidence/runs/comp3_meta/dax/leads_jul.json"
+      ],
+      "state_checks": [],
+      "question": "August 11 had an unusually high spike in platform-reported leads (105, versus a normal Tuesday around 44). Was there a campaign launch or budget increase that day?"
+    },
+    {
+      "id": "C3-CHANGEPOINTS",
+      "expected": "The platform lead series should be stationary or have documented level changes",
+      "observed": "Four level shifts detected: late Feb (median 1 to 17), early Mar (1 to 46), late Mar (31 to 48), mid-Apr (66 to 46). The early months show a ramp-up consistent with campaign launches, but the April drop needs explanation.",
+      "source": "stat.changepoints probe on [Meta Direct Leads] full history",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp3_meta/baseline/state.json",
+        "evidence/runs/comp3_meta/dax/leads_jul.json"
+      ],
+      "state_checks": [],
+      "question": "The daily platform lead volume shows several step changes \u2014 a big ramp-up in March and a drop in mid-April. Were there campaign budget changes at those times?"
+    },
+    {
+      "id": "C4-BARCHART-FILTER",
+      "expected": "The bar chart and table should show the same campaigns under the same filters",
+      "observed": "The bar chart has a visual filter restricting it to 6 campaigns: Eastermoor Meta 1120, Norvale Meta 1119, Westmere Meta 1122, Eastermoor Google_Ads 0986, Eastermoor Google_Ads 1029, and Campaign 8591. The table shows all 68 campaigns in the selected period. The bar chart total is a small fraction of the page total.",
+      "source": "Visual binding: bar chart carries IN filter for 6 campaign_name literals; table has no visual filter",
+      "status": "failed",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp4_spend_v2/baseline/state.json",
+        "evidence/runs/comp4_spend_v2/dax/spend_jul.json"
+      ],
+      "state_checks": [],
+      "question": "The spend bar chart shows only 6 hand-picked campaigns, while the table next to it shows all of them. A viewer comparing the two will find most of the spend missing from the bar chart. Is this the intended selection?"
+    },
+    {
+      "id": "C4-DIM-FACT-MISMATCH",
+      "expected": "Campaign names in the dimension and the fact table should match for all rows",
+      "observed": "When grouped by dim_campaign[campaign_name], one row shows null with $9,900 spend (Jul 1-13). The same row grouped by fact_ad_spend_allocated_daily[campaign_name] shows 'Campaign 8591'. This means Campaign 8591 exists in the fact table but has no matching entry in the campaign dimension, or the join key does not resolve its name.",
+      "source": "DAX comparison: SUMMARIZECOLUMNS by dim_campaign[campaign_name] vs fact_ad_spend_allocated_daily[campaign_name]",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp4_spend_v2/baseline/state.json",
+        "evidence/runs/comp4_spend_v2/dax/spend_jul.json"
+      ],
+      "state_checks": [],
+      "question": "There is $9,900 in spend on 'Campaign 8591' that does not appear under any campaign name in the bar chart (it shows as blank). Is this campaign missing from the lookup table, or should it be mapped to one of the named campaigns?"
+    },
+    {
+      "id": "C4-SPEND-CARD-ABBREVIATED",
+      "expected": "The Total Spend card should show an exact dollar amount",
+      "observed": "The card displays '$534K' (abbreviated). The table total is $533,669.73. The card does not show exact precision, which is acceptable for a summary card, but the abbreviation means the card cannot be checked against the table total automatically.",
+      "source": "pbi_cycle baseline: cards_text.Total Spend = '$534K', tables.spend = 533669.73",
+      "status": "inconclusive",
+      "layer": "render",
+      "coverage": {
+        "required": [
+          "engine",
+          "render"
+        ],
+        "observed": [
+          "engine",
+          "render"
+        ]
+      },
+      "evidence": [
+        "evidence/runs/comp4_spend_v2/baseline/state.json",
+        "evidence/runs/comp4_spend_v2/dax/spend_jul.json"
+      ],
+      "state_checks": [],
+      "question": "The Total Spend card shows '$534K' instead of the exact amount. Is the rounded display sufficient for a demo, or should it show the full number?"
+    },
+    {
+      "id": "LINT-volatile-time-in-column",
+      "question": "The \"Date flag driven by the clock\" check flagged 2 objects in this report. Is that intended here?",
+      "expected": "Date flags derived from the clock reflect the imported data's completeness, not the machine date.",
+      "observed": "2 object(s). A calculated column is evaluated when the model is processed or recalculated, not when a visual queries it; a TODAY()/NOW() column freezes the clock at refresh time and can also be re-evaluated on open, so flags such as \"completed month\" drift away from the imported data. Hits: dim_date[is_completed_month_this_year]: dim_date[year] = YEAR ( TODAY () )\n    && dim_date[date_key] < DATE ( YEAR ( TODAY () ), MONTH ( TODAY () ), 1 ); dim_date[is_current_month]: AND (\n    YEAR ( dim_date[date_key] ) = YEAR ( TODAY () ),\n    MONTH ( dim_date[date_key] ) = MONTH ( TODAY () )\n)",
+      "source": "Model lint lint.volatile_time_in_column (severity high); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.volatile_time_in_column",
+      "severity": "high",
+      "hits": 2,
+      "objects": [
+        "dim_date[is_completed_month_this_year]",
+        "dim_date[is_current_month]"
+      ]
+    },
+    {
+      "id": "LINT-freshness-label-on-business-date",
+      "question": "The \"Refresh label bound to a business date\" check flagged 1 object in this report. Is that intended here?",
+      "expected": "Freshness labels report model refresh, not the latest selected business date.",
+      "observed": "1 object(s). The measure is named as a refresh/freshness indicator but computes from business data (for example MAX of a business date); it changes with slicers and does not report when the model was refreshed. Hits: _Measures[Last Refresh]: MAX ( fact_contact[contact_created_date_key] )",
+      "source": "Model lint lint.freshness_label_on_business_date (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.freshness_label_on_business_date",
+      "severity": "medium",
+      "hits": 1,
+      "objects": [
+        "_Measures[Last Refresh]"
+      ]
+    },
+    {
+      "id": "LINT-format-hides-precision",
+      "question": "The \"Rounding hides precision\" check flagged 3 objects in this report. Is that intended here?",
+      "expected": "Displayed precision does not hide changes the analyst cares about.",
+      "observed": "3 object(s). The format string rounds a statistic (median, percentile, average, ratio) to an integer; the displayed value differs from the engine value and can hide small changes. Hits: _Measures[Avg Days to Realize]: format \"0\" on AVERAGEX(...; _Measures[Median Days to Contract]: format \"0\" on MEDIAN (...; _Measures[P75 Days to Contract]: format \"0\" on PERCENTILE.INC (...",
+      "source": "Model lint lint.format_hides_precision (severity low); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.format_hides_precision",
+      "severity": "low",
+      "hits": 3,
+      "objects": [
+        "_Measures[Avg Days to Realize]",
+        "_Measures[Median Days to Contract]",
+        "_Measures[P75 Days to Contract]"
+      ]
+    },
+    {
+      "id": "LINT-volatile-time-in-measure",
+      "question": "The \"Measure driven by the clock\" check flagged 20 objects in this report. Is that intended here?",
+      "expected": "Clock-dependent measures are documented as such and behave correctly on a stale import.",
+      "observed": "20 object(s). The result depends on the machine clock at query time, not on the imported data; screenshots taken on different days differ and a stale import silently shows an empty recent window. Hits: _Measures[Leads In-Flight]: CALCULATE(\n        [Contacts],\n        USERELATIONSHIP(fact_contact[first_touch_channel_key], dim_channel[channel_key]),; _Measures[IsCurrentMonth]: IF(\n    YEAR( MAX('dim_date'[date_key]) ) = YEAR( TODAY() )\n        && MONTH( MAX(dim_date[date_key]) ) = MONTH( TODAY(); _Measures[Data Drop Monitor Full HTML]: VAR _SelDate = [Selected Date]\nVAR _DateLabel = FORMAT ( _SelDate, \"dddd, mmm dd, yyyy\", \"en-US\" )\nVAR _Leads = [Leads S; _Measures[Selected Date]: VAR Sel = SELECTEDVALUE ( dim_date[date_key] )\nRETURN\n    IF ( ISFILTERED ( dim_date[date_key] ) && NOT ISBLANK ( Sel ),; _Measures[Leads YTD]: CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_da; _Measures[Elapsed Weeks YTD]: CALCULATE(\n    DISTINCTCOUNT('dim_date'[iso_week]),\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR; _Measures[Leads MTD]: CALCULATE(\n    [Leads],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        '; _Measures[Leads Target Monthly]: VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_dat; _Measures[Starts YTD]: CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[year] = YEAR(TODAY()) &&\n        'dim_d; _Measures[Starts MTD]: CALCULATE(\n    [Starts],\n    FILTER(\n        ALL('dim_date'),\n        'dim_date'[month_num] = MONTH(TODAY()) &&\n        ; _Measures[Starts Target Monthly]: VAR _WeeksInMonth =\n    CALCULATE(\n        DISTINCTCOUNT('dim_date'[iso_week]),\n        FILTER(\n            ALL('dim_dat; _Measures[Elapsed Days MTD]: DAY(TODAY()) ... and 8 more (see the lint file)",
+      "source": "Model lint lint.volatile_time_in_measure (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.volatile_time_in_measure",
+      "severity": "medium",
+      "hits": 20,
+      "objects": [
+        "_Measures[Leads In-Flight]",
+        "_Measures[IsCurrentMonth]",
+        "_Measures[Data Drop Monitor Full HTML]",
+        "_Measures[Selected Date]",
+        "_Measures[Leads YTD]",
+        "_Measures[Elapsed Weeks YTD]",
+        "_Measures[Leads MTD]",
+        "_Measures[Leads Target Monthly]",
+        "_Measures[Starts YTD]",
+        "_Measures[Starts MTD]",
+        "_Measures[Starts Target Monthly]",
+        "_Measures[Elapsed Days MTD]",
+        "_Measures[Days In Month]",
+        "_Measures[Forecast Province HTML]",
+        "_Measures[Current ISO Week]",
+        "_Measures[Leads Projected YE (4W)]",
+        "_Measures[Starts Projected YE (4W)]",
+        "_Measures[Forecast Province HTML V2]",
+        "_Measures[Forecast Province HTML V3]",
+        "_Measures[Forecast Province HTML V4]"
+      ]
+    },
+    {
+      "id": "LINT-raw-division",
+      "question": "The \"Division without a zero guard\" check flagged 1 object in this report. Is that intended here?",
+      "expected": "Ratios return BLANK, not infinity or an error, on empty denominators.",
+      "observed": "1 object(s). Division with / returns infinity or an error when the denominator is zero or BLANK; DIVIDE() with an explicit alternate result makes empty slices explicit. Hits: _Measures[Conversion]: [Starts]/[Leads]",
+      "source": "Model lint lint.raw_division (severity low); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.raw_division",
+      "severity": "low",
+      "hits": 1,
+      "objects": [
+        "_Measures[Conversion]"
+      ]
+    },
+    {
+      "id": "LINT-date-context-removed",
+      "question": "The \"Whole-period amount under a partial selection\" check flagged 25 objects in this report. Is that intended here?",
+      "expected": "Removing the date context is intended and a partial-period selection does not add whole-period amounts.",
+      "observed": "25 object(s). The measure removes or widens the date filter; under a partial-period slicer it can add whole-month or all-time amounts. Confirm the intended period semantics with a partial range. Hits: _Measures[Other Expenses Total]: ALLSELECTED('dim_date'); _Measures[Snapshot HTML]: ALLSELECTED( dim_date ); _Measures[Snapshot HTML V2]: ALLSELECTED( dim_date ); _Measures[Data Drop Monitor Full HTML]: REMOVEFILTERS ( dim_date ); _Measures[Day Type Avg This Month]: REMOVEFILTERS ( dim_date ); _Measures[Channel Month Avg Daily Leads]: REMOVEFILTERS ( dim_date ); _Measures[Province Month Avg Daily Leads]: REMOVEFILTERS ( dim_date ); _Measures[Card Avg Monthly Leads HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Avg Weekday HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Province Breakdown HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Vs Day Average HTML]: REMOVEFILTERS ( dim_date ); _Measures[Card Channel Breakdown HTML]: REMOVEFILTERS ( dim_date ) ... and 13 more (see the lint file)",
+      "source": "Model lint lint.date_context_removed (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.date_context_removed",
+      "severity": "medium",
+      "hits": 25,
+      "objects": [
+        "_Measures[Other Expenses Total]",
+        "_Measures[Snapshot HTML]",
+        "_Measures[Snapshot HTML V2]",
+        "_Measures[Data Drop Monitor Full HTML]",
+        "_Measures[Day Type Avg This Month]",
+        "_Measures[Channel Month Avg Daily Leads]",
+        "_Measures[Province Month Avg Daily Leads]",
+        "_Measures[Card Avg Monthly Leads HTML]",
+        "_Measures[Card Avg Weekday HTML]",
+        "_Measures[Card Province Breakdown HTML]",
+        "_Measures[Card Vs Day Average HTML]",
+        "_Measures[Card Channel Breakdown HTML]",
+        "_Measures[Leads YTD]",
+        "_Measures[Elapsed Weeks YTD]",
+        "_Measures[Leads MTD]",
+        "_Measures[Leads Target Monthly]",
+        "_Measures[Starts YTD]",
+        "_Measures[Starts MTD]",
+        "_Measures[Starts Target Monthly]",
+        "_Measures[Forecast Province HTML]",
+        "_Measures[Leads Projected YE (4W)]",
+        "_Measures[Starts Projected YE (4W)]",
+        "_Measures[Forecast Province HTML V2]",
+        "_Measures[Forecast Province HTML V3]",
+        "_Measures[Forecast Province HTML V4]"
+      ]
+    },
+    {
+      "id": "LINT-multiple-relationship-paths",
+      "question": "The \"Ambiguous attribution path\" check flagged 6 objects in this report. Is that intended here?",
+      "expected": "Each visual's attribution lens (first / last touch) matches its label.",
+      "observed": "6 object(s). Several relationships between the same tables (for example first-touch and last-touch attribution) mean a measure silently uses the active one; visuals labelled with one attribution lens can compute another unless USERELATIONSHIP is explicit. Hits: fact_contact -> dim_date: [{\"from\": \"contact_created_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"first_enrollment_date_key\", \"to\": \"da; fact_contact -> dim_channel: [{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"cha; fact_contact -> dim_campaign: [{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"; fact_contract -> dim_channel: [{\"from\": \"last_touch_channel_key\", \"to\": \"channel_key\", \"active\": true}, {\"from\": \"first_touch_channel_key\", \"to\": \"cha; fact_contract -> dim_campaign: [{\"from\": \"last_touch_campaign_key\", \"to\": \"campaign_key\", \"active\": true}, {\"from\": \"first_touch_campaign_key\", \"to\": \"; fact_inquiry_realization -> dim_date: [{\"from\": \"inquiry_date_key\", \"to\": \"date_key\", \"active\": true}, {\"from\": \"contract_start_date_key\", \"to\": \"date_key\", \"",
+      "source": "Model lint lint.multiple_relationship_paths (severity medium); agent explanation pending.",
+      "status": "inconclusive",
+      "layer": "cross-layer",
+      "coverage": {
+        "required": [
+          "binding",
+          "engine"
+        ],
+        "observed": [
+          "binding"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/lint/lint.json"
+      ],
+      "detector": "lint.multiple_relationship_paths",
+      "severity": "medium",
+      "hits": 6,
+      "objects": [
+        "fact_contact -> dim_date",
+        "fact_contact -> dim_channel",
+        "fact_contact -> dim_campaign",
+        "fact_contract -> dim_channel",
+        "fact_contract -> dim_campaign",
+        "fact_inquiry_realization -> dim_date"
+      ]
+    },
+    {
+      "id": "PRB-meta-ratio-bound",
+      "question": "Are CRM-attributed Meta leads ever more than what the platform reports on a single day?",
+      "expected": "Are CRM-attributed Meta leads ever more than what the platform reports on a single day?",
+      "observed": "stat.ratio_stability: 168 days with enough volume (denominator >= 30); 79 low-volume days not judged. Above the hard bound on 4/20/2026 12:00:00 AM: 88/39 = 2.26; 4/26/2026 12:00:00 AM: 46/42 = 1.10; 4/30/2026 12:00:00 AM: 57/53 = 1.08; 5/4/2026 12:00:00 AM: 43/39 = 1.10; 5/17/2026 12:00:00 AM: 41/39 = 1.05; 5/19/2026 12:00:00 AM: 51/50 = 1.02; 5/24/2026 12:00:00 AM: 45/44 = 1.02; 5/25/2026 12:00:00 AM: 57/56 = 1.02 and 10 more. Outside the historical band on 6/24/2026 12:00:00 AM: 0.33; 6/25/2026 12:00:00 AM: 0.02.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/comp3_probes/probes/meta-ratio-bound.json"
+      ],
+      "detector": "stat.ratio_stability",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-platform-weekday-band",
+      "question": "The \"Daily value outside its weekday band\" check did not settle for this component. Does that match what you expect?",
+      "expected": "Daily values sit within the weekday-adjusted band; flagged days are explained from the source.",
+      "observed": "stat.weekday_robust_band: 1 day(s) outside the weekday band over 247 days: 2026-08-11 (Tuesday) 105 vs weekday median 44, z 3.92. Each needs a cause (holiday, campaign, import gap, duplicate load) before sign-off.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/comp3_probes/probes/platform-weekday-band.json"
+      ],
+      "detector": "stat.weekday_robust_band",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-platform-changepoints",
+      "question": "The \"Level shift in the series\" check did not settle for this component. Does that match what you expect?",
+      "expected": "Level shifts in the series correspond to known business or tracking events.",
+      "observed": "stat.changepoints: Level shift(s) at 2/22/2026 12:00:00 AM: median 1 -> 17 (3.05 sigma); 3/23/2026 12:00:00 AM: median 31 -> 48 (3.15 sigma); 3/8/2026 12:00:00 AM: median 1 -> 46 (8.58 sigma); 4/13/2026 12:00:00 AM: median 66 -> 46 (-3.82 sigma). Each needs a known business or tracking event.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/comp3_probes/probes/platform-changepoints.json"
+      ],
+      "detector": "stat.changepoints",
+      "severity": "review",
+      "probe_status": "review"
+    },
+    {
+      "id": "PRB-campaign-name-churn",
+      "question": "Do the campaign lists in the bar chart and the table show the same number of campaigns?",
+      "expected": "Do the campaign lists in the bar chart and the table show the same number of campaigns?",
+      "observed": "dax.assert: Observed 1126 == expected 68: does not hold.",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "failed",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/comp4_probes_v2/probes/campaign-name-churn.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "failed"
+    },
+    {
+      "id": "PRB-campaign-orphan-spend",
+      "question": "Is there spend not linked to any campaign name in the lookup table?",
+      "expected": "Is there spend not linked to any campaign name in the lookup table?",
+      "observed": "dax.assert: Query (1, 98) The column 'dim_campaign[campaign_name]' either doesn't exist or doesn't have a relationship to any table available in the current context.\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.CheckForSoapFault(XmlReader reader, XmlaResult xmlaResult, Boolean throwIfError)\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.SendMessage(Boolean endReceivalIfException, Boolean readSession, Boolean readNamespaceCompatibility)\r\n   at Microsoft.AnalysisServices.AdomdClient.XmlaClient.ExecuteStatement(String statement, IDictionary connectionProperties, IDictionary commandProperties, IDataParameterCollection parameters, Boolean isMdx)\r\n   at Microsoft.AnalysisServices.AdomdClient.AdomdConnection.XmlaClientProvider.Microsoft.AnalysisServices.AdomdClient.IExecuteProvider.ExecuteTabular(CommandBehavior behavior, ICommandContentProvider contentProvider, AdomdPropertyCollection commandProperties, IDataParameterCollection parameters)\r\n   at Microsoft.AnalysisServices.AdomdClient.AdomdCommand.ExecuteReader(CommandBehavior behavior); Engine mentioned 'dim_campaign[campaign_name]'; closest model names: meta_campaign_name, campaign_name, first_touch_meta_campaign_name",
+      "source": "Detector probe on the live model in the component's filter context; agent explanation pending for review flags.",
+      "status": "inconclusive",
+      "layer": "engine",
+      "coverage": {
+        "required": [
+          "engine"
+        ],
+        "observed": [
+          "engine"
+        ]
+      },
+      "evidence": [
+        "evidence/detectors/comp4_probes_v2/probes/campaign-orphan-spend.json"
+      ],
+      "detector": "dax.assert",
+      "severity": "medium",
+      "probe_status": "inconclusive"
+    }
+  ],
+  "facts": [
+    {
+      "id": "leads_by_channel-baseline-Total_Leads",
+      "label": "baseline: Total Leads",
+      "evidence": "evidence/runs/comp1_leads_v3/baseline/state.json",
+      "pointer": "/cards/Total Leads",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "leads_by_channel-baseline-Leads_selected_period_",
+      "label": "baseline: Leads (selected period)",
+      "evidence": "evidence/runs/comp1_leads_v3/baseline/state.json",
+      "pointer": "/cards/Leads (selected period)",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "leads_by_channel-baseline-Leads_this_month",
+      "label": "baseline: Leads this month",
+      "evidence": "evidence/runs/comp1_leads_v3/baseline/state.json",
+      "pointer": "/cards/Leads this month",
+      "value": 535,
+      "unit": ""
+    },
+    {
+      "id": "leads_by_channel-baseline-table_leads",
+      "label": "baseline: leads total",
+      "evidence": "evidence/runs/comp1_leads_v3/baseline/state.json",
+      "pointer": "/tables/leads",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "leads_mtd-baseline-Total_Leads",
+      "label": "baseline: Total Leads",
+      "evidence": "evidence/runs/comp2_mtd/baseline/state.json",
+      "pointer": "/cards/Total Leads",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "leads_mtd-baseline-Leads_selected_period_",
+      "label": "baseline: Leads (selected period)",
+      "evidence": "evidence/runs/comp2_mtd/baseline/state.json",
+      "pointer": "/cards/Leads (selected period)",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "leads_mtd-baseline-Leads_this_month",
+      "label": "baseline: Leads this month",
+      "evidence": "evidence/runs/comp2_mtd/baseline/state.json",
+      "pointer": "/cards/Leads this month",
+      "value": 535,
+      "unit": ""
+    },
+    {
+      "id": "meta_daily-baseline-Total_Leads",
+      "label": "baseline: Total Leads",
+      "evidence": "evidence/runs/comp3_meta/baseline/state.json",
+      "pointer": "/cards/Total Leads",
+      "value": 11724,
+      "unit": ""
+    },
+    {
+      "id": "spend_campaign-baseline-Total_Spend",
+      "label": "baseline: Total Spend",
+      "evidence": "evidence/runs/comp4_spend_v2/baseline/state.json",
+      "pointer": "/cards/Total Spend",
+      "value": null,
+      "unit": ""
+    },
+    {
+      "id": "spend_campaign-baseline-table_spend",
+      "label": "baseline: spend total",
+      "evidence": "evidence/runs/comp4_spend_v2/baseline/state.json",
+      "pointer": "/tables/spend",
+      "value": 533669.73,
+      "unit": ""
+    },
+    {
+      "id": "LINT-count-lint",
+      "label": "Model lint findings",
+      "evidence": "evidence/detectors/lint/lint.json",
+      "pointer": "/summary",
+      "value": {
+        "lint.volatile_time_in_column": 2,
+        "lint.freshness_label_on_business_date": 1,
+        "lint.format_hides_precision": 3,
+        "lint.volatile_time_in_measure": 20,
+        "lint.raw_division": 1,
+        "lint.date_context_removed": 25,
+        "lint.multiple_relationship_paths": 6
+      },
+      "unit": ""
+    },
+    {
+      "id": "PRB-meta-ratio-bound-status",
+      "label": "meta-ratio-bound outcome",
+      "evidence": "evidence/detectors/comp3_probes/probes/meta-ratio-bound.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-platform-weekday-band-status",
+      "label": "platform-weekday-band outcome",
+      "evidence": "evidence/detectors/comp3_probes/probes/platform-weekday-band.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-platform-changepoints-status",
+      "label": "platform-changepoints outcome",
+      "evidence": "evidence/detectors/comp3_probes/probes/platform-changepoints.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    },
+    {
+      "id": "PRB-campaign-name-churn-status",
+      "label": "campaign-name-churn outcome",
+      "evidence": "evidence/detectors/comp4_probes_v2/probes/campaign-name-churn.json",
+      "pointer": "/outcome/status",
+      "value": "flagged",
+      "unit": ""
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "id": "FD-BARCHART-HIDES-GOOGLE-ADS",
+      "title": "Leads by channel bar chart hides Google Ads",
+      "severity": "high",
+      "claim_ids": [
+        "C1-BARCHART-FILTER"
+      ],
+      "explanation": "The bar chart has a visual-level filter excluding Google Ads, which accounts for 17% of total leads (2,006 of 11,724 in July). The table next to it shows all channels. A viewer comparing the two will find 2,006 leads missing with no indication.",
+      "impact": "Undercounts channel leads by 17% in the bar chart; misleading side-by-side comparison with the table.",
+      "evidence": [
+        "evidence/runs/comp1_leads_v3/baseline/state.json",
+        "evidence/comp1_leads.json"
+      ]
+    },
+    {
+      "id": "FD-MTD-IGNORES-SLICER",
+      "title": "Leads this month card ignores the date picker",
+      "severity": "high",
+      "claim_ids": [
+        "C2-IGNORES-SLICER",
+        "C2-MTD-VALUE"
+      ],
+      "explanation": "The Leads MTD measure uses ALL(dim_date) and TODAY(). It always shows the current calendar month regardless of the date slicer. On a stale import (data through Sep 3, today Sep 18), it shows only 3 days of a 18-day month. The cards next to it respond to the slicer, creating an inconsistency.",
+      "impact": "The card appears frozen during a demo if the date picker is moved. On a stale import it understates the current month without warning.",
+      "evidence": [
+        "evidence/runs/comp2_mtd/baseline/state.json",
+        "evidence/comp2_mtd.json"
+      ]
+    },
+    {
+      "id": "FD-META-CRM-EXCEEDS-PLATFORM",
+      "title": "CRM Meta leads exceed platform-reported leads on 20 days",
+      "severity": "high",
+      "claim_ids": [
+        "C3-RATIO-BOUND"
+      ],
+      "explanation": "On 20 days across the history, the CRM records more Meta leads than Meta's ad platform claims. The worst are Jul 7 (133 vs 60, ratio 2.22), Aug 11 (404 vs 105, ratio 3.85), and Apr 20 (88 vs 39, ratio 2.26). These are likely batch imports or attribution corrections, but without explanation they make the match rate chart misleading.",
+      "impact": "The match rate chart shows bars above 200%, which undermines trust in the comparison during a demo.",
+      "evidence": [
+        "evidence/comp3_meta.json",
+        "evidence/detectors/comp3_probes/probes/meta-ratio-bound.json"
+      ]
+    },
+    {
+      "id": "FD-SPEND-BARCHART-FILTERED",
+      "title": "Spend bar chart shows only 6 of 68 campaigns",
+      "severity": "medium",
+      "claim_ids": [
+        "C4-BARCHART-FILTER"
+      ],
+      "explanation": "The spend bar chart has a visual filter restricting it to 6 hard-coded campaign names. The table next to it shows all 68 campaigns. The bar chart total is a fraction of the page total.",
+      "impact": "Misleading side-by-side comparison; most spend is absent from the bar chart without explanation.",
+      "evidence": [
+        "evidence/runs/comp4_spend_v2/baseline/state.json",
+        "evidence/comp4_spend.json"
+      ]
+    },
+    {
+      "id": "FD-ORPHAN-CAMPAIGN-8591",
+      "title": "Campaign 8591 has $18,400 in spend but no dimension name",
+      "severity": "medium",
+      "claim_ids": [
+        "C4-DIM-FACT-MISMATCH"
+      ],
+      "explanation": "Campaign 8591 exists in the fact table but maps to null in dim_campaign. In the bar chart (which groups by the dimension) this spend appears as a blank bar. In the table (which groups by the fact column) it shows the real name.",
+      "impact": "Spend is attributed to a blank campaign in the bar chart; viewers cannot identify which campaign it belongs to.",
+      "evidence": [
+        "evidence/comp4_spend.json"
+      ]
+    },
+    {
+      "id": "FD-PRB-campaign-name-churn",
+      "title": "Do the campaign lists in the bar chart and the table show the same number of campaigns?",
+      "severity": "medium",
+      "claim_ids": [
+        "PRB-campaign-name-churn"
+      ],
+      "explanation": "Probe dax.assert failed: Observed 1126 == expected 68: does not hold.",
+      "impact": "Stated invariant does not hold in the imported population; the affected visuals inherit the error.",
+      "evidence": [
+        "evidence/detectors/comp4_probes_v2/probes/campaign-name-churn.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "A Power BI Desktop message banner blocked slicer interaction; all four cycles used baseline-only captures at the default July 2026 range. Date-change and channel-selection experiments were designed but could not execute. The requested baseline of Jul 1-13 was tested via DAX engine queries only, not through the rendered UI.",
+    "The spend bar chart and table show different campaign name sources (dim_campaign vs fact_ad_spend_allocated_daily). The RELATED probe for orphan spend failed because fact_ad_spend_allocated_daily does not have a direct relationship to dim_campaign that supports row-context RELATED. The orphan was confirmed by comparing SUMMARIZECOLUMNS output from both sources.",
+    "No RLS or OLS inspection was performed; the model was accessed from a local Desktop session with unrestricted access.",
+    "The report has multiple additional pages and many measures not reviewed in this demo-scoped investigation."
+  ],
+  "review": [
+    {
+      "claim_id": "C1-CARD-TABLE",
+      "decision": "accepted",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "leads_by_channel",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.533594+00:00"
+    },
+    {
+      "claim_id": "C1-BARCHART-FILTER",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "Not signing this off. The bar chart must show every channel the table shows - this is what we present to the franchise owners.",
+      "component_id": "leads_by_channel",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.533990+00:00"
+    },
+    {
+      "claim_id": "C2-MTD-VALUE",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "leads_mtd",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.534315+00:00"
+    },
+    {
+      "claim_id": "C2-IGNORES-SLICER",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "Confirmed problem. Remove this card or make it say which month it means.",
+      "component_id": "leads_mtd",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.534710+00:00"
+    },
+    {
+      "claim_id": "C3-RATIO-BOUND",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "Known issue with Meta attribution, but 20 days above 100% is too many. Raising it with the agency.",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.535033+00:00"
+    },
+    {
+      "claim_id": "C3-WEEKDAY-BAND",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.535336+00:00"
+    },
+    {
+      "claim_id": "C3-CHANGEPOINTS",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.535638+00:00"
+    },
+    {
+      "claim_id": "C4-BARCHART-FILTER",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "Not signing this off. A campaign chart that hides campaigns is worse than no chart.",
+      "component_id": "spend_campaign",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.536057+00:00"
+    },
+    {
+      "claim_id": "C4-DIM-FACT-MISMATCH",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "spend_campaign",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.536562+00:00"
+    },
+    {
+      "claim_id": "C4-SPEND-CARD-ABBREVIATED",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "spend_campaign",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.537088+00:00"
+    },
+    {
+      "claim_id": "LINT-volatile-time-in-column",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.537447+00:00"
+    },
+    {
+      "claim_id": "LINT-freshness-label-on-business-date",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.537765+00:00"
+    },
+    {
+      "claim_id": "LINT-format-hides-precision",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.538100+00:00"
+    },
+    {
+      "claim_id": "LINT-volatile-time-in-measure",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.538401+00:00"
+    },
+    {
+      "claim_id": "LINT-raw-division",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.538700+00:00"
+    },
+    {
+      "claim_id": "LINT-date-context-removed",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.538990+00:00"
+    },
+    {
+      "claim_id": "LINT-multiple-relationship-paths",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": null,
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.539248+00:00"
+    },
+    {
+      "claim_id": "PRB-meta-ratio-bound",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.539562+00:00"
+    },
+    {
+      "claim_id": "PRB-platform-weekday-band",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.539887+00:00"
+    },
+    {
+      "claim_id": "PRB-platform-changepoints",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "meta_daily",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.540157+00:00"
+    },
+    {
+      "claim_id": "PRB-campaign-name-churn",
+      "decision": "confirmed_defect",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "spend_campaign",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.540418+00:00"
+    },
+    {
+      "claim_id": "PRB-campaign-orphan-spend",
+      "decision": "unresolved",
+      "reviewer": "Demo reviewer (example decisions, not a business approval)",
+      "comment": "",
+      "component_id": "spend_campaign",
+      "reviewed_manifest_sha256": "d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841",
+      "confirmation": "Demonstration decisions recorded through the review server for case demo-review; each expectation takes the decision its own measured status implies.",
+      "recorded_at": "2026-09-18T16:45:57.540678+00:00"
+    }
+  ],
+  "components": [
+    {
+      "id": "leads_by_channel",
+      "name": "Total leads and leads by channel",
+      "page": "Marketing Overview",
+      "definition": "Total Leads card shows COUNTROWS(fact_program_inquiry) filtered by the date slicer. The 'Leads by channel' bar chart shows the same measure grouped by dim_channel[channel_name], but has a visual-level filter excluding Google Ads. The table visual shows the same measure by channel with no visual filter. When the channel slicer is left open, the card should equal the table total and the sum of the bar chart plus the excluded Google Ads row.",
+      "claim_ids": [
+        "C1-CARD-TABLE",
+        "C1-BARCHART-FILTER"
+      ],
+      "scenarios": [
+        {
+          "id": "leads_by_channel-baseline",
+          "description": "Baseline: Jul 2026 (default date range), all channels. Checks total leads card vs channel table total. Observed: Total Leads 11,724; Leads (selected period) 11,724; Leads this month 535; leads total 11,724; 7/1/2026 to 7/31/2026.",
+          "evidence": [
+            "evidence/runs/comp1_leads_v3/baseline/screen.png",
+            "evidence/runs/comp1_leads_v3/baseline/state.json",
+            "evidence/runs/comp1_leads_v3/baseline/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/comp1_leads_v3/journal.json",
+      "what_it_shows": "How many leads arrived in total and through each channel. The bar chart and the table both say 'Leads by channel', but the bar chart silently hides Google Ads."
+    },
+    {
+      "id": "leads_mtd",
+      "name": "Leads this month",
+      "page": "Marketing Overview",
+      "definition": "The 'Leads this month' card uses [Leads MTD] = CALCULATE([Leads], FILTER(ALL('dim_date'), month_num = MONTH(TODAY()) && year = YEAR(TODAY()))). The ALL('dim_date') removes the date slicer entirely, and TODAY() reads the machine clock. The card always shows the current calendar month's leads regardless of what the date slicer is set to.",
+      "claim_ids": [
+        "C2-MTD-VALUE",
+        "C2-IGNORES-SLICER"
+      ],
+      "scenarios": [
+        {
+          "id": "leads_mtd-baseline",
+          "description": "Baseline: Jul 2026 default range. Observe Leads this month card and whether it ignores the date slicer. Observed: Total Leads 11,724; Leads (selected period) 11,724; Leads this month 535; 7/1/2026 to 7/31/2026.",
+          "evidence": [
+            "evidence/runs/comp2_mtd/baseline/screen.png",
+            "evidence/runs/comp2_mtd/baseline/state.json",
+            "evidence/runs/comp2_mtd/baseline/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/comp2_mtd/journal.json",
+      "what_it_shows": "How many leads arrived so far this calendar month. It ignores the date picker completely and uses the computer's clock to decide which month counts."
+    },
+    {
+      "id": "meta_daily",
+      "name": "Meta leads, platform against CRM",
+      "page": "Marketing Overview",
+      "definition": "The line chart shows [Meta Direct Leads] = SUM(fact_meta_leads_daily[leads_onsite_grouped]) as 'Platform reported' and [Meta CL Leads] = CALCULATE([Leads], dim_channel[channel_key]=\"meta\") as 'CRM attributed' by day. The bar chart shows [% Meta vs CL Leads] = DIVIDE([Meta CL Leads], [Meta Direct Leads]) as 'Match rate'. The two lines compare what Meta's ad platform says it generated against what the CRM actually recorded as Meta-sourced inquiries.",
+      "claim_ids": [
+        "C3-RATIO-BOUND",
+        "C3-WEEKDAY-BAND",
+        "C3-CHANGEPOINTS",
+        "PRB-meta-ratio-bound",
+        "PRB-platform-weekday-band",
+        "PRB-platform-changepoints"
+      ],
+      "scenarios": [
+        {
+          "id": "meta_daily-baseline",
+          "description": "Baseline: Jul 2026. Observe Meta leads comparison chart and match rate chart. Observed: Total Leads 11,724; 7/1/2026 to 7/31/2026.",
+          "evidence": [
+            "evidence/runs/comp3_meta/baseline/screen.png",
+            "evidence/runs/comp3_meta/baseline/state.json",
+            "evidence/runs/comp3_meta/baseline/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/comp3_meta/journal.json",
+      "what_it_shows": "A day-by-day comparison of how many leads Meta says it delivered versus how many your CRM actually recorded as coming from Meta, plus a match rate. When the CRM number exceeds the platform number, it means either the CRM attributed leads to Meta that the platform did not claim, or there is a timing mismatch."
+    },
+    {
+      "id": "spend_campaign",
+      "name": "Spend by campaign",
+      "page": "Marketing Overview",
+      "definition": "The bar chart shows SUM(fact_ad_spend_allocated_daily[spend]) grouped by dim_campaign[campaign_name], but has a visual filter limiting to 6 named campaigns. The table shows the same SUM but grouped by fact_ad_spend_allocated_daily[campaign_name] with no filter. The bar chart reads campaign names from the dimension; the table reads them from the fact table. One row (Campaign 8591, $18,400 in July) appears as null in the dimension lookup but with its real name in the fact table.",
+      "claim_ids": [
+        "C4-BARCHART-FILTER",
+        "C4-DIM-FACT-MISMATCH",
+        "C4-SPEND-CARD-ABBREVIATED",
+        "PRB-campaign-name-churn",
+        "PRB-campaign-orphan-spend"
+      ],
+      "scenarios": [
+        {
+          "id": "spend_campaign-baseline",
+          "description": "Baseline: Jul 2026. Total Spend card shows abbreviated value ($534K). Table total used for numeric check. Observed: Total Spend $534K; spend total 533,669.73; 7/1/2026 to 7/31/2026.",
+          "evidence": [
+            "evidence/runs/comp4_spend_v2/baseline/screen.png",
+            "evidence/runs/comp4_spend_v2/baseline/state.json",
+            "evidence/runs/comp4_spend_v2/baseline/check.json"
+          ]
+        }
+      ],
+      "run": "evidence/runs/comp4_spend_v2/journal.json",
+      "what_it_shows": "How much was spent on each campaign. The bar chart shows only 6 pre-selected campaigns, while the table next to it shows all campaigns. They also read campaign names from different places, so one row that the table calls 'Campaign 8591' appears as blank in the bar chart's lookup."
+    }
+  ],
+  "review_of": "C:\\work\\asky\\analytics-qa-fake\\cases\\demo-review",
+  "reviewed_record": "evidence/reviewed-baselines/d05aba03ee89b85167a492f2009195da91a620e085ed1208a265f32127f8f841/case.json"
+}

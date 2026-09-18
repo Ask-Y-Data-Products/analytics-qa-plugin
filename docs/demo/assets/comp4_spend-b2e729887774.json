@@ -1,0 +1,849 @@
+{
+  "kind": "dax",
+  "timestamp": "2026-09-18T16:33:23.801532+00:00",
+  "port": 64741,
+  "database": "7adfff38-1c62-4001-b51f-7fe7a396c9a4",
+  "query": "EVALUATE\n  CALCULATETABLE(\n    SUMMARIZECOLUMNS(\n      dim_campaign[campaign_name],\n      \"Spend\", SUM(fact_ad_spend_allocated_daily[spend])\n    ),\n    dim_date[date_key] >= DATE(2026, 7, 1) && dim_date[date_key] <= DATE(2026, 7, 13)\n  )\nORDER BY [Spend] DESC\n\nEVALUATE\n  CALCULATETABLE(\n    SUMMARIZECOLUMNS(\n      fact_ad_spend_allocated_daily[campaign_name],\n      \"Spend\", SUM(fact_ad_spend_allocated_daily[spend])\n    ),\n    dim_date[date_key] >= DATE(2026, 7, 1) && dim_date[date_key] <= DATE(2026, 7, 13)\n  )\nORDER BY [Spend] DESC\n",
+  "columns": [
+    "dim_campaign[campaign_name]",
+    "[Spend]"
+  ],
+  "rows": [
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Meta - Campaign 1120",
+      "[Spend]": 26350.17
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Meta - Campaign 1119",
+      "[Spend]": 22278.79
+    },
+    {
+      "dim_campaign[campaign_name]": "Westmere - Meta - Campaign 1122",
+      "[Spend]": 15618.28
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1015",
+      "[Spend]": 14708.49
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1029",
+      "[Spend]": 12437.06
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 0986",
+      "[Spend]": 10293.47
+    },
+    {
+      "dim_campaign[campaign_name]": null,
+      "[Spend]": 9900.0
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0991",
+      "[Spend]": 8821.19
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1012",
+      "[Spend]": 8285.25
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1043",
+      "[Spend]": 6544.92
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0993",
+      "[Spend]": 6264.45
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0994",
+      "[Spend]": 6037.22
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0988",
+      "[Spend]": 5405.66
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0996",
+      "[Spend]": 5378.59
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1020",
+      "[Spend]": 4832.46
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0990",
+      "[Spend]": 4485.66
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1003",
+      "[Spend]": 4224.19
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1002",
+      "[Spend]": 3776.03
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1037",
+      "[Spend]": 3583.36
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1019",
+      "[Spend]": 3074.07
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 1044",
+      "[Spend]": 3025.88
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1028",
+      "[Spend]": 2764.86
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0992",
+      "[Spend]": 2593.74
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0995",
+      "[Spend]": 2579.48
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0985",
+      "[Spend]": 2536.01
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1014",
+      "[Spend]": 2516.87
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1045",
+      "[Spend]": 2125.93
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1013",
+      "[Spend]": 2076.08
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1022",
+      "[Spend]": 2014.58
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1021",
+      "[Spend]": 1915.0
+    },
+    {
+      "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1010",
+      "[Spend]": 1899.14
+    },
+    {
+      "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 1036",
+      "[Spend]": 1807.69
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1011",
+      "[Spend]": 1699.07
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1032",
+      "[Spend]": 1670.69
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1046",
+      "[Spend]": 1660.38
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1000",
+      "[Spend]": 1568.53
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1004",
+      "[Spend]": 1474.62
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1026",
+      "[Spend]": 1472.66
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1018",
+      "[Spend]": 1255.16
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1017",
+      "[Spend]": 1232.22
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1008",
+      "[Spend]": 1221.86
+    },
+    {
+      "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1033",
+      "[Spend]": 1209.41
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0997",
+      "[Spend]": 1176.22
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0998",
+      "[Spend]": 1154.5
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1025",
+      "[Spend]": 1005.8
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1005",
+      "[Spend]": 978.06
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0999",
+      "[Spend]": 965.79
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1001",
+      "[Spend]": 955.13
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1016",
+      "[Spend]": 887.01
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1009",
+      "[Spend]": 822.56
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1030",
+      "[Spend]": 809.83
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1027",
+      "[Spend]": 782.41
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1023",
+      "[Spend]": 769.35
+    },
+    {
+      "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1038",
+      "[Spend]": 758.73
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 0984",
+      "[Spend]": 750.52
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1024",
+      "[Spend]": 581.2
+    },
+    {
+      "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1031",
+      "[Spend]": 550.54
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1007",
+      "[Spend]": 463.17
+    },
+    {
+      "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1034",
+      "[Spend]": 438.87
+    },
+    {
+      "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 0983",
+      "[Spend]": 290.03
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1006",
+      "[Spend]": 283.26
+    },
+    {
+      "dim_campaign[campaign_name]": "Marrowick - Meta - Campaign 1124",
+      "[Spend]": 264.15
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Meta - Campaign 1121",
+      "[Spend]": 262.33
+    },
+    {
+      "dim_campaign[campaign_name]": "Thornbay - Meta - Campaign 1123",
+      "[Spend]": 260.75
+    },
+    {
+      "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 0987",
+      "[Spend]": 256.96
+    },
+    {
+      "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1040",
+      "[Spend]": 201.6
+    },
+    {
+      "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1039",
+      "[Spend]": 91.43
+    },
+    {
+      "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1041",
+      "[Spend]": 88.91
+    }
+  ],
+  "result_sets": [
+    {
+      "columns": [
+        "dim_campaign[campaign_name]",
+        "[Spend]"
+      ],
+      "rows": [
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Meta - Campaign 1120",
+          "[Spend]": 26350.17
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Meta - Campaign 1119",
+          "[Spend]": 22278.79
+        },
+        {
+          "dim_campaign[campaign_name]": "Westmere - Meta - Campaign 1122",
+          "[Spend]": 15618.28
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1015",
+          "[Spend]": 14708.49
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1029",
+          "[Spend]": 12437.06
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 0986",
+          "[Spend]": 10293.47
+        },
+        {
+          "dim_campaign[campaign_name]": null,
+          "[Spend]": 9900.0
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0991",
+          "[Spend]": 8821.19
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1012",
+          "[Spend]": 8285.25
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1043",
+          "[Spend]": 6544.92
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0993",
+          "[Spend]": 6264.45
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0994",
+          "[Spend]": 6037.22
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0988",
+          "[Spend]": 5405.66
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0996",
+          "[Spend]": 5378.59
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1020",
+          "[Spend]": 4832.46
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0990",
+          "[Spend]": 4485.66
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1003",
+          "[Spend]": 4224.19
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1002",
+          "[Spend]": 3776.03
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1037",
+          "[Spend]": 3583.36
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1019",
+          "[Spend]": 3074.07
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 1044",
+          "[Spend]": 3025.88
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1028",
+          "[Spend]": 2764.86
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0992",
+          "[Spend]": 2593.74
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 0995",
+          "[Spend]": 2579.48
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0985",
+          "[Spend]": 2536.01
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1014",
+          "[Spend]": 2516.87
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1045",
+          "[Spend]": 2125.93
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1013",
+          "[Spend]": 2076.08
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1022",
+          "[Spend]": 2014.58
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1021",
+          "[Spend]": 1915.0
+        },
+        {
+          "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1010",
+          "[Spend]": 1899.14
+        },
+        {
+          "dim_campaign[campaign_name]": "Norvale - Google_Ads - Campaign 1036",
+          "[Spend]": 1807.69
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1011",
+          "[Spend]": 1699.07
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1032",
+          "[Spend]": 1670.69
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1046",
+          "[Spend]": 1660.38
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1000",
+          "[Spend]": 1568.53
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1004",
+          "[Spend]": 1474.62
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1026",
+          "[Spend]": 1472.66
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1018",
+          "[Spend]": 1255.16
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1017",
+          "[Spend]": 1232.22
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1008",
+          "[Spend]": 1221.86
+        },
+        {
+          "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1033",
+          "[Spend]": 1209.41
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0997",
+          "[Spend]": 1176.22
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0998",
+          "[Spend]": 1154.5
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1025",
+          "[Spend]": 1005.8
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1005",
+          "[Spend]": 978.06
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 0999",
+          "[Spend]": 965.79
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1001",
+          "[Spend]": 955.13
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1016",
+          "[Spend]": 887.01
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1009",
+          "[Spend]": 822.56
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1030",
+          "[Spend]": 809.83
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1027",
+          "[Spend]": 782.41
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1023",
+          "[Spend]": 769.35
+        },
+        {
+          "dim_campaign[campaign_name]": "BC - Google_Ads - Campaign 1038",
+          "[Spend]": 758.73
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 0984",
+          "[Spend]": 750.52
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1024",
+          "[Spend]": 581.2
+        },
+        {
+          "dim_campaign[campaign_name]": "Eastermoor - Google_Ads - Campaign 1031",
+          "[Spend]": 550.54
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1007",
+          "[Spend]": 463.17
+        },
+        {
+          "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1034",
+          "[Spend]": 438.87
+        },
+        {
+          "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 0983",
+          "[Spend]": 290.03
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1006",
+          "[Spend]": 283.26
+        },
+        {
+          "dim_campaign[campaign_name]": "Marrowick - Meta - Campaign 1124",
+          "[Spend]": 264.15
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Meta - Campaign 1121",
+          "[Spend]": 262.33
+        },
+        {
+          "dim_campaign[campaign_name]": "Thornbay - Meta - Campaign 1123",
+          "[Spend]": 260.75
+        },
+        {
+          "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 0987",
+          "[Spend]": 256.96
+        },
+        {
+          "dim_campaign[campaign_name]": "Kelmara - Google_Ads - Campaign 1040",
+          "[Spend]": 201.6
+        },
+        {
+          "dim_campaign[campaign_name]": "PEI - Google_Ads - Campaign 1039",
+          "[Spend]": 91.43
+        },
+        {
+          "dim_campaign[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1041",
+          "[Spend]": 88.91
+        }
+      ]
+    },
+    {
+      "columns": [
+        "fact_ad_spend_allocated_daily[campaign_name]",
+        "[Spend]"
+      ],
+      "rows": [
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Meta - Campaign 1120",
+          "[Spend]": 26350.17
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Meta - Campaign 1119",
+          "[Spend]": 22278.79
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Westmere - Meta - Campaign 1122",
+          "[Spend]": 15618.28
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1015",
+          "[Spend]": 14708.49
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1029",
+          "[Spend]": 12437.06
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 0986",
+          "[Spend]": 10293.47
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Campaign 8591",
+          "[Spend]": 9900.0
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0991",
+          "[Spend]": 8821.19
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1012",
+          "[Spend]": 8285.25
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1043",
+          "[Spend]": 6544.92
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0993",
+          "[Spend]": 6264.45
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0994",
+          "[Spend]": 6037.22
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0988",
+          "[Spend]": 5405.66
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0996",
+          "[Spend]": 5378.59
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1020",
+          "[Spend]": 4832.46
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0990",
+          "[Spend]": 4485.66
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1003",
+          "[Spend]": 4224.19
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1002",
+          "[Spend]": 3776.03
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1037",
+          "[Spend]": 3583.36
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1019",
+          "[Spend]": 3074.07
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 1044",
+          "[Spend]": 3025.88
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1028",
+          "[Spend]": 2764.86
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0992",
+          "[Spend]": 2593.74
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 0995",
+          "[Spend]": 2579.48
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 0985",
+          "[Spend]": 2536.01
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1014",
+          "[Spend]": 2516.87
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1045",
+          "[Spend]": 2125.93
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1013",
+          "[Spend]": 2076.08
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1022",
+          "[Spend]": 2014.58
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1021",
+          "[Spend]": 1915.0
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1010",
+          "[Spend]": 1899.14
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Norvale - Google_Ads - Campaign 1036",
+          "[Spend]": 1807.69
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1011",
+          "[Spend]": 1699.07
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1032",
+          "[Spend]": 1670.69
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1046",
+          "[Spend]": 1660.38
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1000",
+          "[Spend]": 1568.53
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1004",
+          "[Spend]": 1474.62
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1026",
+          "[Spend]": 1472.66
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1018",
+          "[Spend]": 1255.16
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1017",
+          "[Spend]": 1232.22
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1008",
+          "[Spend]": 1221.86
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "PEI - Google_Ads - Campaign 1033",
+          "[Spend]": 1209.41
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 0997",
+          "[Spend]": 1176.22
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 0998",
+          "[Spend]": 1154.5
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1025",
+          "[Spend]": 1005.8
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1005",
+          "[Spend]": 978.06
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 0999",
+          "[Spend]": 965.79
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1001",
+          "[Spend]": 955.13
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1016",
+          "[Spend]": 887.01
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1009",
+          "[Spend]": 822.56
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1030",
+          "[Spend]": 809.83
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1027",
+          "[Spend]": 782.41
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1023",
+          "[Spend]": 769.35
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "BC - Google_Ads - Campaign 1038",
+          "[Spend]": 758.73
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 0984",
+          "[Spend]": 750.52
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1024",
+          "[Spend]": 581.2
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Eastermoor - Google_Ads - Campaign 1031",
+          "[Spend]": 550.54
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1007",
+          "[Spend]": 463.17
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "PEI - Google_Ads - Campaign 1034",
+          "[Spend]": 438.87
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 0983",
+          "[Spend]": 290.03
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1006",
+          "[Spend]": 283.26
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Marrowick - Meta - Campaign 1124",
+          "[Spend]": 264.15
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Meta - Campaign 1121",
+          "[Spend]": 262.33
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Thornbay - Meta - Campaign 1123",
+          "[Spend]": 260.75
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "PEI - Google_Ads - Campaign 0987",
+          "[Spend]": 256.96
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Kelmara - Google_Ads - Campaign 1040",
+          "[Spend]": 201.6
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "PEI - Google_Ads - Campaign 1039",
+          "[Spend]": 91.43
+        },
+        {
+          "fact_ad_spend_allocated_daily[campaign_name]": "Nova-Scotia - Google_Ads - Campaign 1041",
+          "[Spend]": 88.91
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "context": "engine query; not proof of applied UI state"
+}

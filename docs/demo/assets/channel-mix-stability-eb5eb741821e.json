@@ -1,8 +1,0 @@
-{
-  "kind": "probe",
-  "id": "channel-mix-stability",
-  "method": "stat.population_stability",
-  "dax": "EVALUATE UNION(ADDCOLUMNS(VALUES(dim_channel[channel_name]), \"Period\", \"JunJul\", \"Leads\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026,6,1), dim_date[date_key] <= DATE(2026,7,31))), ADDCOLUMNS(VALUES(dim_channel[channel_name]), \"Period\", \"Aug\", \"Leads\", CALCULATE([Leads], dim_date[date_key] >= DATE(2026,8,1), dim_date[date_key] <= DATE(2026,8,31))))",
-  "status": "inconclusive",
-  "error": "'label_column'"
-}

@@ -54,9 +54,13 @@ def read(path):
 def init_case(directory, target):
     directory = Path(directory)
     ensure_evidence_writable(directory)
-    if directory.exists():
+    # The guard protects an existing case, not an existing folder: an agent that captured
+    # the model or an inventory into the case directory first must still be able to open it.
+    if (directory / "case.json").is_file():
         raise ValueError("Case already exists; resume it or choose a new run directory")
-    directory.mkdir(parents=True)
+    if (directory / "manifest.json").is_file():
+        raise ValueError("A sealed case already occupies that directory; choose a new one")
+    directory.mkdir(parents=True, exist_ok=True)
     dump(directory / "case.json", {"schema_version": 2, "state_contract_version": 1, "id": directory.name,
          "created_at": now(), "target": target, "intent": "initial validation",
          "summary": "Investigation in progress", "scope": {}, "trace": [],

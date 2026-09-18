@@ -14,13 +14,21 @@ engineers), and the evidence paths stay in a collapsed block. Given
 `--signoff <page>`, every item links to that component's card there, so reading
 this page and signing stay one click apart.
 
+It reads as a memo: one plain sentence of the overall picture, then the defects as
+cards - the question as the heading, what we saw, why it matters, where - then the
+open questions, the model lint collapsed under its own summary, and last the list
+of what was checked and held.
+
   collect(case)                    -> the records, ordered, each with its group
   severity_rank(record)            -> 0 for critical, 5 for unrated
+  overall_sentence(counts, ...)    -> "Four things look wrong and eleven need a decision, ..."
+  what_we_saw(record)              -> the observation in plain words, with its number
   render(case_dir, out, signoff=None, title=None) -> writes the page, returns counts
 """
 import argparse
 import html
 import json
+import re
 from pathlib import Path
 
 from jinja2 import Template
@@ -44,12 +52,27 @@ main{max-width:1100px;margin:auto;padding:20px 24px 60px}h1{font-size:26px;margi
 .head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}.page{color:#586066;font-size:14px}
 h3{font-size:17.5px;margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid #e9eded}
 h3:first-of-type{margin-top:6px}
+.headline{font-size:17px;line-height:1.45;margin:0 0 14px;color:#1f2528}
+.legend{background:#fff;border:1px solid #d9dfe2;border-radius:10px;padding:10px 16px;margin:0 0 20px}
+.legend b.t{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#586066}
+.legend p{margin:5px 0 0;font-size:13.5px;color:#333b40}
+.legend .sev{display:inline-block;min-width:160px;padding-right:10px;font-weight:600}
+.legend .high{color:#b42318}.legend .med{color:#8a5a00}.legend .low{color:#586066}
 .item{border:1px solid #e3e7e9;border-left:4px solid #d3d9dc;border-radius:8px;padding:12px 14px;margin:0 0 12px;background:#fafbfb;scroll-margin-top:12px}
-.item.defect{border-left-color:#b42318;background:#fdf6f5}.item.open{border-left-color:#c27c11;background:#fffaf0}
-.item.lint{border-left-color:#8a5a00}
+.item.defect{border-left-color:#b42318;background:#fdf6f5;padding:14px 16px}
+.item.open{border-left-color:#e0c48a;background:#fff;border-color:#eceff0}
+.item.lint{border-left-color:#8a5a00;background:#fff}
 .item h4{font-size:16px;margin:0 0 6px;line-height:1.35}
+.item.defect h4{font-size:17px}
+.item.open h4,.item.lint h4{font-size:14.5px;font-weight:600}
+.item h4 a{color:inherit;text-decoration:none}.item h4 a:hover{text-decoration:underline}
 .item p{margin:4px 0;font-size:14px}.item .why{color:#333b40}
+.item .saw b,.item .where b{color:#586066;font-weight:600}
 .item .impact{color:#1f2528}.item .impact b{font-weight:600}
+.item .where{font-size:13.5px;color:#586066}
+.item .where a{color:#0b5c8e;text-decoration:none}.item .where a:hover{text-decoration:underline}
+details.box{margin:0}details.box>summary{font-size:14.5px;color:#333b40;font-weight:600;padding:4px 0}
+table.compact{font-size:13px}table.compact td,table.compact th{padding:5px 9px}
 .meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0;font-size:12px;color:#586066}
 .meta span,.meta a{border:1px solid #d3d9dc;border-radius:999px;padding:2px 9px;background:#fff;text-decoration:none;color:#586066}
 .meta a{color:#0b5c8e;border-color:#9dc0d6}.meta a:hover{text-decoration:underline}
@@ -69,7 +92,13 @@ table tr:last-child td{border-bottom:0}table tr:hover{background:#f2f7fa}
 .clean{border-left:4px solid #16794a;background:#f2faf6;border-radius:6px;padding:12px 14px;font-size:15px}
 .none{color:#586066;font-size:14px;margin:6px 0}
 .manifest{overflow-wrap:anywhere;font:12px ui-monospace,monospace;color:#586066;margin-top:22px}
-@media(max-width:760px){main{padding:12px}}'''
+@media(max-width:760px){main{padding:12px}}
+@media print{body{background:#fff}main{max-width:none;padding:0}
+.toc{display:none!important}
+.card,.item{break-inside:avoid;box-shadow:none}
+details{display:block}details summary{font-weight:600;color:#1f2528;list-style:none}
+details>*{display:revert!important}
+details::details-content{content-visibility:visible!important;block-size:auto!important;display:block!important}}'''
 
 SEVERITY_ORDER = {'critical': 0, 'blocker': 0, 'high': 1, 'medium': 2, 'moderate': 2, 'low': 3,
                   'minor': 3, 'info': 4, 'informational': 4, 'review': 4}
@@ -107,6 +136,93 @@ def severity_rank(record):
     """Where this record sorts: 0 is the most severe, 5 means nobody rated it."""
     value = str((record or {}).get('severity') or '').strip().lower()
     return SEVERITY_ORDER.get(value, UNRATED)
+
+
+NUMBER_IN_TEXT = re.compile(r'-?\d[\d,]*(?:\.\d+)?')
+NUMBER_WORDS = ('no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+                'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+                'eighteen', 'nineteen', 'twenty')
+OBSERVED_COMPARISON = re.compile(
+    r'^observed\s+(.+?)\s*(==|!=|<=|>=|<|>)\s*expected\s+([^:]+?)\s*(?::\s*(.*))?$', re.I | re.S)
+COMPARISONS = {'==': '', '!=': 'anything but ', '<=': 'at most ', '>=': 'at least ',
+               '<': 'less than ', '>': 'more than '}
+
+
+def number_word(value):
+    """'four' for 4; the digits once counting them out stops helping."""
+    try:
+        count = int(value)
+    except (TypeError, ValueError):
+        return str(value)
+    return NUMBER_WORDS[count] if 0 <= count < len(NUMBER_WORDS) else f'{count:,}'
+
+
+def magnitude(record):
+    """How big the number in this record is, so the biggest problem of a severity leads.
+
+    Only a number the case actually recorded counts - the hit count, or the value a
+    detector observed. Digits scraped out of prose or out of a visual's id are not a
+    size, so a record that states no number sorts after the ones that do.
+    """
+    record = record or {}
+    hits = record.get('hits')
+    if isinstance(hits, bool):
+        hits = None
+    if isinstance(hits, (int, float)):
+        return abs(float(hits))
+    match = OBSERVED_COMPARISON.match(str(record.get('observed') or '').strip())
+    if match:
+        found = NUMBER_IN_TEXT.search(match.group(1))
+        if found:
+            try:
+                return abs(float(found.group().replace(',', '')))
+            except ValueError:
+                return 0.0
+    return 0.0
+
+
+def what_we_saw(record):
+    """The observation as a sentence a reader can act on, with its number kept.
+
+    A detector writes "Observed 534 == expected 0: does not hold", which is exact
+    and unreadable. Only that shape is rewritten; anything an agent wrote in words
+    is already the sentence and passes through untouched.
+    """
+    text = str((record or {}).get('observed') or '').strip()
+    match = OBSERVED_COMPARISON.match(text)
+    if not match:
+        return text
+    seen, operator, wanted = match.group(1).strip(), match.group(2), match.group(3).strip()
+    tail = (match.group(4) or '').strip()
+    sentence = f'We measured {seen} where the check expects {COMPARISONS[operator]}{wanted}.'
+    if tail.lower().rstrip('.') in ('does not hold', 'holds', ''):
+        return sentence  # the sentence already says whether it held
+    return f'{sentence} {tail[:1].upper()}{tail[1:]}'
+
+
+def overall_sentence(defects, open_questions, components, lint=0, passed=0):
+    """The whole review in one sentence, then one more for what is less urgent."""
+    wrong = ('Nothing looks wrong' if not defects
+             else 'One thing looks wrong' if defects == 1
+             else f'{number_word(defects).capitalize()} things look wrong')
+    decide = ('nothing needs a decision' if not open_questions
+              else 'one needs a decision' if open_questions == 1
+              else f'{number_word(open_questions)} need a decision')
+    where = ('' if not components
+             else ', in one part of the dashboard' if components == 1
+             else f', across {number_word(components)} parts of the dashboard')
+    lead = f'{wrong} and {decide}{where}.'
+    rest = []
+    if lint:
+        rest.append(f'{number_word(lint)} model-definition warning is listed further down' if lint == 1
+                    else f'{number_word(lint)} model-definition warnings are listed further down')
+    if passed:
+        rest.append(f'{number_word(passed)} check passed' if passed == 1
+                    else f'{number_word(passed)} checks passed')
+    if not rest:
+        return lead
+    tail = ', and '.join(rest)
+    return f'{lead} {tail[:1].upper()}{tail[1:]}.'
 
 
 def detector_index(catalog=None):
@@ -212,7 +328,11 @@ def collect(case):
             'evidence': [str(e) for e in finding.get('evidence') or []],
             'claim_ids': [str(c) for c in finding.get('claim_ids') or []]})
     order = {'defect': 0, 'open': 1, 'lint': 2, 'passed': 3}
-    records.sort(key=lambda r: (order[r['group']], severity_rank(r), str(r['component'] or '~'), r['id']))
+    records.sort(key=lambda r: (order[r['group']], severity_rank(r),
+                                -magnitude(r) if r['group'] == 'defect' else 0,
+                                str(r['component'] or '~'), r['id']))
+    for record in records:
+        record['anchor'] = 'item-' + analyst_view.anchor_slug(record['id'])
     return records
 
 
@@ -233,13 +353,18 @@ def component_link(record, signoff):
     return f'<span>{esc(name)}</span>'
 
 
+def where_row(record, signoff):
+    """Which part of the report this is about: the component, and the page it sits on."""
+    link = component_link(record, signoff)
+    page = record.get('page') if record.get('page') != record.get('component') else None
+    parts = [part for part in (link, f'page {esc(page)}' if page else '') if part]
+    if not parts:
+        return ''
+    return f'<p class="where"><b>Where:</b> {" &middot; ".join(parts)}</p>'
+
+
 def meta_row(record, signoff):
     parts = []
-    link = component_link(record, signoff)
-    if link:
-        parts.append(link)
-    if record.get('page') and record.get('page') != record.get('component'):
-        parts.append(f'<span>page {esc(record["page"])}</span>')
     if record.get('severity'):
         parts.append(f'<span class="sev-{esc(str(record["severity"]).lower())}">'
                      f'severity {esc(record["severity"])}</span>')
@@ -288,19 +413,22 @@ def same_sentence(left, right):
 
 
 def item_block(record, signoff, klass):
-    body = f'<h4>{esc(record["title"])}</h4>'
+    """One card: the question, what we saw, why it matters, where, and the detail folded away."""
+    anchor = record.get('anchor') or ('item-' + analyst_view.anchor_slug(record['id']))
+    body = f'<h4><a href="#{esc(anchor)}">{esc(record["title"])}</a></h4>'
     titles = [t for t in record.get('finding_titles') or [] if not same_sentence(t, record['title'])]
     if titles:
         body += f'<p class="why"><b>{esc(titles[0])}</b></p>'
-    observed = record.get('observed')
-    if observed:
-        body += f'<p class="why">{esc(observed[:900])}{"..." if len(observed) > 900 else ""}</p>'
+    seen = what_we_saw(record)
+    if seen:
+        body += f'<p class="saw"><b>What we saw:</b> {esc(seen[:900])}{"..." if len(seen) > 900 else ""}</p>'
     if record.get('impact'):
-        body += f'<p class="impact"><b>Impact:</b> {esc(record["impact"])}</p>'
+        body += f'<p class="impact"><b>Why it matters:</b> {esc(record["impact"])}</p>'
     body += objects_block(record)
+    body += where_row(record, signoff)
     body += meta_row(record, signoff)
     body += evidence_block(record)
-    return f'<div class="item {klass}" id="item-{esc(analyst_view.anchor_slug(record["id"]))}">{body}</div>'
+    return f'<div class="item {klass}" id="{esc(anchor)}">{body}</div>'
 
 
 def defects_card(records, signoff):
@@ -337,15 +465,21 @@ def lint_card(records, signoff):
     groups = {}
     for record in items:
         groups.setdefault(record.get('detector_title') or record.get('detector') or record['id'], []).append(record)
-    body = ''
+    body, flagged = '', 0
     for title, group in sorted(groups.items(), key=lambda pair: (severity_rank(pair[1][0]), pair[0])):
         hits = sum(int(r['hits'] or 0) for r in group) or sum(len(r['objects']) for r in group)
+        flagged += hits
         body += f'<p class="group">{esc(title)} - {hits} object(s) flagged</p>'
         body += ''.join(item_block(r, signoff, 'lint') for r in group)
+    summary = (f'{len(groups)} check(s) flagged {flagged} object(s) in the model definition - '
+               'patterns that often cause wrong numbers. Open to read them.')
     return ('<section class="card" id="lint"><div class="head"><div><h2>Model lint</h2>'
-            f'<div class="page">{len(groups)} check(s) flagged something in the model definition</div></div></div>'
-            '<p class="none">These are patterns that often cause wrong numbers. Each needs a yes or a no: '
-            'intended here, or a defect to fix.</p>' + body + '</section>')
+            '<div class="page">The least urgent section: nothing here is a wrong number yet</div>'
+            '</div></div>'
+            '<p class="none">Each of these needs a yes or a no: intended here, or a defect to fix. '
+            'They are folded away because they are about the model definition, not about a figure '
+            'someone read this morning.</p>'
+            f'<details class="box"><summary>{esc(summary)}</summary>{body}</details></section>')
 
 
 def passed_card(records, signoff):
@@ -357,12 +491,26 @@ def passed_card(records, signoff):
             f'<tr><td>{esc(record["title"])}</td><td>{component_link(record, signoff) or "&mdash;"}</td>'
             f'<td>{esc(record.get("detector_title") or "observed on the report")}</td>'
             f'<td>{esc(record["id"])}</td></tr>' for record in items)
-        body = ('<div class="scroll"><table><thead><tr><th>What was checked</th><th>Component</th>'
-                '<th>How</th><th>ID</th></tr></thead><tbody>' + rows + '</tbody></table></div>')
+        body = ('<div class="scroll"><table class="compact"><thead><tr><th>What was checked</th>'
+                '<th>Component</th><th>How</th><th>ID</th></tr></thead><tbody>'
+                + rows + '</tbody></table></div>')
     return ('<section class="card" id="passed"><div class="head"><div><h2>What was checked and passed</h2>'
             f'<div class="page">{len(items)} expectation(s) held</div></div></div>'
             '<p class="none">Here so the reader sees the scope of the review, not only its problems.</p>'
             + body + '</section>')
+
+
+LEGEND = (
+    ('high', 'critical or high', 'a number someone acts on is wrong, or can be read as wrong, today.'),
+    ('med', 'medium', 'the figure holds in this evidence, but the rule behind it can break it.'),
+    ('low', 'low, review or unrated', 'worth knowing; nothing here shows a figure moving yet.'))
+
+
+def legend_block():
+    """Three lines saying what the severity words mean, so nobody has to guess."""
+    lines = ''.join(f'<p><span class="sev {klass}">{esc(name)}</span>{esc(text)}</p>'
+                    for klass, name, text in LEGEND)
+    return f'<div class="legend"><b class="t">What the severities mean</b>{lines}</div>'
 
 
 def table_of_contents(counts):
@@ -409,6 +557,7 @@ def render(case_dir, out, signoff=None, title=None):
 <title>{{{{ title }}}} - what we found</title><style>{STYLE}</style>
 <main data-generator="{esc(generator)}" data-case-id="{esc(case.get('id', ''))}" data-manifest-sha256="{esc(sha)}">
 <h1>{{{{ title }}}}: what we found</h1>
+<p class="headline">{{{{ headline }}}}</p>
 <p class="lead">Everything this review recorded as wrong or unsettled, worst first, and the checks that passed.
 Read it to decide what to fix; the decisions themselves are recorded on the sign-off page.</p>
 {{{{ signoff_note }}}}
@@ -422,6 +571,7 @@ open question is one nobody could settle automatically. Neither is a business de
 <span class="pill">{{{{ seal }}}}</span></div>
 {{{{ banner }}}}
 {{{{ toc }}}}
+{{{{ legend }}}}
 {{{{ defects }}}}
 {{{{ open }}}}
 {{{{ lint }}}}
@@ -430,7 +580,10 @@ open question is one nobody could settle automatically. Neither is a business de
 </main></html>'''
     rendered = Template(document, autoescape=True).render(
         title=heading, seal='sealed evidence' if sealed else 'unsealed case', manifest=sha,
+        headline=overall_sentence(counts['defects'], counts['open'], components,
+                                  counts['lint'], counts['passed']),
         banner=Markup(banner), signoff_note=Markup(signoff_note), toc=Markup(table_of_contents(counts)),
+        legend=Markup(legend_block()),
         defects=Markup(defects_card(records, signoff)), open=Markup(open_card(records, signoff)),
         lint=Markup(lint_card(records, signoff)), passed=Markup(passed_card(records, signoff)))
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -438,6 +591,7 @@ open question is one nobody could settle automatically. Neither is a business de
     return {'report': str(out), 'case': case.get('id'), 'defects': counts['defects'],
             'open_questions': counts['open'], 'lint_flags': counts['lint'], 'passed': counts['passed'],
             'components': components, 'signoff': signoff, 'manifest_sha256': sha, 'sealed': sealed,
+            'anchors': {record['id']: record['anchor'] for record in records if record['id']},
             'generator': generator}
 
 
